@@ -2,7 +2,7 @@
 # 1) Keep the /data directory in the repo, but ignore all files/subdirectories
 ###############################################################################
 /data/*
-!/data/.gitignore
+!/data/test_samples
 !/data/.keep
 
 # Ignore the model and all files (large >100MB)
