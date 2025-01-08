@@ -1,0 +1,146 @@
+input_folder: "../data/redact_input"
+output_folder: "../data/redact_output"
+model_directory: "./jobbert_model"
+test_mode: true
+language: "en"
+confidence_threshold: 0.75
+batch_size: 32
+cache_enabled: true
+
+# Comprehensive PII types
+pii_types:
+  # Personal Information
+  - PERSON
+  - FIRST_NAME
+  - LAST_NAME
+  - MIDDLE_NAME
+  - TITLE
+  - AGE
+  - GENDER
+  - DATE_OF_BIRTH
+  - BIRTH_PLACE
+  - NATIONALITY
+  - MARITAL_STATUS
+
+  # Contact Information
+  - EMAIL_ADDRESS
+  - PHONE_NUMBER
+  - FAX_NUMBER
+  - URL
+  - DOMAIN
+  - IP_ADDRESS
+  - MAC_ADDRESS
+
+  # Location Information
+  - LOCATION
+  - STREET_ADDRESS
+  - ZIP_CODE
+  - CITY
+  - STATE
+  - COUNTRY
+  - POST_CODE
+  - ADDRESS
+  - GEOCOORDINATES
+
+  # Professional Information
+  - ORGANIZATION
+  - COMPANY
+  - JOB_TITLE
+  - DEPARTMENT
+  - EMPLOYEE_ID
+  - WORK_HOURS
+
+  # Education Information
+  - EDUCATION
+  - UNIVERSITY
+  - SCHOOL
+  - GRADUATION_DATE
+  - DEGREE
+  - GPA
+  - ACADEMIC_TITLE
+
+  # Financial Information
+  - CREDIT_CARD
+  - BANK_ACCOUNT
+  - IBAN
+  - SWIFT_CODE
+  - ACCOUNT_NUMBER
+  - PAYMENT_TERMS
+  - SALARY
+  - CRYPTO
+
+  # Government/Official IDs
+  - US_SSN
+  - US_ITIN
+  - US_PASSPORT
+  - US_DRIVER_LICENSE
+  - UK_NHS
+  - EU_PASSPORT
+  - MEDICARE
+  - SOCIAL_SECURITY_NUMBER
+  - TAX_ID
+  - PASSPORT
+  - DRIVER_LICENSE
+  - MEDICAL_LICENSE
+  - VEHICLE_IDENTIFICATION_NUMBER
+  - LICENSE_PLATE
+
+  # Medical Information
+  - MEDICAL_RECORD
+  - HEALTH_STATUS
+  - MEDICAL_CONDITION
+  - TREATMENT
+
+  # Digital Information
+  - USERNAME
+  - PASSWORD
+  - API_KEY
+  - MAC_ADDRESS
+  - IPV6
+  - IPV4
+
+  # Dates and Times
+  - DATE_TIME
+  - DATE
+  - TIME
+
+  # Social Media
+  - SOCIAL_MEDIA_PROFILE
+  - TWITTER_HANDLE
+  - LINKEDIN_PROFILE
+  - FACEBOOK_PROFILE
+  - INSTAGRAM_HANDLE
+
+  # Military Information
+  - MILITARY_ID
+  - MILITARY_RANK
+  - SERVICE_NUMBER
+
+  # Custom Resume-Specific
+  - CERTIFICATION
+  - PROFESSIONAL_REFERENCE
+  - PORTFOLIO_URL
+  - PROJECT_NAME
+  - SKILL_LEVEL
+  - VOLUNTEER_ORGANIZATION
+  - ACHIEVEMENT_SCORE
+  - PUBLICATION
+  - PATENT
+  - GRANT_NUMBER
+  - AWARD
+  - CONFERENCE
+  - WORKSHOP
+
+# Additional Configuration Options
+redaction_options:
+  minimum_confidence_score: 0.65        # Minimum confidence for redaction
+  context_words_before: 2              # Number of context words before PII
+  context_words_after: 2               # Number of context words after PII
+  preserve_formatting: true            # Preserve formatting during redaction
+  redaction_char: "█"                  # Character used for redacting text
+
+logging:
+  level: ERROR                          # Logging level (INFO, DEBUG, etc.)
+  file: "redaction.log"                # Log file path
+  console_output: true                 # Enable console logging
+  detailed_summary: true               # Generate detailed summary of redaction
