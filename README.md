@@ -51,27 +51,60 @@ project/
 
 ### Prerequisites
 
-1. Install Python 3.7+ and `pip`.
-2. Clone this repository and navigate to the project root:
+1. **Install Conda**:
+   Ensure you have Conda installed. You can download and install Miniconda or Anaconda from [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
+
+2. **Clone the Repository**:
+   Clone this repository and navigate to the project root:
    ```bash
    git clone https://github.com/your-repo-name.git
    cd your-repo-name
    ```
 
-3. Install required Python dependencies:
+---
+
+### Setting Up the Environment
+
+3. **Create a Conda Environment**:
+   Use the provided setup script to create a Conda environment and install all dependencies:
    ```bash
-   pip install -r requirements.txt
+   cd scripts/
+   ./setup_environment.sh
    ```
-## Setting Up the Environment
+   - You will be prompted to name the environment (default: `redaction_env`).
+   - Optionally, you can add the environment to JupyterLab during setup.
 
-4. Set up a new Conda environment for this project, use the provided script:
+4. **Place the JobBERT Model**:
+   Download and place the pre-trained **JobBERT** model in the `models/jobbert_model` directory.
 
-```bash
-cd scripts/
-./setup_environment.sh
-```   
+---
 
-5. Place your pre-trained **JobBERT** model in the `models/jobbert_model` directory. 
+### Running the Application
+
+5. **Start the Streamlit Web App**:
+   Run the Streamlit app to begin redacting resumes:
+   ```bash
+   streamlit run app/app.py
+   ```
+
+6. **Open the App**:
+   Open the app in your web browser. By default, it will run at:
+   ```
+   http://localhost:8501
+   ```
+
+7. **Use the Interface**:
+   - Select input and output directories.
+   - Load the JobBERT model.
+   - Start the redaction process.
+
+---
+
+### Notes
+- Ensure all directories (e.g., `data/redact_input`, `data/redact_output`) exist and are accessible.
+- Test your setup with sample PDFs placed in the `data/redact_input` directory.
+
+---
 
 ### Option 1: Run the Pipeline Script
 
