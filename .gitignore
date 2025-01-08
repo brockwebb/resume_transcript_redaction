@@ -9,6 +9,8 @@
 # Model is downloaded and set up inside Jupyter notebook
 /notebooks/jobbert_model/
 
+# For the app: Ignore local Streamlit configuration and cache
+.streamlit/
 
 ###############################################################################
 # 2) Ignore macOS hidden files (in all directories)
