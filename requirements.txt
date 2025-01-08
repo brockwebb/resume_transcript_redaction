@@ -1,0 +1,25 @@
+# Core libraries for PII detection and anonymization
+presidio_analyzer==2.2.30
+presidio_anonymizer==2.2.30
+
+# PDF processing library
+PyMuPDF==1.22.5
+
+# Natural Language Processing (NLP) library
+spacy==3.7.5
+
+# Large English model for spaCy (must be installed separately via URL)
+https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.7.1/en_core_web_lg-3.7.1-py3-none-any.whl
+
+# Streamlit for web-based GUI
+streamlit==1.41.1
+
+# Hugging Face Transformers for JobBERT
+transformers==4.47.1
+
+# tqdm for progress bars in command-line scripts
+tqdm==4.66.5
+
+# PyTorch (left as a note; installed separately)
+# For Mac (CPU-only): pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+# For default setup: conda install pytorch torchvision torchaudio cpuonly -c pytorch

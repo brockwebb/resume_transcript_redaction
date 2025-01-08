@@ -1,11 +1,27 @@
+#Basic Configuration Opetions
 input_folder: "../data/redact_input"
 output_folder: "../data/redact_output"
-model_directory: "./jobbert_model"
-test_mode: true
+model_directory: "../models/jobbert_model"
+test_mode: false
 language: "en"
 confidence_threshold: 0.75
 batch_size: 32
 cache_enabled: true
+
+# Additional Configuration Options
+redaction_options:
+  minimum_confidence_score: 0.65        # Minimum confidence for redaction
+  context_words_before: 2              # Number of context words before PII
+  context_words_after: 2               # Number of context words after PII
+  preserve_formatting: true            # Preserve formatting during redaction
+  redaction_char: "█"                  # Character used for redacting text
+
+logging:
+  level: ERROR                          # Logging level (INFO, DEBUG, etc.)
+  file: "redaction.log"                # Log file path
+  console_output: true                 # Enable console logging
+  detailed_summary: true               # Generate detailed summary of redaction
+
 
 # Comprehensive PII types
 pii_types:
@@ -131,16 +147,3 @@ pii_types:
   - CONFERENCE
   - WORKSHOP
 
-# Additional Configuration Options
-redaction_options:
-  minimum_confidence_score: 0.65        # Minimum confidence for redaction
-  context_words_before: 2              # Number of context words before PII
-  context_words_after: 2               # Number of context words after PII
-  preserve_formatting: true            # Preserve formatting during redaction
-  redaction_char: "█"                  # Character used for redacting text
-
-logging:
-  level: ERROR                          # Logging level (INFO, DEBUG, etc.)
-  file: "redaction.log"                # Log file path
-  console_output: true                 # Enable console logging
-  detailed_summary: true               # Generate detailed summary of redaction
