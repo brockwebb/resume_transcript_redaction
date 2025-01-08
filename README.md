@@ -33,16 +33,14 @@ This repository provides two tools for detecting and redacting sensitive informa
 project/
 ├── app/                       # Streamlit app and GUI code
 │   └── app.py                 # Main Streamlit app
-├── models/                    # Model artifacts (e.g., JobBERT)
+├── models/                    # Model artifacts
 │   └── jobbert_model/         # Pre-trained JobBERT model directory
-├── notebooks/                 # Jupyter notebooks
-│   ├── data_analysis.ipynb
-│   └── redactor_app.ipynb
 ├── data/                      # Input/output folders
 │   ├── redact_input/          # Input PDFs
 │   └── redact_output/         # Redacted PDFs
-├── requirements.txt           # Python dependencies
-├── config.yaml                # Configurations for the project
+├── scripts/                   # Environment setup and utility scripts
+│   └── setup_environment.sh   # Script to create a new Conda environment
+├── requirements.txt           # Python dependencies (pip installable)
 ├── README.md                  # Project description and instructions
 └── .gitignore                 # Git ignore rules
 ```
@@ -64,8 +62,16 @@ project/
    ```bash
    pip install -r requirements.txt
    ```
+## Setting Up the Environment
 
-4. Place your pre-trained **JobBERT** model in the `models/jobbert_model` directory.
+4. Set up a new Conda environment for this project, use the provided script:
+
+```bash
+cd scripts/
+./setup_environment.sh
+```   
+
+5. Place your pre-trained **JobBERT** model in the `models/jobbert_model` directory. 
 
 ### Option 1: Run the Pipeline Script
 
