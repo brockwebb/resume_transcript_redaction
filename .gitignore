@@ -5,6 +5,11 @@
 !/data/.gitignore
 !/data/.keep
 
+# Ignore the model and all files (large >100MB)
+# Model is downloaded and set up inside Jupyter notebook
+/notebooks/jobbert/
+
+
 ###############################################################################
 # 2) Ignore macOS hidden files (in all directories)
 ###############################################################################
