@@ -7,7 +7,7 @@
 
 # Ignore the model and all files (large >100MB)
 # Model is downloaded and set up inside Jupyter notebook
-/notebooks/jobbert_model/
+/models/jobbert_model/
 
 # For the app: Ignore local Streamlit configuration and cache
 .streamlit/
