@@ -7,10 +7,30 @@ from presidio_analyzer import AnalyzerEngine, PatternRecognizer, Pattern
 from presidio_anonymizer import AnonymizerEngine
 from typing import Dict, Any
 import os
+import yaml  # Make sure this import is here
 from collections import defaultdict
 
 # Define the project root dynamically
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Load configuration from config.yaml
+def load_config():
+    config_path = PROJECT_ROOT / "config.yaml"
+    if not config_path.exists():
+        return {
+            "test_mode": False,
+            "confidence_threshold": 0.75,
+            "pii_types": [
+                "PERSON", "EMAIL_ADDRESS", "PHONE_NUMBER", "LOCATION",
+                "DATE", "ORGANIZATION", "US_SSN", "US_PASSPORT"
+            ]
+        }
+    
+    with open(config_path, "r") as file:
+        return yaml.safe_load(file)
+
+# Load config immediately after the function definition
+config = load_config()
 
 class ModelManager:
     def __init__(self, model_directory: str, device: str = None):
@@ -77,10 +97,14 @@ class ModelManager:
         return [score > confidence_threshold for score in confidence_scores]
 
 class PDFProcessor:
-    def __init__(self, model_manager: ModelManager, pii_types: list, confidence_threshold: float):
+    def __init__(self, model_manager: ModelManager, pii_types: list, confidence_threshold: float, test_mode: bool = False):
         self.model_manager = model_manager
         self.pii_types = pii_types
         self.confidence_threshold = confidence_threshold
+        self.test_mode = test_mode
+        # Define colors for different modes
+        self.redact_color = (0.8, 0.8, 0.8) if test_mode else (0, 0, 0)  # Grey in test mode, Black in production
+        self.redact_opacity = 0.1 if test_mode else 1.0  # Semi-transparent in test mode, Opaque in production
 
     def process_page(self, page: fitz.Page) -> Dict[str, Any]:
         wordlist = page.get_text("words")
@@ -116,9 +140,16 @@ class PDFProcessor:
                 total_words += result["word_count"]
                 redacted_words += len(result["redact_areas"])
 
-                # Apply redactions
+               # Apply redactions with test mode settings
                 for rect in result["redact_areas"]:
-                    page.add_redact_annot(rect, fill=(0, 0, 0))
+                    annot = page.add_redact_annot(rect)
+                    # Set the fill color and opacity based on test mode
+                    if self.test_mode:
+                        annot.set_colors(fill=self.redact_color, stroke=self.redact_color)
+                        annot.update(opacity=self.redact_opacity)  # allow visual check of data 
+                    else:
+                        annot.set_colors(fill=self.redact_color)
+                    
                 page.apply_redactions()
 
             doc.save(output_path, garbage=4, deflate=True)
@@ -171,11 +202,8 @@ output_dir = st.text_input(
     value=str(PROJECT_ROOT / "data" / "redact_output")
 )
 
-# PII Types Selection
-pii_types = [
-    "PERSON", "EMAIL_ADDRESS", "PHONE_NUMBER", "LOCATION",
-    "DATE", "ORGANIZATION", "US_SSN", "US_PASSPORT"
-]
+# Get PII types from config
+pii_types = config["pii_types"]
 
 # Process Files
 st.header("Step 2: Process Files")
@@ -196,7 +224,8 @@ if st.button("Start Redaction"):
                 processor = PDFProcessor(
                     st.session_state.model_manager,
                     pii_types,
-                    confidence_threshold=0.75
+                    confidence_threshold=config.get("confidence_threshold", 0.75),
+                    test_mode=config.get("test_mode", False)
                 )
                 
                 progress_bar = st.progress(0)
@@ -204,7 +233,7 @@ if st.button("Start Redaction"):
                 
                 for idx, pdf_file in enumerate(pdf_files):
                     input_path = os.path.join(input_dir, pdf_file)
-                    output_path = os.path.join(output_dir, f"{os.path.splitext(pdf_file)[0]}_redacted.pdf")
+                    output_path = os.path.join(output_dir, f"candidate_{idx + 1}_redacted.pdf")
                     
                     results = processor.redact_pdf(input_path, output_path)
                     
