@@ -4,7 +4,7 @@ output_folder: "data/redact_output"
 model_directory: "models/jobbert_model"
 test_mode: true
 language: "en"
-confidence_threshold: 0.75
+confidence_threshold: 0.65
 batch_size: 32
 cache_enabled: true
 

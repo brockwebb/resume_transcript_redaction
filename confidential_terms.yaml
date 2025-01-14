@@ -1,0 +1,118 @@
+# Identity-related terms to be redacted to prevent potential bias.
+identity_terms:
+  - "pronouns"
+  - "they/them"
+  - "she/her"
+  - "he/him"
+  - "lgbtqia+"
+  - "transgender"
+  - "female"
+  - "male"
+  - "nonbinary"
+  - "gender"
+  - "identity"
+  - "advocacy"
+
+# Race and ethnicity terms to identify and redact sensitive descriptors.
+race_ethnicity_terms:
+  - "Asian"
+  - "Black"
+  - "African American"
+  - "Hispanic"
+  - "Latino"
+  - "White"
+  - "Caucasian"
+  - "Native American"
+  - "Pacific Islander"
+  - "Middle Eastern"
+  - "Multiracial"
+  - "Biracial"
+
+# Other protected categories aligned with ADA and federal law.
+protected_categories:
+  - "disability"
+  - "mental health"
+  - "physical health"
+  - "pregnancy"
+  - "veteran"
+  - "military status"
+  - "religion"
+  - "creed"
+  - "age"
+  - "sexual orientation"
+  - "marital status"
+  - "familial status"
+  - "genetic information"
+
+# Miscellaneous patterns for catching additional sensitive information
+# that may not fit into standard categories.
+miscellaneous:
+  - name: "certification"
+    regex: "[A-Z][a-z]+ Certification"
+    score: 0.8
+    entity_type: "CERTIFICATION"
+
+  - name: "license_number"
+    regex: "[A-Z0-9\\-]+"
+    score: 0.85
+    entity_type: "LICENSE_NUMBER"
+
+  - name: "social_security_number"
+    regex: "\\d{3}-\\d{2}-\\d{4}"
+    score: 0.9
+    entity_type: "SSN"
+
+  - name: "passport_number"
+    regex: "[A-Z0-9]{5,9}"
+    score: 0.85
+    entity_type: "PASSPORT_NUMBER"
+
+# Custom patterns for fine-tuning PII detection and redaction.
+custom_patterns:
+  - name: "address"
+    regex: "\\d{1,5}\\s[A-Za-z0-9\\.\\,\\-\\s]+,\\s[A-Za-z]+,\\s[A-Z]{2}\\s\\d{5}"
+    score: 0.8
+    entity_type: "ADDRESS"
+    
+  - name: "zip_code"
+    regex: "\\b\\d{5}(-\\d{4})?\\b"
+    score: 0.85
+    entity_type: "ZIP_CODE"
+
+  - name: "phone_number"
+    regex: "\\+?\\d{1,2}\\s?\\(?\\d{3}\\)?[-.\\s]?\\d{3}[-.\\s]?\\d{4}"
+    score: 0.8
+    entity_type: "PHONE_NUMBER"
+
+  - name: "birth_date"
+    regex: "(Date\\s+of\\s+Birth:|DOB:)?\\s*\\d{2}/\\d{2}/\\d{4}"
+    score: 0.9
+    entity_type: "DATE_OF_BIRTH"
+
+  - name: "education_institution"
+    regex: "(University|College)\\s+of\\s+[A-Za-z\\s]+"
+    score: 0.85
+    entity_type: "UNIVERSITY"
+
+  - name: "gpa"
+    regex: "GPA[:\\s]\\s?\\d\\.\\d{1,2}\\s?\\/\\s?4\\.0"
+    score: 0.9
+    entity_type: "GPA"
+
+  - name: "url"
+    regex: "\\bhttps?://[\\w\\.-]+|\\b\\w+\\.\\w{2,3}\\b"
+    score: 0.9
+    entity_type: "URL"
+
+  - name: "email"
+    regex: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+    score: 0.9
+    entity_type: "EMAIL_ADDRESS"
+    custom_patterns:
+ 
+  - name: "twitter_handle"
+    regex: "@[a-zA-Z0-9_]{1,15}"  # Twitter handles can be up to 15 characters
+    score: 0.9
+    entity_type: "SOCIAL_HANDLE"
+
+

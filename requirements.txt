@@ -20,6 +20,11 @@ transformers==4.47.1
 # tqdm for progress bars in command-line scripts
 tqdm==4.66.5
 
+# OCR dependencies
+pytesseract==0.3.10
+pdf2image==1.16.3
+Pillow==9.4.0
+
 # PyTorch (left as a note; installed separately)
 # For Mac (CPU-only): pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 # For default setup: conda install pytorch torchvision torchaudio cpuonly -c pytorch

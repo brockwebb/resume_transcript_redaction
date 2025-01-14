@@ -1,0 +1,43 @@
+custom_word_filters:
+  keep_words:
+    - of
+    - the
+    - "and"
+    - for
+    - to
+    - "if"
+    - in
+    - "on"
+    - a
+    - an
+    - at
+    - with
+    - R
+    - c
+    - "c++"
+    - "-" 
+    - data
+    - "management"
+    - manage
+    - managed
+    - one
+    - two
+    - three
+    - four
+    - five
+    - six
+    - seven
+    - eight
+    - nine
+    - ten
+    - Tableau 
+    - "D3.js"
+    - analytics
+    - Language
+    - languages
+    - advocacy
+  discard_words:
+    - .com
+    - twitter
+    - .net
+
