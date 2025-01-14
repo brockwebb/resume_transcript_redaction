@@ -50,7 +50,6 @@ def display_gui():
         redact_color=(0.8, 0.8, 0.8) if test_mode else (0, 0, 0),
         redact_opacity=0.3 if test_mode else 1.0,
         pii_types=pii_types,
-        confidence_threshold=confidence_threshold,
         model_directory=model_directory
     )
 
@@ -63,44 +62,40 @@ def display_gui():
     st.title("Resume Redaction Web App")
     st.write("Use this tool to redact sensitive information from resumes.")
 
-    # Step 1: Input/Output Directories
-    st.header("Step 1: Configure Directories")
-    input_dir = st.text_input("Input Directory", input_dir)
-    output_dir = st.text_input("Output Directory", output_dir)
+    # Step 1: Input/Output Directories and Output Mode
+    st.header("Step 1: Configuration")
+    col1, col2 = st.columns(2)
 
-    # Step 2: Highlight/Blackline Mode
-    st.header("Step 2: Output Mode")
-    mode = st.radio("Select Output Mode:", options=["Blackline", "Highlight"], index=0)
-    processor.redact_color = (0.8, 0.8, 0.8) if mode == "Highlight" else (0, 0, 0)
-    processor.redact_opacity = 0.3 if mode == "Highlight" else 1.0
-    processor.highlight_only = mode == "Highlight"
+    with col1:
+        input_dir = st.text_input("Input Directory", input_dir)
+        output_dir = st.text_input("Output Directory", output_dir)
 
-    # Step 3a: Add Custom Confidential Terms
-    st.header("Step 3a: Add Custom Confidential Terms")
-    manual_words = st.text_area("Enter custom confidential terms (comma-separated):")
-    if st.button("Add Confidential Terms"):
-        new_terms = [term.strip() for term in manual_words.split(",") if term.strip()]
-        processor.add_custom_terms(new_terms)
-        st.success(f"Added {len(new_terms)} new confidential terms.")
+    with col2:
+        mode = st.radio("Select Output Mode:", options=["Blackline", "Highlight"], index=0)
+        processor.redact_color = (0.8, 0.8, 0.8) if mode == "Highlight" else (0, 0, 0)
+        processor.redact_opacity = 0.3 if mode == "Highlight" else 1.0
+        processor.highlight_only = mode == "Highlight"
 
-    # Step 3b: Add Custom Keep Words
-    st.header("Step 3b: Add Custom Words to Whitelist")
-    manual_keep_words = st.text_area("Enter words to whitelist (comma-separated):")
-    if st.button("Add Whitelist Words"):
-        new_keep_words = [word.strip() for word in manual_keep_words.split(",") if word.strip()]
-        processor.keep_words.extend(new_keep_words)
-        st.success(f"Added {len(new_keep_words)} words to the whitelist.")
+    # Step 2: Custom Word Filters
+    st.header("Step 2: Custom Word Filters")
+    col1, col2 = st.columns(2)
 
-    # Step 3c: Add Custom Discard Words
-    st.header("Step 3c: Add Custom Words to Blacklist")
-    manual_discard_words = st.text_area("Enter words to blacklist (comma-separated):")
-    if st.button("Add Blacklist Words"):
-        new_discard_words = [word.strip() for word in manual_discard_words.split(",") if word.strip()]
-        processor.discard_words.extend(new_discard_words)
-        st.success(f"Added {len(new_discard_words)} words to the blacklist.")
+    with col1:
+        manual_keep_words = st.text_area("Whitelist (Words to Keep)", placeholder="Enter words to keep (comma-separated)")
+        if st.button("Update Whitelist"):
+            new_keep_words = [word.strip() for word in manual_keep_words.split(",") if word.strip()]
+            processor.keep_words.extend(new_keep_words)
+            st.success(f"Added {len(new_keep_words)} words to the whitelist.")
 
-    # Step 4: Start Redaction
-    st.header("Step 4: Start Redaction")
+    with col2:
+        manual_discard_words = st.text_area("Blacklist (Words to Remove)", placeholder="Enter words to remove (comma-separated)")
+        if st.button("Update Blacklist"):
+            new_discard_words = [word.strip() for word in manual_discard_words.split(",") if word.strip()]
+            processor.discard_words.extend(new_discard_words)
+            st.success(f"Added {len(new_discard_words)} words to the blacklist.")
+
+    # Step 3: Start Redaction
+    st.header("Step 3: Start Redaction")
     if st.button("Start Redaction"):
         if not os.path.exists(input_dir):
             st.error("Input directory does not exist.")
@@ -115,33 +110,33 @@ def display_gui():
                 progress_bar = st.progress(0)
                 status_text = st.empty()
                 total_stats = {"processed": 0, "total_words": 0, "total_redacted": 0}
-                
+
                 for idx, pdf_file in enumerate(pdf_files, 1):
                     input_path = os.path.join(input_dir, pdf_file)
                     output_path = os.path.join(output_dir, f"confidential_{idx}.pdf")
-                    
+
                     try:
                         # Update status
                         status_text.text(f"Processing file {idx} of {len(pdf_files)}: {pdf_file}")
-                        
+
                         # Process the file with highlight mode if enabled
                         stats = processor.process_pdf(input_path, output_path, highlight_only=processor.highlight_only)
-                        
+
                         # Update totals
                         total_stats["processed"] += 1
                         total_stats["total_words"] += stats["total_words"]
                         total_stats["total_redacted"] += stats["redacted_words"]
-                        
+
                         # Update progress bar
                         progress = idx / len(pdf_files)
                         progress_bar.progress(progress)
-                        
+
                     except Exception as e:
                         st.error(f"Error processing {pdf_file}: {str(e)}")
-                
+
                 # Clear status text
                 status_text.empty()
-                
+
                 # Show final statistics
                 st.success("Redaction complete!")
                 st.write(f"Processed {total_stats['processed']} files")

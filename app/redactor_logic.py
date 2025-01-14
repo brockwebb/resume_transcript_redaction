@@ -22,41 +22,18 @@ def setup_presidio_analyzer(custom_patterns):
             )]
         )
         analyzer.registry.add_recognizer(recognizer)
-
-    # Add the GeneralMedicalDisclosureRecognizer
-    analyzer.registry.add_recognizer(GeneralMedicalDisclosureRecognizer())
-
     return analyzer
 
 
-class GeneralMedicalDisclosureRecognizer(PatternRecognizer):
-    """Custom recognizer for generalized medical disclosures."""
-    def __init__(self):
-        patterns = [
-            Pattern(
-                name="medical_disclosure_general",
-                regex=r"\b(medical condition|disability|health issue|requires accommodation|chronic illness|diagnosed with)\b",
-                score=0.9
-            )
-        ]
-        context = [
-            "medical", "health", "condition", "disability", "chronic", "diagnosed", "accommodation", "treatment"
-        ]
-        super().__init__(
-            supported_entity="MEDICAL_DISCLOSURE",
-            patterns=patterns,
-            context=context
-        )
-
-
 class RedactionProcessor:
-    def __init__(self, custom_patterns, keep_words_path=None, redact_color=(0, 0, 0), redact_opacity=1.0, pii_types=None, confidence_threshold=0.75, model_directory=None):
+    def __init__(self, custom_patterns, keep_words_path=None, redact_color=(0, 0, 0), redact_opacity=1.0, 
+                 pii_types=None, model_directory=None):
         # Set up Presidio Analyzer
         self.analyzer = setup_presidio_analyzer(custom_patterns)
         self.redact_color = redact_color
         self.redact_opacity = redact_opacity
         self.pii_types = pii_types or []
-        self.confidence_threshold = confidence_threshold
+        self.confidence_threshold = 0.75  # Hardcoded confidence threshold
         self.custom_terms = []
         self.keep_words = []
         self.discard_words = []
@@ -80,7 +57,7 @@ class RedactionProcessor:
                 # Ensure all entries are strings
                 self.keep_words = [str(word).lower() for word in filters.get("keep_words", []) if isinstance(word, str)]
                 self.discard_words = [str(word).lower() for word in filters.get("discard_words", []) if isinstance(word, str)]
-                print(f"Loaded {len(self.keep_words)} keep words and {len(self.discard_words)} discard words.")
+                print(f"Loaded {len(self.keep_words)} keep words and {len(self.discard_words)} discard words successfully.")
         except Exception as e:
             print(f"Error loading custom word filters: {e}")
 
@@ -102,35 +79,18 @@ class RedactionProcessor:
         text = "\n".join(image_to_string(image) for image in images)
         return text
 
-    def _validate_with_jobbert(self, texts, reference_phrases=None):
-        """Validate text using JobBERT and optional semantic similarity."""
+    def _validate_with_jobbert(self, texts):
+        """Validate text using JobBERT."""
         if not texts:
             return []
 
-        # Reference medical disclosure phrases for validation
-        reference_phrases = reference_phrases or [
-            "medical condition",
-            "chronic illness",
-            "requires accommodation",
-            "health issue",
-            "diagnosed with a disability"
-        ]
-
-        inputs = self.tokenizer(texts + reference_phrases, return_tensors="pt", padding=True, truncation=True, max_length=512).to(self.device)
+        inputs = self.tokenizer(texts, return_tensors="pt", padding=True, truncation=True, max_length=512).to(self.device)
         with torch.no_grad():
             outputs = self.model(**inputs)
+        embeddings = outputs.last_hidden_state.mean(dim=1)
+        confidence_scores = [torch.norm(emb).item() for emb in embeddings]
 
-        # Separate embeddings for texts and reference phrases
-        text_embeddings = outputs.last_hidden_state[:len(texts)].mean(dim=1)
-        reference_embeddings = outputs.last_hidden_state[len(texts):].mean(dim=1)
-
-        # Compute cosine similarity
-        cosine_similarities = torch.nn.functional.cosine_similarity(
-            text_embeddings.unsqueeze(1), reference_embeddings.unsqueeze(0), dim=2
-        )
-        max_similarities = torch.max(cosine_similarities, dim=1).values
-
-        return max_similarities.tolist()
+        return confidence_scores
 
     def _detect_redactions(self, wordlist):
         """Detect sensitive information."""
@@ -155,18 +115,17 @@ class RedactionProcessor:
                 redact_areas.append(bbox)
                 continue
 
-            # Check combined results for PII
-            for res in combined_results:
-                if res.entity_type in self.pii_types and res.score >= self.confidence_threshold:
-                    if text in combined_text[res.start:res.end]:
-                        batch_texts.append(text)
-                        batch_coords.append(bbox)
-
-            # Check individual word results from Presidio
+            # Check Presidio results for sensitive entities
             results = self.analyzer.analyze(text=text, language="en")
-            if any(res.entity_type in self.pii_types and res.score >= self.confidence_threshold for res in results):
-                batch_texts.append(text)
-                batch_coords.append(bbox)
+            for res in results:
+                # Detect titles (e.g., Mr., Ms., Dr.) and names
+                if res.entity_type in ["PERSON", "TITLE"] and res.score >= self.confidence_threshold:
+                    redact_areas.append(bbox)
+
+                # For other entities, queue for JobBERT validation
+                elif res.entity_type in self.pii_types and res.score >= self.confidence_threshold:
+                    batch_texts.append(text)
+                    batch_coords.append(bbox)
 
             # Check custom terms
             if any(term.lower() in text.lower() for term in self.custom_terms):

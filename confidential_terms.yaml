@@ -28,8 +28,9 @@ race_ethnicity_terms:
   - "Multiracial"
   - "Biracial"
 
-# Other protected categories aligned with ADA and federal law.
+# Protected categories aligned with ADA and federal law.
 protected_categories:
+  # Standard protected categories
   - "disability"
   - "mental health"
   - "physical health"
@@ -44,9 +45,50 @@ protected_categories:
   - "familial status"
   - "genetic information"
 
+# Medical terms as custom patterns for better context control
+custom_patterns:
+  - name: "medical_disclosure"
+    regex: "(?i)medical\\s+disclosure:.*|(?:requires|needs|medical)\\s+accommodations?.*"
+    score: 0.95
+    entity_type: "MEDICAL_DISCLOSURE"
+
+  - name: "personal_health_info"
+    regex: "(?i)(?:diagnosed|suffering|treated)\\s+(?:with|for)\\s+|(?:type|stage)\\s*[0-9]\\s+[a-zA-Z\\s]+|(?:insulin|medication)\\s+(?:pump|treatment|therapy)"
+    score: 0.95
+    entity_type: "PHI"
+
+  - name: "social_media"
+    regex: "(?i)(?:twitter|linkedin|facebook|instagram):\\s*@?[\\w\\-]+"
+    score: 0.75
+    entity_type: "SOCIAL_MEDIA"
+    
+  # Standard contact/location patterns
+  - name: "address"
+    regex: "\\d{1,5}\\s[A-Za-z0-9\\.\\,\\-\\s]+,\\s[A-Za-z]+,\\s[A-Z]{2}\\s\\d{5}"
+    score: 0.75
+    entity_type: "ADDRESS"
+    
+  - name: "zip_code"
+    regex: "\\b\\d{5}(-\\d{4})?\\b"
+    score: 0.85
+    entity_type: "ZIP_CODE"
+
+  - name: "email"
+    regex: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+    score: 0.9
+    entity_type: "EMAIL_ADDRESS"
+
+  - name: "url"
+    regex: "(?i)(?<!@)(?:https?://)?(?:www\\.)?[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\\.[a-zA-Z]{2,}(?:/[^\\s]*)?"
+    score: 0.8
+    entity_type: "URL"
+
+  - name: "titles"
+    regex: "\\b(Mr|Ms|Miss|Mrs|Dr|Prof|Sir|Madam|Mx)\\.?\\b"
+    score: 0.65
+    entity_type: "TITLE"
+
 # Miscellaneous patterns for catching additional sensitive information
-# that may not fit into standard categories.
-miscellaneous:
   - name: "certification"
     regex: "[A-Z][a-z]+ Certification"
     score: 0.8
@@ -59,29 +101,38 @@ miscellaneous:
 
   - name: "social_security_number"
     regex: "\\d{3}-\\d{2}-\\d{4}"
-    score: 0.9
+    score: 0.8
     entity_type: "SSN"
 
   - name: "passport_number"
     regex: "[A-Z0-9]{5,9}"
-    score: 0.85
+    score: 0.8
     entity_type: "PASSPORT_NUMBER"
 
-# Custom patterns for fine-tuning PII detection and redaction.
-custom_patterns:
-  - name: "address"
-    regex: "\\d{1,5}\\s[A-Za-z0-9\\.\\,\\-\\s]+,\\s[A-Za-z]+,\\s[A-Z]{2}\\s\\d{5}"
-    score: 0.8
-    entity_type: "ADDRESS"
-    
-  - name: "zip_code"
-    regex: "\\b\\d{5}(-\\d{4})?\\b"
-    score: 0.85
-    entity_type: "ZIP_CODE"
-
   - name: "phone_number"
-    regex: "\\+?\\d{1,2}\\s?\\(?\\d{3}\\)?[-.\\s]?\\d{3}[-.\\s]?\\d{4}"
+    regex: "(?:\\+?\\d{1,2}[-.]?)?\\(?\\d{3}\\)?[-.]?\\d{3}[-.]?\\d{4}"
     score: 0.8
+    entity_type: "PHONE_NUMBER"
+
+  - name: "medical_disclosure"
+    regex: "(?i)(medical|health)\\s*(disclosure|condition|status).*"
+    score: 0.9
+    entity_type: "MEDICAL_DISCLOSURE"
+
+  - name: "medical_accommodation"
+    regex: "(?i)requires?\\s*(medical\\s*)?accommodations?.*"
+    score: 0.9
+    entity_type: "MEDICAL_ACCOMMODATION"
+
+  - name: "health_condition"
+    regex: "(?i)(chronic|ongoing|diagnosed with|suffering from|treated for)\\s*\\w+\\s*(condition|disease|disorder|syndrome)"
+    score: 0.9
+    entity_type: "HEALTH_CONDITION"
+
+# Custom patterns for fine-tuning PII detection and redaction.
+  - name: "phone_formats"
+    regex: "(?:\\+?\\d{1,2}[-\\s.]?)?(?:\\(?\\d{3}\\)?[-\\s.]?)?\\d{3}[-\\s.]?\\d{4}"
+    score: 0.9
     entity_type: "PHONE_NUMBER"
 
   - name: "birth_date"
@@ -91,28 +142,26 @@ custom_patterns:
 
   - name: "education_institution"
     regex: "(University|College)\\s+of\\s+[A-Za-z\\s]+"
-    score: 0.85
+    score: 0.8
     entity_type: "UNIVERSITY"
 
   - name: "gpa"
     regex: "GPA[:\\s]\\s?\\d\\.\\d{1,2}\\s?\\/\\s?4\\.0"
     score: 0.9
     entity_type: "GPA"
-
-  - name: "url"
-    regex: "\\bhttps?://[\\w\\.-]+|\\b\\w+\\.\\w{2,3}\\b"
+    
+  - name: "name_with_special_chars"
+    regex: "(?i)[A-Za-z]+[-\\s](?:[A-Za-z]+|tech|dev|inc|llc)"
     score: 0.9
-    entity_type: "URL"
+    entity_type: "NAME"
 
-  - name: "email"
-    regex: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
-    score: 0.9
-    entity_type: "EMAIL_ADDRESS"
-    custom_patterns:
- 
   - name: "twitter_handle"
-    regex: "@[a-zA-Z0-9_]{1,15}"  # Twitter handles can be up to 15 characters
+    regex: "(?i)(?:twitter:?\\s*)?\\**\\s*@[a-zA-Z0-9_-]{1,20}\\**"
     score: 0.9
     entity_type: "SOCIAL_HANDLE"
-
+    
+  - name: "developer_handle"
+    regex: "(?i)(?:[A-Za-z]+[-.])?(?:dev|developer|tech|coder|programmer|engineer)"
+    score: 0.85
+    entity_type: "PROFESSIONAL_HANDLE"
 
