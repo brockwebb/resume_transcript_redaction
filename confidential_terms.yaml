@@ -49,12 +49,12 @@ protected_categories:
 custom_patterns:
   - name: "medical_disclosure"
     regex: "(?i)medical\\s+disclosure:.*|(?:requires|needs|medical)\\s+accommodations?.*"
-    score: 0.95
+    score: 0.9
     entity_type: "MEDICAL_DISCLOSURE"
 
   - name: "personal_health_info"
     regex: "(?i)(?:diagnosed|suffering|treated)\\s+(?:with|for)\\s+|(?:type|stage)\\s*[0-9]\\s+[a-zA-Z\\s]+|(?:insulin|medication)\\s+(?:pump|treatment|therapy)"
-    score: 0.95
+    score: 0.9
     entity_type: "PHI"
 
   - name: "social_media"
@@ -115,7 +115,7 @@ custom_patterns:
     entity_type: "PHONE_NUMBER"
 
   - name: "medical_disclosure"
-    regex: "(?i)(medical|health)\\s*(disclosure|condition|status).*"
+    regex: "(?i)(?:medical|health)(?:\\s+(?:disclosure|condition|status|accommodation|requirement|need)).*?(?:\\.|$)"
     score: 0.9
     entity_type: "MEDICAL_DISCLOSURE"
 
@@ -131,7 +131,12 @@ custom_patterns:
 
 # Custom patterns for fine-tuning PII detection and redaction.
   - name: "phone_formats"
-    regex: "(?:\\+?\\d{1,2}[-\\s.]?)?(?:\\(?\\d{3}\\)?[-\\s.]?)?\\d{3}[-\\s.]?\\d{4}"
+    regex: "(?:(?:\\+?1[-\\s.]?)?\\(?\\d{3}\\)?[-\\s.]?\\d{3}[-\\s.]?\\d{4})|(?:\\d{3}[-\\s.]\\d{3}[-\\s.]\\d{4})"
+    score: 0.8
+    entity_type: "PHONE_NUMBER"
+
+  - name: "phone_extended"
+    regex: "\\(?\\d{3}\\)?[-.\\s]?\\d{3}[-.\\s]?\\d{4}"
     score: 0.9
     entity_type: "PHONE_NUMBER"
 
@@ -164,4 +169,9 @@ custom_patterns:
     regex: "(?i)(?:[A-Za-z]+[-.])?(?:dev|developer|tech|coder|programmer|engineer)"
     score: 0.85
     entity_type: "PROFESSIONAL_HANDLE"
+
+  - name: "social_media_handles"
+    regex: "(?i)(?:@|(?:twitter|linkedin|facebook|instagram|github)(?:\\s*[:-]\\s*)?[@]?)([\\w\\-]+)"
+    score: 0.95
+    entity_type: "SOCIAL_MEDIA"
 

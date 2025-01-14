@@ -1,3 +1,4 @@
+import re  # Regular expressions
 import fitz  # PyMuPDF
 from pytesseract import image_to_string
 from pdf2image import convert_from_path
@@ -22,18 +23,34 @@ def setup_presidio_analyzer(custom_patterns):
             )]
         )
         analyzer.registry.add_recognizer(recognizer)
+
     return analyzer
+
+
+def _normalize_word(word, preserve_pattern=False):
+    """Normalize a word by optionally preserving characters for pattern matching."""
+    import string
+
+    if preserve_pattern:
+        # Allow specific characters (e.g., for phone numbers)
+        allowed_chars = set("0123456789()+-.")
+        normalized = "".join(c for c in word if c.isalnum() or c in allowed_chars).lower()
+    else:
+        # General normalization: Remove all punctuation and lowercase
+        normalized = word.strip().lower().translate(str.maketrans("", "", string.punctuation))
+
+    return normalized
 
 
 class RedactionProcessor:
     def __init__(self, custom_patterns, keep_words_path=None, redact_color=(0, 0, 0), redact_opacity=1.0, 
-                 pii_types=None, model_directory=None):
+                 pii_types=None, confidence_threshold=0.75, model_directory=None):
         # Set up Presidio Analyzer
         self.analyzer = setup_presidio_analyzer(custom_patterns)
         self.redact_color = redact_color
         self.redact_opacity = redact_opacity
         self.pii_types = pii_types or []
-        self.confidence_threshold = 0.75  # Hardcoded confidence threshold
+        self.confidence_threshold = confidence_threshold
         self.custom_terms = []
         self.keep_words = []
         self.discard_words = []
@@ -95,50 +112,40 @@ class RedactionProcessor:
     def _detect_redactions(self, wordlist):
         """Detect sensitive information."""
         redact_areas = []
-        batch_texts = []
-        batch_coords = []
-
-        # Combine words into phrases for pattern matching
-        combined_text = " ".join(word["text"] if isinstance(word, dict) else word[4] for word in wordlist)
-        combined_results = self.analyzer.analyze(text=combined_text, language="en")
-
+    
+        # Normalize keep and discard words
+        normalized_keep_words = set(_normalize_word(word) for word in self.keep_words)
+        normalized_discard_words = set(_normalize_word(word) for word in self.discard_words)
+    
         for word in wordlist:
             text = word["text"] if isinstance(word, dict) else word[4]
             bbox = word["bbox"] if isinstance(word, dict) else fitz.Rect(word[0], word[1], word[2], word[3])
-
+    
+            # Normalize for filtering logic
+            normalized_text = _normalize_word(text)
+    
             # Skip keep words
-            if text.lower() in self.keep_words:
+            if normalized_text in normalized_keep_words:
                 continue
-
+    
             # Automatically redact discard words
-            if text.lower() in self.discard_words:
+            if normalized_text in normalized_discard_words:
                 redact_areas.append(bbox)
                 continue
-
-            # Check Presidio results for sensitive entities
+    
+            # Use raw text for Presidio analysis
             results = self.analyzer.analyze(text=text, language="en")
             for res in results:
-                # Detect titles (e.g., Mr., Ms., Dr.) and names
-                if res.entity_type in ["PERSON", "TITLE"] and res.score >= self.confidence_threshold:
+                # Check against dynamic entity types and confidence
+                if res.entity_type in self.pii_types and res.score >= self.confidence_threshold:
                     redact_areas.append(bbox)
-
-                # For other entities, queue for JobBERT validation
-                elif res.entity_type in self.pii_types and res.score >= self.confidence_threshold:
-                    batch_texts.append(text)
-                    batch_coords.append(bbox)
-
+    
             # Check custom terms
             if any(term.lower() in text.lower() for term in self.custom_terms):
                 redact_areas.append(bbox)
-
-        # Validate flagged text with JobBERT
-        if batch_texts:
-            confidence_scores = self._validate_with_jobbert(batch_texts)
-            for bbox, confidence in zip(batch_coords, confidence_scores):
-                if confidence > self.confidence_threshold:
-                    redact_areas.append(bbox)
-
+    
         return redact_areas
+
 
     def process_pdf(self, input_path: str, output_path: str, highlight_only=False) -> Dict[str, Any]:
         """Process a single PDF file."""

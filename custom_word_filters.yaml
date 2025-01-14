@@ -13,12 +13,13 @@ custom_word_filters:
     - at
     - with
     #Programming tools
-    - "Tableau,"
-    - "Matplotlib,"
+    - "tableau"
+    - "matplotlib"
     - "ggplot2"
     - R
     - "c"
     - "c++"
+    - "D3.js"
     - "-" 
     - data
     - "management"
@@ -34,8 +35,6 @@ custom_word_filters:
     - eight
     - nine
     - ten
-    - "tableau" 
-    - "D3.js"
     - analytics
     - language
     - languages
