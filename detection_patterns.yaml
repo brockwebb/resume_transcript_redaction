@@ -1,130 +1,180 @@
 # detection_patterns.yaml
-# General PII patterns
-general_patterns:
-  - name: "birth_date"
-    regex: "(Date\\s+of\\s+Birth:|DOB:)?\\s*\\d{2}/\\d{2}/\\d{4}"
-    score: 0.9
-    entity_type: "DATE_OF_BIRTH"
+## Focuses on general structural PII detection like names, dates, addresses, and contact details.
+## Retains patterns like names with titles or hyphenated names for completeness.
 
-  - name: "education_institution"
-    regex: "(University|College)\\s+of\\s+[A-Za-z\\s]+"
-    score: 0.9
-    entity_type: "UNIVERSITY"
-
-  - name: "gpa"
-    regex: "GPA[:\\s]\\s?\\d\\.\\d{1,2}\\s?\\/\\s?4\\.0"
-    score: 0.9
-    entity_type: "GPA"
-    
-  - name: "name_with_special_chars"
-    regex: "(?i)[A-Za-z]+[-\\s](?:[A-Za-z]+|tech|dev|inc|llc)"
-    score: 0.9
-    entity_type: "NAME"
-
-  - name: "twitter_handle"
-    regex: "(?i)(?:twitter:?\\s*)?\\**\\s*@[a-zA-Z0-9_-]{1,20}\\**"
-    score: 0.9
-    entity_type: "SOCIAL_HANDLE"
-    
-  - name: "developer_handle"
-    regex: "(?i)(?:[A-Za-z]+[-.])?(?:dev|developer|tech|coder|programmer|engineer)"
-    score: 0.9
-    entity_type: "PROFESSIONAL_HANDLE"
-
-  - name: "social_media_handles"
-    regex: "(?i)(?:@|(?:twitter|linkedin|facebook|instagram|github)(?:\\s*[:-]\\s*)?[@]?)([\\w\\-]+)"
-    score: 0.95
-    entity_type: "SOCIAL_MEDIA"
-    
-contact_info:
-  - name: "phone_international"
-    regex: "(?:(?:\\+?\\d{1,3}[-\\.\\s]?)?\\(?\\d{3}\\)?[-\\.\\s]?\\d{3}[-\\.\\s]?\\d{4})|(?:\\+?\\d{1,3}[-\\.\\s]?\\d{9,10})"
-    score: 0.9
-    entity_type: "PHONE_NUMBER"
-      
-  - name: "phone_formats"
-    regex: "(?:(?:\\+?1[-\\s.]?)?\\(?\\d{3}\\)?[-\\s.]?\\d{3}[-\\s.]?\\d{4})|(?:\\d{3}[-\\s.]\\d{3}[-\\s.]\\d{4})"
-    score: 0.8
-    entity_type: "PHONE_NUMBER"
-
-  - name: "phone_extended"
-    regex: "\\(?\\d{3}\\)?[-\\.\\s]?\\d{3}[-\\.\\s]?\\d{4}"
-    score: 0.9
-    entity_type: "PHONE_NUMBER"
-      
-  - name: "email"
-    regex: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
-    score: 0.9
-    entity_type: "EMAIL_ADDRESS"
+# detection_patterns.yaml
+## Combines existing patterns with new ones for enhanced detection
 
 personal_identifiers:
-  - name: "formal_titles"
-    regex: "\\b(?:Dr\\.?|Mr\\.?|Mrs\\.?|Ms\\.?|Prof\\.?|Professor|Sir|Madam|Mx\\.?)\\s+(?:[A-Z][a-zA-Z\\'-]+\\s*)+"
-    score: 0.85
-    entity_type: "TITLE_NAME"
-      
-  - name: "full_names"
-    regex: "\\b[A-Z][a-zA-Z\\'-]+(?:\\s+[A-Z][a-zA-Z\\'-]+){1,3}\\b"
-    score: 0.9
+  - name: "full_name_with_initials"
+    regex: "\\b[A-Z][a-zA-Z'-]+(?:\\s+[A-Z]\\.)?(?:\\s+[A-Z][a-zA-Z'-]+)?\\b"
+    score: 0.6
+    entity_type: "PERSON_NAME"
+    
+  - name: "name_with_title"
+    regex: "\\b(?:Dr\\.?|Mr\\.?|Mrs\\.?|Ms\\.?|Mx\\.?|Prof\\.?|Professor|Sir|Madam)\\s*[A-Z][a-zA-Z'-]+(?:\\s+[A-Z]\\.)?(?:\\s+[A-Z][a-zA-Z'-]+)?\\b"
+    score: 0.6
     entity_type: "PERSON_NAME"
 
-location_info:
-  - name: "address"
-    regex: "\\d{1,5}\\s[A-Za-z0-9\\.\\,\\-\\s]+,\\s[A-Za-z]+,\\s[A-Z]{2}\\s\\d{5}"
-    score: 0.85
-    entity_type: "ADDRESS"
-      
-  - name: "zip_code"
-    regex: "\\b\\d{5}(-\\d{4})?\\b"
-    score: 0.95
-    entity_type: "ZIP_CODE"
+  - name: "name_with_credentials"
+    regex: "\\b(?:Dr\\.?|Mr\\.?|Mrs\\.?|Ms\\.?|Mx\\.?)\\s*[A-Z][a-zA-Z'-]+(?:\\s+[A-Z]\\.?)?(?:\\s+[A-Z][a-zA-Z'-]+)?(?:\\s*\\(.*\\))?"
+    score: 0.7
+    entity_type: "PERSON_NAME"
 
-# Miscellaneous patterns for catching additional sensitive information
-misc_patterns:
-  - name: "certification"
-    regex: "[A-Z][a-z]+ Certification"
-    score: 0.9
-    entity_type: "CERTIFICATION"
+  - name: "name_with_pronouns"
+    regex: "\\b[A-Z][a-zA-Z'-]+(?:\\s+[A-Z]\\.?)?(?:\\s+[A-Z][a-zA-Z'-]+)?\\s*\\((?:they/them|she/her|he/him)\\)"
+    score: 0.7
+    entity_type: "PERSON_NAME"
 
-  - name: "license_number"
-    regex: "[A-Z0-9\\-]+"
-    score: 0.9
-    entity_type: "LICENSE_NUMBER"
+contact_info:
+  - name: "email"
+    regex: "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b"
+    score: 0.6
+    entity_type: "EMAIL_ADDRESS"
 
-  - name: "social_security_number"
-    regex: "\\d{3}-\\d{2}-\\d{4}"
-    score: 0.9
-    entity_type: "SSN"
-
-  - name: "passport_number"
-    regex: "[A-Z0-9]{5,9}"
-    score: 0.9
-    entity_type: "PASSPORT_NUMBER"
+  - name: "website_portfolio"
+    regex: "\\b(?:Website|Portfolio):\\s*(?:https?://)?(?:www\\.)?[\\w.-]+\\.[a-zA-Z]{2,}(?:/[\\w.-]*)*\\b"
+    score: 0.8
+    entity_type: "URL"
     
-# Medical text detection
-medical_detection:
-  jobbert:
-    enabled: true   # Medical detection toggle
-    min_length: 10  # Minimum length for text input
-    threshold: 0.9  # Sensitivity threshold
-    context_keywords:
-      - "diagnosis"
-      - "treatment"
-      - "condition"
-      - "symptoms"
-      - "medication"
-      - "therapy"
-      - "medical"
-      - "health"
-      - "clinical"
-      - "patient"
-      - "prescribed"
-      - "disability"
-      - "chronic"
-      - "acute"
-    reference_phrases:
-      - "Requires regular medical accommodation for chronic condition"
-      - "Treatment involves daily medication management"
-      - "Diagnosed with ongoing health condition requiring monitoring"
-      - "Regular therapeutic intervention needed for management"
-      - "Medical disclosure: condition requires workplace adjustments"
+  - name: "linkedin_profile"
+    regex: "\\blinkedin\\.com/in/[\\w-]+\\b"
+    score: 0.8
+    entity_type: "SOCIAL_MEDIA"
+
+phone_detection:
+  - entity_type: "PHONE_NUMBER"
+    name: "us_phone_standard"
+    regex: '\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}'
+    score: 0.65
+
+  - entity_type: "PHONE_NUMBER"
+    name: "us_phone_with_country"
+    regex: '(?:\+1|1)?[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}'
+    score: 0.65
+
+  - entity_type: "PHONE_NUMBER"
+    name: "us_phone_parentheses"
+    regex: '\(\d{3}\)\s*\d{3}[-.\s]?\d{4}'
+    score: 0.65
+
+  - entity_type: "PHONE_NUMBER" 
+    name: "international_phone"
+    regex: '(?:\+|00)[1-9][0-9\s\-\(\)\.]{8,20}'
+    score: 0.65
+
+  - entity_type: "PHONE_NUMBER"
+    name: "phone_with_extension"
+    regex: '\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\s*(?:ext|x|ext.)\s*\d{2,5}'
+    score: 0.65
+
+  - entity_type: "PHONE_NUMBER"
+    name: "phone_standalone_digits"
+    regex: '(?<!\d)\d{10}(?!\d)'
+    score: 0.65
+
+address_detection:
+  - entity_type: "ADDRESS"
+    name: "us_street_address_with_unit"
+    regex: '\d+\s+(?:[A-Za-z0-9\.-]+\s*){1,4}(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Circle|Cir|Trail|Tr|Way|Court|Ct|Place|Pl)\s*(?:Unit|Apt|Suite|Ste|#)?\s*[A-Za-z0-9-]*'
+    score: 0.65
+
+  - entity_type: "ADDRESS"
+    name: "us_street_address_basic"
+    regex: '\d+\s+(?:[A-Za-z0-9\.-]+\s*){1,4}(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Circle|Cir|Trail|Tr|Way|Court|Ct|Place|Pl)'
+    score: 0.65
+
+  - entity_type: "ADDRESS"
+    name: "extended_address"
+    regex: "\\b\\d+\\s+[A-Za-z\\s]+(?:Lane|Street|St|Avenue|Ave|Road|Rd|Drive|Dr|Circle|Cir|Crescent),?(?:\\s+(?:Unit|Floor|Fl\\.?|Level|#)\\s*[\\w-]+)?,?\\s+[A-Za-z\\s]+,\\s*[A-Z]{2}(?:\\s+\\d{5}(?:-\\d{4})?)?\\b"
+    score: 0.7
+    entity_type: "ADDRESS"
+
+  - entity_type: "ADDRESS"
+    name: "po_box"
+    regex: '(?:P\.?\s*O\.?\s*Box|PO\s*Box)\s+\d+'
+    score: 0.65
+
+  - entity_type: "ADDRESS"
+    name: "city_state_zip"
+    regex: '(?:[A-Za-z\s]+,\s*[A-Z]{2}\s*\d{5}(?:-\d{4})?)|(?:[A-Za-z\s]+,?\s*[A-Z]{2})'
+    score: 0.65
+
+  - entity_type: "ADDRESS"
+    name: "floor_number"
+    regex: '(?:Floor|Fl\.?|Level)\s*\d+' 
+    score: 0.65
+
+  - entity_type: "ADDRESS"
+    name: "building_identifier"
+    regex: '(?:Building|Bldg\.?|Tower)\s*[A-Za-z0-9-]+' 
+    score: 0.65
+
+  - entity_type: "ADDRESS"
+    name: "generic_location_identifier"
+    regex: '(?:North|South|East|West|N|S|E|W)?\s*\d+\s+(?:[A-Za-z0-9\.-]+\s*){1,4}'
+    score: 0.65
+
+id_numbers:
+  - name: "orcid"
+    regex: "\\bORCID:\\s*\\d{4}-\\d{4}-\\d{4}-\\d{4}\\b"
+    score: 0.9
+    entity_type: "ID_NUMBER"
+    
+  - name: "resident_id"
+    regex: "\\b(?:Permanent\\s+Resident\\s+ID|Green\\s+Card):\\s*[A-Z0-9-]+\\b"
+    score: 0.9
+    entity_type: "ID_NUMBER"
+
+identity_info:
+  - name: "pronouns"
+    regex: "\\b(?:Pronouns?:|they/them|she/her|he/him)\\b"
+    score: 0.8
+    entity_type: "IDENTITY_INFO"
+    
+  - name: "lgbtqia_terms"
+    regex: "\\b(?:LGBTQIA\\+|Queer|transgender|nonbinary|gender-diverse)\\b"
+    score: 0.7
+    entity_type: "IDENTITY_INFO"
+
+education:
+  - name: "school_name"
+    regex: "\\b(?:University|Institute|College|Academy|School)\\s(?:of\\s)?[A-Za-z\\s]+\\b"
+    score: 0.6
+    entity_type: "SCHOOL"
+    
+  - name: "graduation_info"
+    regex: "\\bGraduated:\\s*(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\s+\\d{4}\\b"
+    score: 0.7
+    entity_type: "DATE"
+
+work_dates:
+  - name: "employment_date_range"
+    regex: "\\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\s+\\d{4}\\s*[-–—]\\s*(?:Present|Current|Now|(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\s+\\d{4})\\b"
+    score: 0.8
+    entity_type: "WORK_DATE"
+
+  - name: "start_date"
+    regex: "\\b(?:Start(?:ed)?|Join(?:ed)?|From|Since):\\s*(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\s+\\d{4}\\b"
+    score: 0.8
+    entity_type: "WORK_DATE"
+
+  - name: "end_date"
+    regex: "\\b(?:End(?:ed)?|Until|To):\\s*(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\s+\\d{4}\\b"
+    score: 0.8
+    entity_type: "WORK_DATE"
+
+  - name: "year_only_range"
+    regex: "\\b\\d{4}\\s*[-–—]\\s*(?:Present|Current|Now|\\d{4})\\b"
+    score: 0.7
+    entity_type: "WORK_DATE"
+
+  - name: "duration_years"
+    regex: "\\b(?:\\d{1,2}\\+?\\s*(?:years?|yrs?)\\s+(?:of\\s+)?(?:experience|work|employment))\\b"
+    score: 0.6
+    entity_type: "WORK_DURATION"
+
+  - name: "tenure_description"
+    regex: "\\b(?:(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\s+\\d{4}\\s*[-–—]\\s*(?:Present|Current|Now|(?:\\d{1,2}\\s*(?:years?|yrs?))))\\b"
+    score: 0.7
+    entity_type: "WORK_DATE"
