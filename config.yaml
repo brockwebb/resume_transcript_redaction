@@ -10,11 +10,15 @@ cache_enabled: true
 
 # Additional Configuration Options
 redaction_options:
-  minimum_confidence_score: 0.65        # Minimum confidence for redaction
-  context_words_before: 3              # Number of context words before PII
-  context_words_after: 3               # Number of context words after PII
+  minimum_confidence_score: 0.6        # Minimum confidence for redaction
+  context_words_before: 2              # Number of context words before PII
+  context_words_after: 2              # Number of context words after PII
   preserve_formatting: true            # Preserve formatting during redaction
   redaction_char: "█"                  # Character used for redacting text
+
+jobbert:
+  max_length: 64 #1-2 sentences should be ~30 tokens, this is a factor of safety
+  jobbbert_sensitivity: 0.65  # Default value for sensitivity
 
 logging:
   level: ERROR                          # Logging level (INFO, DEBUG, etc.)

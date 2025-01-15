@@ -1,0 +1,130 @@
+# detection_patterns.yaml
+# General PII patterns
+general_patterns:
+  - name: "birth_date"
+    regex: "(Date\\s+of\\s+Birth:|DOB:)?\\s*\\d{2}/\\d{2}/\\d{4}"
+    score: 0.9
+    entity_type: "DATE_OF_BIRTH"
+
+  - name: "education_institution"
+    regex: "(University|College)\\s+of\\s+[A-Za-z\\s]+"
+    score: 0.9
+    entity_type: "UNIVERSITY"
+
+  - name: "gpa"
+    regex: "GPA[:\\s]\\s?\\d\\.\\d{1,2}\\s?\\/\\s?4\\.0"
+    score: 0.9
+    entity_type: "GPA"
+    
+  - name: "name_with_special_chars"
+    regex: "(?i)[A-Za-z]+[-\\s](?:[A-Za-z]+|tech|dev|inc|llc)"
+    score: 0.9
+    entity_type: "NAME"
+
+  - name: "twitter_handle"
+    regex: "(?i)(?:twitter:?\\s*)?\\**\\s*@[a-zA-Z0-9_-]{1,20}\\**"
+    score: 0.9
+    entity_type: "SOCIAL_HANDLE"
+    
+  - name: "developer_handle"
+    regex: "(?i)(?:[A-Za-z]+[-.])?(?:dev|developer|tech|coder|programmer|engineer)"
+    score: 0.9
+    entity_type: "PROFESSIONAL_HANDLE"
+
+  - name: "social_media_handles"
+    regex: "(?i)(?:@|(?:twitter|linkedin|facebook|instagram|github)(?:\\s*[:-]\\s*)?[@]?)([\\w\\-]+)"
+    score: 0.95
+    entity_type: "SOCIAL_MEDIA"
+    
+contact_info:
+  - name: "phone_international"
+    regex: "(?:(?:\\+?\\d{1,3}[-\\.\\s]?)?\\(?\\d{3}\\)?[-\\.\\s]?\\d{3}[-\\.\\s]?\\d{4})|(?:\\+?\\d{1,3}[-\\.\\s]?\\d{9,10})"
+    score: 0.9
+    entity_type: "PHONE_NUMBER"
+      
+  - name: "phone_formats"
+    regex: "(?:(?:\\+?1[-\\s.]?)?\\(?\\d{3}\\)?[-\\s.]?\\d{3}[-\\s.]?\\d{4})|(?:\\d{3}[-\\s.]\\d{3}[-\\s.]\\d{4})"
+    score: 0.8
+    entity_type: "PHONE_NUMBER"
+
+  - name: "phone_extended"
+    regex: "\\(?\\d{3}\\)?[-\\.\\s]?\\d{3}[-\\.\\s]?\\d{4}"
+    score: 0.9
+    entity_type: "PHONE_NUMBER"
+      
+  - name: "email"
+    regex: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+    score: 0.9
+    entity_type: "EMAIL_ADDRESS"
+
+personal_identifiers:
+  - name: "formal_titles"
+    regex: "\\b(?:Dr\\.?|Mr\\.?|Mrs\\.?|Ms\\.?|Prof\\.?|Professor|Sir|Madam|Mx\\.?)\\s+(?:[A-Z][a-zA-Z\\'-]+\\s*)+"
+    score: 0.85
+    entity_type: "TITLE_NAME"
+      
+  - name: "full_names"
+    regex: "\\b[A-Z][a-zA-Z\\'-]+(?:\\s+[A-Z][a-zA-Z\\'-]+){1,3}\\b"
+    score: 0.9
+    entity_type: "PERSON_NAME"
+
+location_info:
+  - name: "address"
+    regex: "\\d{1,5}\\s[A-Za-z0-9\\.\\,\\-\\s]+,\\s[A-Za-z]+,\\s[A-Z]{2}\\s\\d{5}"
+    score: 0.85
+    entity_type: "ADDRESS"
+      
+  - name: "zip_code"
+    regex: "\\b\\d{5}(-\\d{4})?\\b"
+    score: 0.95
+    entity_type: "ZIP_CODE"
+
+# Miscellaneous patterns for catching additional sensitive information
+misc_patterns:
+  - name: "certification"
+    regex: "[A-Z][a-z]+ Certification"
+    score: 0.9
+    entity_type: "CERTIFICATION"
+
+  - name: "license_number"
+    regex: "[A-Z0-9\\-]+"
+    score: 0.9
+    entity_type: "LICENSE_NUMBER"
+
+  - name: "social_security_number"
+    regex: "\\d{3}-\\d{2}-\\d{4}"
+    score: 0.9
+    entity_type: "SSN"
+
+  - name: "passport_number"
+    regex: "[A-Z0-9]{5,9}"
+    score: 0.9
+    entity_type: "PASSPORT_NUMBER"
+    
+# Medical text detection
+medical_detection:
+  jobbert:
+    enabled: true   # Medical detection toggle
+    min_length: 10  # Minimum length for text input
+    threshold: 0.9  # Sensitivity threshold
+    context_keywords:
+      - "diagnosis"
+      - "treatment"
+      - "condition"
+      - "symptoms"
+      - "medication"
+      - "therapy"
+      - "medical"
+      - "health"
+      - "clinical"
+      - "patient"
+      - "prescribed"
+      - "disability"
+      - "chronic"
+      - "acute"
+    reference_phrases:
+      - "Requires regular medical accommodation for chronic condition"
+      - "Treatment involves daily medication management"
+      - "Diagnosed with ongoing health condition requiring monitoring"
+      - "Regular therapeutic intervention needed for management"
+      - "Medical disclosure: condition requires workplace adjustments"

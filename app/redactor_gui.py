@@ -2,96 +2,173 @@ import yaml
 from pathlib import Path
 import streamlit as st
 import os
+from typing import Dict, Optional
 from redactor_logic import RedactionProcessor
 
-# Load configuration from config.yaml
-CONFIG_PATH = Path("config.yaml")
+class ConfigLoader:
+    """Handles loading and validation of all configuration files"""
 
-def load_config():
-    """Load configuration from config.yaml."""
-    try:
-        with open(CONFIG_PATH, "r") as file:
-            return yaml.safe_load(file)
-    except Exception as e:
-        st.error(f"Error loading configuration: {e}")
-        return {}
+    def __init__(self):
+        self.config_files = {
+            'main': 'config.yaml',
+            'confidential': 'confidential_terms.yaml',
+            'word_filters': 'custom_word_filters.yaml',
+            'detection': 'detection_patterns.yaml'
+        }
+        self.configs: Dict[str, Optional[dict]] = {}
+        self.load_status: Dict[str, bool] = {}
 
-config = load_config()
+    def load_all_configs(self) -> bool:
+        """
+        Load all configuration files and validate their structure.
+        Returns True if all critical configs loaded successfully.
+        """
+        for config_name, filename in self.config_files.items():
+            success = self._load_single_config(config_name, filename)
+            self.load_status[config_name] = success
 
-CONFIDENTIAL_TERMS_PATH = Path("confidential_terms.yaml")
+            if not success and config_name in ['main', 'confidential']:  # Critical configs
+                st.error(f"Failed to load critical configuration: {filename}")
+                return False
 
-def load_confidential_terms():
-    """Load confidential terms from YAML."""
-    try:
-        with open(CONFIDENTIAL_TERMS_PATH, "r") as file:
-            return yaml.safe_load(file)
-    except Exception as e:
-        st.error(f"Error loading confidential terms: {e}")
-        return {}
+        return True
+
+    def _load_single_config(self, config_name: str, filename: str) -> bool:
+        """Load and validate a single configuration file."""
+        try:
+            with open(filename, 'r') as file:
+                config_data = yaml.safe_load(file)
+
+            # Validate config structure based on type
+            if config_name == 'main' and not self._validate_main_config(config_data):
+                st.error(f"Invalid structure in {filename}")
+                return False
+
+            if config_name == 'confidential' and not self._validate_confidential_config(config_data):
+                st.error(f"Invalid structure in {filename}")
+                return False
+
+            self.configs[config_name] = config_data
+            return True
+
+        except FileNotFoundError:
+            st.warning(f"Configuration file not found: {filename}")
+            self.configs[config_name] = None
+            return config_name not in ['main', 'confidential']
+
+        except yaml.YAMLError as e:
+            st.error(f"Error parsing {filename}: {str(e)}")
+            self.configs[config_name] = None
+            return False
+
+        except Exception as e:
+            st.error(f"Unexpected error loading {filename}: {str(e)}")
+            self.configs[config_name] = None
+            return False
+
+    def _validate_main_config(self, config: dict) -> bool:
+        """Validate main configuration structure."""
+        required_keys = ['input_folder', 'output_folder', 'model_directory', 'confidence_threshold']
+        return all(key in config for key in required_keys)
+
+    def _validate_confidential_config(self, config: dict) -> bool:
+        """Validate confidential terms configuration structure."""
+        required_keys = ['identity_terms', 'race_ethnicity_terms', 'protected_categories', 'custom_patterns']
+        return all(key in config for key in required_keys)
+
+    def get_config(self, config_name: str) -> Optional[dict]:
+        """Safely get a configuration by name."""
+        return self.configs.get(config_name)
+
+    def get_load_status(self) -> Dict[str, bool]:
+        """Get the loading status of all configurations."""
+        return self.load_status
+
 
 def display_gui():
-    """Main GUI for the Resume Redaction App."""
-    # Load configuration
-    input_dir = config.get("input_folder", "data/redact_input")
-    output_dir = config.get("output_folder", "data/redact_output")
-    model_directory = config.get("model_directory", "models/jobbert_model")
-    test_mode = config.get("test_mode", False)
-    confidence_threshold = config.get("confidence_threshold", 0.75)
-    pii_types = config.get("pii_types", [])
-
-    # Load confidential terms
-    confidential_data = load_confidential_terms()
-    custom_patterns = confidential_data.get("custom_patterns", [])
-
-    # Initialize the processor with custom patterns and word filters
-    processor = RedactionProcessor(
-        custom_patterns=custom_patterns,
-        keep_words_path="custom_word_filters.yaml",
-        redact_color=(0.8, 0.8, 0.8) if test_mode else (0, 0, 0),
-        redact_opacity=0.3 if test_mode else 1.0,
-        pii_types=pii_types,
-        model_directory=model_directory
-    )
-
-    # Add all categories of terms to custom terms
-    all_terms = confidential_data.get("identity_terms", []) + \
-                confidential_data.get("race_ethnicity_terms", []) + \
-                confidential_data.get("protected_categories", [])
-    processor.add_custom_terms(all_terms)
-
+    """Main GUI for the Resume Redaction Web App."""
     st.title("Resume Redaction Web App")
-    st.write("Use this tool to redact sensitive information from resumes.")
 
-    # Step 1: Input/Output Directories and Output Mode
+    # Initialize config loader
+    config_loader = ConfigLoader()
+
+    # Load all configurations
+    if not config_loader.load_all_configs():
+        st.error("Failed to load critical configurations. Please check the configuration files.")
+        return
+
+    # Display configuration status
+    with st.expander("Configuration Status"):
+        status = config_loader.get_load_status()
+        for config_name, success in status.items():
+            if success:
+                st.success(f"{config_name}: Loaded successfully")
+            else:
+                st.error(f"{config_name}: Failed to load")
+
+    # Get configurations
+    main_config = config_loader.get_config('main')
+    confidential_config = config_loader.get_config('confidential')
+    word_filters = config_loader.get_config('word_filters')
+
+    # Initialize processor with loaded configurations
+    try:
+        processor = RedactionProcessor(
+            custom_patterns=confidential_config.get('custom_patterns', []),
+            keep_words_path=config_loader.config_files['word_filters'],
+            redact_color=(0, 0, 0),  # Default color, will be updated based on mode
+            redact_opacity=1.0,      # Default opacity, will be updated based on mode
+            pii_types=main_config.get('pii_types', []),
+            confidence_threshold=main_config.get('confidence_threshold', 0.75),
+            model_directory=main_config.get('model_directory')
+        )
+    except AttributeError as e:
+        st.error(f"Failed to initialize redaction processor due to missing attribute: {str(e)}")
+        return
+    except Exception as e:
+        st.error(f"Failed to initialize redaction processor: {str(e)}")
+        return
+
+    # GUI Components
     st.header("Step 1: Configuration")
     col1, col2 = st.columns(2)
 
     with col1:
-        input_dir = st.text_input("Input Directory", input_dir)
-        output_dir = st.text_input("Output Directory", output_dir)
+        input_dir = st.text_input("Input Directory", main_config.get('input_folder', ''))
+        output_dir = st.text_input("Output Directory", main_config.get('output_folder', ''))
 
     with col2:
         mode = st.radio("Select Output Mode:", options=["Blackline", "Highlight"], index=0)
-        processor.redact_color = (0.8, 0.8, 0.8) if mode == "Highlight" else (0, 0, 0)
-        processor.redact_opacity = 0.3 if mode == "Highlight" else 1.0
-        processor.highlight_only = mode == "Highlight"
+        # Set color and opacity based on mode
+        if mode == "Highlight":
+            processor.redact_color = (1, 1, 0)  # Yellow highlight
+            processor.redact_opacity = 0.5      # 50% opacity
+        else:
+            processor.redact_color = (0, 0, 0)  # Black
+            processor.redact_opacity = 1.0      # 100% opacity
 
     # Step 2: Custom Word Filters
     st.header("Step 2: Custom Word Filters")
     col1, col2 = st.columns(2)
 
     with col1:
-        manual_keep_words = st.text_area("Whitelist (Words to Keep)", placeholder="Enter words to keep (comma-separated)")
+        current_keep_words = ', '.join(word_filters.get('keep_words', []))
+        manual_keep_words = st.text_area("Whitelist (Words to Keep)", 
+                                       value=current_keep_words,
+                                       placeholder="Enter words to keep (comma-separated)")
         if st.button("Update Whitelist"):
             new_keep_words = [word.strip() for word in manual_keep_words.split(",") if word.strip()]
-            processor.keep_words.extend(new_keep_words)
+            processor.keep_words.update(new_keep_words)
             st.success(f"Added {len(new_keep_words)} words to the whitelist.")
 
     with col2:
-        manual_discard_words = st.text_area("Blacklist (Words to Remove)", placeholder="Enter words to remove (comma-separated)")
+        current_discard_words = ', '.join(word_filters.get('discard_words', []))
+        manual_discard_words = st.text_area("Blacklist (Words to Remove)", 
+                                          value=current_discard_words,
+                                          placeholder="Enter words to remove (comma-separated)")
         if st.button("Update Blacklist"):
             new_discard_words = [word.strip() for word in manual_discard_words.split(",") if word.strip()]
-            processor.discard_words.extend(new_discard_words)
+            processor.discard_words.update(new_discard_words)
             st.success(f"Added {len(new_discard_words)} words to the blacklist.")
 
     # Step 3: Start Redaction
@@ -106,7 +183,6 @@ def display_gui():
             if not pdf_files:
                 st.warning("No PDF files found in the input directory.")
             else:
-                # Initialize progress tracking
                 progress_bar = st.progress(0)
                 status_text = st.empty()
                 total_stats = {"processed": 0, "total_words": 0, "total_redacted": 0}
@@ -116,28 +192,21 @@ def display_gui():
                     output_path = os.path.join(output_dir, f"confidential_{idx}.pdf")
 
                     try:
-                        # Update status
                         status_text.text(f"Processing file {idx} of {len(pdf_files)}: {pdf_file}")
+                        stats = processor.process_pdf(input_path, output_path)
 
-                        # Process the file with highlight mode if enabled
-                        stats = processor.process_pdf(input_path, output_path, highlight_only=processor.highlight_only)
-
-                        # Update totals
                         total_stats["processed"] += 1
                         total_stats["total_words"] += stats["total_words"]
                         total_stats["total_redacted"] += stats["redacted_words"]
 
-                        # Update progress bar
                         progress = idx / len(pdf_files)
                         progress_bar.progress(progress)
 
                     except Exception as e:
                         st.error(f"Error processing {pdf_file}: {str(e)}")
 
-                # Clear status text
                 status_text.empty()
 
-                # Show final statistics
                 st.success("Redaction complete!")
                 st.write(f"Processed {total_stats['processed']} files")
                 st.write(f"Total words processed: {total_stats['total_words']}")
