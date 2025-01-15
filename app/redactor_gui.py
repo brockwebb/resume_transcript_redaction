@@ -116,9 +116,6 @@ def display_gui():
         processor = RedactionProcessor(
             custom_patterns=confidential_config.get('custom_patterns', []),
             keep_words_path=config_loader.config_files['word_filters'],
-            redact_color=(0, 0, 0),  # Default color, will be updated based on mode
-            redact_opacity=1.0,      # Default opacity, will be updated based on mode
-            pii_types=main_config.get('pii_types', []),
             confidence_threshold=main_config.get('confidence_threshold', 0.75),
             model_directory=main_config.get('model_directory')
         )
@@ -139,13 +136,8 @@ def display_gui():
 
     with col2:
         mode = st.radio("Select Output Mode:", options=["Blackline", "Highlight"], index=0)
-        # Set color and opacity based on mode
-        if mode == "Highlight":
-            processor.redact_color = (1, 1, 0)  # Yellow highlight
-            processor.redact_opacity = 0.5      # 50% opacity
-        else:
-            processor.redact_color = (0, 0, 0)  # Black
-            processor.redact_opacity = 1.0      # 100% opacity
+        redact_color = (0, 0, 0) if mode == "Blackline" else (1, 1, 0)
+        redact_opacity = 1.0 if mode == "Blackline" else 0.5
 
     # Step 2: Custom Word Filters
     st.header("Step 2: Custom Word Filters")
@@ -154,8 +146,8 @@ def display_gui():
     with col1:
         current_keep_words = ', '.join(word_filters.get('keep_words', []))
         manual_keep_words = st.text_area("Whitelist (Words to Keep)", 
-                                       value=current_keep_words,
-                                       placeholder="Enter words to keep (comma-separated)")
+                                         value=current_keep_words,
+                                         placeholder="Enter words to keep (comma-separated)")
         if st.button("Update Whitelist"):
             new_keep_words = [word.strip() for word in manual_keep_words.split(",") if word.strip()]
             processor.keep_words.update(new_keep_words)
@@ -164,8 +156,8 @@ def display_gui():
     with col2:
         current_discard_words = ', '.join(word_filters.get('discard_words', []))
         manual_discard_words = st.text_area("Blacklist (Words to Remove)", 
-                                          value=current_discard_words,
-                                          placeholder="Enter words to remove (comma-separated)")
+                                            value=current_discard_words,
+                                            placeholder="Enter words to remove (comma-separated)")
         if st.button("Update Blacklist"):
             new_discard_words = [word.strip() for word in manual_discard_words.split(",") if word.strip()]
             processor.discard_words.update(new_discard_words)
@@ -193,7 +185,12 @@ def display_gui():
 
                     try:
                         status_text.text(f"Processing file {idx} of {len(pdf_files)}: {pdf_file}")
-                        stats = processor.process_pdf(input_path, output_path)
+                        stats = processor.process_pdf(
+                            input_path=input_path,
+                            output_path=output_path,
+                            redact_color=redact_color,
+                            redact_opacity=redact_opacity
+                        )
 
                         total_stats["processed"] += 1
                         total_stats["total_words"] += stats["total_words"]
@@ -217,3 +214,4 @@ def display_gui():
 
 if __name__ == "__main__":
     display_gui()
+

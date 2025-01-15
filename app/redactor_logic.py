@@ -8,6 +8,7 @@ from transformers import AutoTokenizer, AutoModel
 from presidio_analyzer import AnalyzerEngine, PatternRecognizer, Pattern
 from typing import Dict, Any, List, Tuple
 import yaml
+from redactor_file_processing import RedactFileProcessor
 
 def _split_text_into_sentences(text: str, max_tokens: int = None) -> List[str]:
     """
@@ -45,16 +46,11 @@ def setup_presidio_analyzer(custom_patterns: List[Dict]) -> AnalyzerEngine:
 
 class RedactionProcessor:
     def __init__(self, custom_patterns: List[Dict], keep_words_path: str = None,
-                 redact_color: Tuple[float, float, float] = (0, 0, 0),
-                 redact_opacity: float = 1.0, pii_types: List[str] = None,
                  confidence_threshold: float = None, model_directory: str = None,
                  detection_patterns_path: str = "detection_patterns.yaml"):
 
         # Basic configuration
         self.analyzer = setup_presidio_analyzer(custom_patterns)
-        self.redact_color = redact_color
-        self.redact_opacity = redact_opacity
-        self.pii_types = pii_types or []
         self.confidence_threshold = confidence_threshold
         self.custom_terms = []
         self.keep_words = set()
@@ -185,52 +181,24 @@ class RedactionProcessor:
 
         return redact_areas
 
-    def process_pdf(self, input_path: str, output_path: str) -> Dict[str, Any]:
+    def process_pdf(self, input_path: str, output_path: str, redact_color: Tuple[float, float, float] = (0, 0, 0), redact_opacity: float = 1.0) -> Dict[str, Any]:
         """
-        Process a single PDF file using parameters set by the GUI.
-        The redact_color and redact_opacity should already be set by the GUI.
+        Process a single PDF file with specified redaction settings.
+
+        :param input_path: Path to the input PDF.
+        :param output_path: Path to save the processed PDF.
+        :param redact_color: The color for redaction/highlighting.
+        :param redact_opacity: The opacity for highlighting.
+        :return: Statistics about the processing.
         """
-        if self.validate_pdfs and not self._validate_pdf(input_path):
-            raise ValueError(f"Invalid PDF: {input_path}")
-    
-        doc = fitz.open(input_path)
-        total_words = 0
-        redacted_words = 0
-    
-        for page_index, page in enumerate(doc, start=1):
-            wordlist = page.get_text("words")
-            if self.ocr_enabled and not wordlist:
-                ocr_text = self._apply_ocr(input_path)
-                wordlist = [{"bbox": None, "text": word} for word in ocr_text.split()]
-    
-            total_words += len(wordlist)
-            redact_areas = self._detect_redactions(wordlist)
-            redacted_words += len(redact_areas)
-    
-            for rect in redact_areas:
-                try:
-                    if self.redact_opacity < 1.0:  # Highlight mode
-                        # Ensure color values are in range 0-1
-                        rgb = [c if 0 <= c <= 1 else c/255 for c in self.redact_color]
-                        
-                        # Use highlight annotation
-                        annot = page.add_highlight_annot(rect)
-                        annot.set_colors(stroke=rgb)  # Use normalized values directly
-                        annot.set_opacity(self.redact_opacity)
-                        annot.update()
-                    else:  # Standard redaction mode
-                        annot = page.add_redact_annot(rect)
-                        # Ensure color values are in range 0-1
-                        rgb = [c if 0 <= c <= 1 else c/255 for c in self.redact_color]
-                        annot.set_colors(stroke=rgb, fill=rgb)  # Use normalized values directly
-                        annot.update()
-                        # Apply redactions for black box mode
-                        page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE)
-                    
-                except Exception as e:
-                    print(f"Error applying annotation on Page {page_index}: {e}")
-    
-        # Save with maximum compression
-        doc.save(output_path, garbage=4, deflate=True)
-        doc.close()
-        return {"total_words": total_words, "redacted_words": redacted_words}
+        file_processor = RedactFileProcessor(
+            redact_color=redact_color,
+            redact_opacity=redact_opacity,
+            ocr_enabled=self.ocr_enabled,
+            validate_pdfs=self.validate_pdfs
+        )
+        return file_processor.process_pdf(
+            input_path=input_path,
+            output_path=output_path,
+            detect_redactions=self._detect_redactions
+        )
