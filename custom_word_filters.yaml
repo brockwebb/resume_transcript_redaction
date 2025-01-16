@@ -20,6 +20,8 @@ custom_word_filters:
     - "c"
     - "c++"
     - "D3.js"
+    - "Python"
+    - "matlab"
     - "-" 
     - data
     - "management"

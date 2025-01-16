@@ -63,7 +63,7 @@ class RedactionProcessor:
 
         self.detection_config = self._load_detection_config(detection_patterns_path)
         self.medical_config = self.detection_config.get('medical_detection', {}).get('jobbert', {})
-        self.analyzer = setup_presidio_analyzer(custom_patterns, self.detection_config)
+        self.analyzer = self._setup_presidio_analyzer(custom_patterns)
         self.confidence_threshold = confidence_threshold
         self.custom_terms = []
         self.keep_words = set()
@@ -73,23 +73,10 @@ class RedactionProcessor:
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.tokenizer = AutoTokenizer.from_pretrained(model_directory)
         self.model = AutoModel.from_pretrained(model_directory).to(self.device)
-        self.jobbert_sensitivity = self.detection_config.get('jobbert', {}).get('jobbert_sensitivity')
-        if self.jobbert_sensitivity is None:
-            self.jobbert_sensitivity = 0.65  # Default value
+        self.jobbert_sensitivity = self.detection_config.get('jobbert', {}).get('jobbert_sensitivity', 0.65)
         self._initialize_medical_reference_embeddings()
         if keep_words_path:
             self._load_custom_word_filters(keep_words_path)
-
-    def _load_custom_word_filters(self, path: str):
-        try:
-            with open(path, 'r') as file:
-                data = yaml.safe_load(file)
-            self.keep_words = set(data.get('custom_word_filters', {}).get('keep_words', []))
-            self.discard_words = set(data.get('custom_word_filters', {}).get('discard_words', []))
-        except Exception as e:
-            print(f"Error loading custom word filters: {e}")
-            self.keep_words = set()
-            self.discard_words = set()
 
     def _load_detection_config(self, path: str) -> Dict[str, Any]:
         try:
@@ -98,6 +85,31 @@ class RedactionProcessor:
         except Exception as e:
             print(f"Error loading detection patterns from {path}: {e}")
             return {}
+
+    def _setup_presidio_analyzer(self, custom_patterns: List[Dict]) -> AnalyzerEngine:
+        analyzer = AnalyzerEngine()
+        all_patterns = []
+
+        for key, patterns in self.detection_config.items():
+            if isinstance(patterns, list):
+                all_patterns.extend(patterns)
+
+        if custom_patterns:
+            all_patterns.extend(custom_patterns)
+
+        for pattern in all_patterns:
+            recognizer = PatternRecognizer(
+                supported_entity=pattern["entity_type"],
+                patterns=[Pattern(
+                    name=pattern["name"],
+                    regex=pattern["regex"],
+                    score=pattern.get("score", 0.7)
+                )]
+            )
+            analyzer.registry.add_recognizer(recognizer)
+
+        print(f"Loaded patterns: {[pattern['name'] for pattern in all_patterns]}")
+        return analyzer
 
     def _initialize_medical_reference_embeddings(self):
         if not self.medical_config.get('reference_phrases'):
@@ -113,6 +125,17 @@ class RedactionProcessor:
         with torch.no_grad():
             outputs = self.model(**inputs)
         self._reference_embeddings = outputs.last_hidden_state.mean(dim=1)
+
+    def _load_custom_word_filters(self, path: str):
+        try:
+            with open(path, 'r') as file:
+                data = yaml.safe_load(file)
+            self.keep_words = set(data.get('custom_word_filters', {}).get('keep_words', []))
+            self.discard_words = set(data.get('custom_word_filters', {}).get('discard_words', []))
+        except Exception as e:
+            print(f"Error loading custom word filters: {e}")
+            self.keep_words = set()
+            self.discard_words = set()
 
     def _validate_with_jobbert(self, texts: List[str]) -> List[float]:
         if not texts:
@@ -130,12 +153,45 @@ class RedactionProcessor:
         embeddings = outputs.last_hidden_state.mean(dim=1)
         return [torch.norm(emb).item() for emb in embeddings]
 
+    def do_rects_overlap(self, rect1: fitz.Rect, rect2: fitz.Rect) -> bool:
+        """Check if two rectangles overlap."""
+        return not (rect1[2] < rect2[0] or  # rect1 is left of rect2
+                    rect1[0] > rect2[2] or  # rect1 is right of rect2
+                    rect1[3] < rect2[1] or  # rect1 is above rect2
+                    rect1[1] > rect2[3])    # rect1 is below rect2
+
+    def union_rects(self, rect1: fitz.Rect, rect2: fitz.Rect) -> fitz.Rect:
+        """Create a union of two rectangles."""
+        return fitz.Rect(
+            min(rect1[0], rect2[0]),  # left
+            min(rect1[1], rect2[1]),  # top
+            max(rect1[2], rect2[2]),  # right
+            max(rect1[3], rect2[3])   # bottom
+        )
+
+    def _get_bbox_for_match(self, matched_text: str, wordlist) -> fitz.Rect:
+        for word in wordlist:
+            raw_text = word["text"] if isinstance(word, dict) else word[4]
+            normalized_text = raw_text.lower().strip()
+            matched_normalized = matched_text.lower().strip()
+            if matched_normalized in normalized_text:
+                return word["bbox"] if isinstance(word, dict) else fitz.Rect(word[0], word[1], word[2], word[3])
+
+        # Debugging unmatched text
+        print(f"No BBox found for: '{matched_text}'")
+        return None
+
     def _detect_redactions(self, wordlist) -> List[fitz.Rect]:
         redact_areas = []
         page_text = " ".join(word["text"] if isinstance(word, dict) else word[4] for word in wordlist)
-        max_length = self.medical_config.get('max_length', 64)
-        sentences = _split_text_into_sentences(page_text, max_tokens=max_length)
 
+        # Debugging full text for Presidio
+        print(f"Full page text passed to Presidio: {page_text[:500]}...")
+
+        sentences = re.split(r'(?<=[.!?])\s+', page_text.strip())  # Only use common sentence endings
+        print(f"Split into {len(sentences)} sentences for JobBERT validation.")
+
+        all_matches = []
         for sentence in sentences:
             presidio_results = self.analyzer.analyze(
                 text=sentence,
@@ -145,27 +201,38 @@ class RedactionProcessor:
 
             for result in presidio_results:
                 matched_text = sentence[result.start:result.end]
-                if result.entity_type in {"PHONE_NUMBER", "EMAIL_ADDRESS", "SOCIAL_MEDIA", "DATE", "PERSON_NAME", "SCHOOL"}:
-                    bbox = self._get_bbox_for_match(matched_text, wordlist)
-                    if bbox:
-                        redact_areas.append(bbox)
-                    continue
-                jobbert_confidence = self._validate_with_jobbert([matched_text])[0]
-                if jobbert_confidence >= self.jobbert_sensitivity:
-                    bbox = self._get_bbox_for_match(matched_text, wordlist)
-                    if bbox:
-                        redact_areas.append(bbox)
+                bbox = self._get_bbox_for_match(matched_text, wordlist)
 
+                # Debugging detected entities
+                print(f"Presidio detected entity: {result.entity_type}, Text: '{matched_text}', BBox: {bbox}")
+
+                if result.entity_type in {"PHONE_NUMBER", "EMAIL_ADDRESS", "SOCIAL_MEDIA", "DATE", "PERSON_NAME", "SCHOOL", "ADDRESS"}:
+                    if bbox:
+                        all_matches.append((matched_text, bbox))
+                else:
+                    jobbert_confidence = self._validate_with_jobbert([matched_text])[0]
+                    print(f"JobBERT confidence for '{matched_text}': {jobbert_confidence}")
+                    if jobbert_confidence >= self.jobbert_sensitivity:
+                        if bbox:
+                            all_matches.append((matched_text, bbox))
+
+        all_matches.sort(key=lambda x: (x[1][0], x[1][1]))
+
+        current_rect = None
+        for _, bbox in all_matches:
+            if current_rect is None:
+                current_rect = bbox
+            elif self.do_rects_overlap(current_rect, bbox):
+                current_rect = self.union_rects(current_rect, bbox)
+            else:
+                redact_areas.append(current_rect)
+                current_rect = bbox
+
+        if current_rect:
+            redact_areas.append(current_rect)
+
+        print(f"Final redacted areas: {len(redact_areas)} regions.")  # Debugging final redaction regions
         return redact_areas
-
-    def _get_bbox_for_match(self, matched_text: str, wordlist) -> fitz.Rect:
-        for word in wordlist:
-            raw_text = word["text"] if isinstance(word, dict) else word[4]
-            normalized_text = raw_text.lower().strip()
-            matched_normalized = matched_text.lower().strip()
-            if matched_normalized in normalized_text:
-                return word["bbox"] if isinstance(word, dict) else fitz.Rect(word[0], word[1], word[2], word[3])
-        return None
 
     def process_pdf(self, input_path: str, output_path: str, redact_color: Tuple[float, float, float] = (0, 0, 0), redact_opacity: float = 1.0) -> Dict[str, Any]:
         file_processor = RedactFileProcessor(
