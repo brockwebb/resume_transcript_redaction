@@ -47,6 +47,19 @@ project/
 
 ---
 
+## Application Structure
+```
+redactor_gui.py (main orchestrator)
+  └─ redactor_logic.py (processing orchestrator)
+      ├─ redactor_patterns.py
+      ├─ redactor_jobbert.py
+      ├─ redactor_file_processing.py
+      └─ redactor_base.py
+          ├─ redactor_config.py
+          ├─ redactor_utils.py
+          └─ redactor_logging.py
+```
+
 ## Quick Start
 
 ### Prerequisites
