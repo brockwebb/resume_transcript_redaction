@@ -1,7 +1,6 @@
 # confidential_terms.yaml
 ## Focuses on context-sensitive terms (e.g., protected categories, identity terms, advocacy-related phrases).
 ## Includes custom patterns for privacy-sensitive information that doesn't fit general PII detection.
-
 identity_terms:
   - "pronouns"
   - "they/them"
@@ -22,6 +21,7 @@ race_ethnicity_terms:
   - "African American"
   - "Hispanic"
   - "Latino"
+  - "Latinx"
   - "White"
   - "Caucasian"
   - "Native American"
@@ -44,37 +44,3 @@ protected_categories:
   - "marital status"
   - "familial status"
   - "genetic information"
-
-custom_patterns:
-  - entity_type: "MEDICAL_DISCLOSURE"
-    name: "medical_disclosure"
-    regex: "(?i)medical\\s+disclosure:.*|(?:requires|needs|medical)\\s+accommodations?.*"
-    score: 0.7
-  - entity_type: "PHI"
-    name: "personal_health_info"
-    regex: "(?i)(?:diagnosed|suffering|treated)\\s+(?:with|for)\\s+|(?:type|stage)\\s*[0-9]\\s+[a-zA-Z\\s]+|(?:insulin|medication)\\s+(?:pump|treatment|therapy)"
-    score: 0.7
-  - entity_type: "MEDICAL_ACCOMMODATION"
-    name: "medical_accommodation"
-    regex: "(?i)requires?\\s*(medical\\s*)?accommodations?.*"
-    score: 0.7
-  - entity_type: "HEALTH_CONDITION"
-    name: "health_condition"
-    regex: "(?i)(chronic|ongoing|diagnosed with|suffering from|treated for)\\s*\\w+\\s*(condition|disease|disorder|syndrome)"
-    score: 0.7
-  - entity_type: "PRONOUN_LABEL"
-    name: "pronoun_label"
-    regex: "(?i)\\bPronouns\\b"
-    score: 0.7
-  - entity_type: "PRONOUNS"
-    name: "pronouns"
-    regex: "(?i)\\b(they/them|he/him|she/her)\\b"
-    score: 0.7
-  - entity_type: "LGBTQIA"
-    name: "lgbtqia_advocacy"
-    regex: "(?i)\\b(lgbtqia\\+|advocate|nonbinary|gender\\s+identity)\\b"
-    score: 0.7
-  - entity_type: "GENDER_TERMS"
-    name: "gender_terms"
-    regex: "(?i)\\b(female|male|transgender|gender)\\b"
-    score: 0.7

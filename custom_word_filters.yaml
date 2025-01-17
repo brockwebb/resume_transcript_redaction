@@ -1,68 +1,33 @@
+trigger_words: #"List of patterns that trigger full-line redaction for high-risk entities."
+  - "www"
+  - "http"
+  - "@"
+  - ".com"
+  - ".co"
+  - ".ai"
+
 custom_word_filters:
   keep_words:
-    - of
-    - the
-    - "and"
-    - "for"
-    - to
-    - "if"
-    - in
-    - "on"
-    - a
-    - an
-    - at
-    - with
-    #Programming tools
-    - "tableau"
-    - "matplotlib"
-    - "ggplot2"
-    - R
-    - "c"
-    - "c++"
-    - "D3.js"
     - "Python"
-    - "matlab"
-    - "-" 
-    - data
+    - "Tableau"
+    - "Google Cloud"
+    - "AWS"
+    - "Power BI"
+    - "R"
+    - "MATLAB"
+    - "Pandas"
+    - "scikit-learn"
+    - "D3.js"
+    - "data"
+    - "analytics"
+    - "research"
+    - "advocacy"
     - "management"
-    - manage
-    - managed
-    - one
-    - two
-    - three
-    - four
-    - five
-    - six
-    - seven
-    - eight
-    - nine
-    - ten
-    - analytics
-    - language
-    - languages
-    - advocacy
-    # Workplace/technical medical terms
-    - research
-    - laboratory
-    - clinical
-    - medical center
-    - hospital
-    - healthcare
-    - pharmaceutical
-    - biotech
-    - treatment development
-    - patient care
-    - medical research
-    - clinical trials
-    - FDA
-    - WHO
-    - NIH
-    - grant
-    - study
-    - analysis
-  
-  discard_words:
-    - ".com"
-    - "twitter"
-    - ".net"
-
+    - "clinical"
+    - "healthcare"
+    - "biotech"
+    - "pharmaceutical"
+    - "FDA"
+    - "WHO"
+    - "NIH"
+    - "grant"

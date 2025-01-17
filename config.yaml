@@ -4,24 +4,24 @@ output_folder: "data/redact_output"
 model_directory: "models/jobbert_model"
 test_mode: true
 language: "en"
-confidence_threshold: 0.6
+confidence_threshold: 0.8
 batch_size: 32
 cache_enabled: true
 
 # Additional Configuration Options
 redaction_options:
-  minimum_confidence_score: 0.55        # Minimum confidence for redaction
-  context_words_before: 5              # Number of context words before PII
-  context_words_after: 5             # Number of context words after PII
+  minimum_confidence_score: 0.7       # Minimum confidence for redaction
+  context_words_before: 2              # Number of context words before PII
+  context_words_after: 2             # Number of context words after PII
   preserve_formatting: true            # Preserve formatting during redaction
   redaction_char: "█"                  # Character used for redacting text
 
 jobbert:
   max_length: 128 #1-2 sentences should be ~30 tokens, this is a factor of safety
-  jobbbert_sensitivity: 0.75  # Default value for sensitivity
+  jobbbert_sensitivity: 0.9  # Default value for sensitivity
 
 logging:
-  level: ERROR                          # Logging level (INFO, DEBUG, etc.)
+  level: DEBUG                          # Logging level (INFO, DEBUG, etc.)
   file: "redaction.log"                # Log file path
   console_output: true                 # Enable console logging
   detailed_summary: true               # Generate detailed summary of redaction

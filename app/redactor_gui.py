@@ -73,7 +73,7 @@ class ConfigLoader:
 
     def _validate_confidential_config(self, config: dict) -> bool:
         """Validate confidential terms configuration structure."""
-        required_keys = ['identity_terms', 'race_ethnicity_terms', 'protected_categories', 'custom_patterns']
+        required_keys = ['identity_terms', 'race_ethnicity_terms', 'protected_categories']
         return all(key in config for key in required_keys)
 
     def get_config(self, config_name: str) -> Optional[dict]:
