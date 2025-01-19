@@ -34,7 +34,6 @@ project/
 ├── app/                       # Streamlit app and GUI code
 │   └── app.py                 # Main Streamlit app
 ├── models/                    # Model artifacts
-│   └── jobbert_model/         # Pre-trained JobBERT model directory
 ├── data/                      # Input/output folders
 │   ├── redact_input/          # Input PDFs
 │   └── redact_output/         # Redacted PDFs
@@ -51,13 +50,8 @@ project/
 ```
 redactor_gui.py (main orchestrator)
   └─ redactor_logic.py (processing orchestrator)
-      ├─ redactor_patterns.py
-      ├─ redactor_jobbert.py
-      ├─ redactor_file_processing.py
-      └─ redactor_base.py
-          ├─ redactor_config.py
-          ├─ redactor_utils.py
-          └─ redactor_logging.py
+      └─ redactor_file_processing.py
+      
 ```
 
 ## Quick Start
@@ -87,26 +81,23 @@ redactor_gui.py (main orchestrator)
    - You will be prompted to name the environment (default: `redaction_env`).
    - Optionally, you can add the environment to JupyterLab during setup.
 
-4. **Place the JobBERT Model**:
-   Download and place the pre-trained **JobBERT** model in the `models/jobbert_model` directory.
-
 ---
 
 ### Running the Application
 
-5. **Start the Streamlit Web App**:
+4. **Start the Streamlit Web App**:
    Run the Streamlit app to begin redacting resumes:
    ```bash
    streamlit run app/app.py
    ```
 
-6. **Open the App**:
+5. **Open the App**:
    Open the app in your web browser. By default, it will run at:
    ```
    http://localhost:8501
    ```
 
-7. **Use the Interface**:
+6. **Use the Interface**:
    - Select input and output directories.
    - Load the JobBERT model.
    - Start the redaction process.
@@ -123,7 +114,7 @@ redactor_gui.py (main orchestrator)
 
 1. Execute the redactor script:
    ```bash
-   python redactor_app.py
+   python redactor_gui.py
    ```
 
 2. The script processes PDFs from `data/redact_input` and outputs redacted files to `data/redact_output`.
