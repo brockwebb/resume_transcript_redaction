@@ -13,6 +13,9 @@
 # For the app: Ignore local Streamlit configuration and cache
 .streamlit/
 
+# Ignore the archive
+archive/
+
 ###############################################################################
 # 2) Ignore macOS hidden files (in all directories)
 ###############################################################################
