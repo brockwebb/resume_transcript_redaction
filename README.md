@@ -31,28 +31,40 @@ This repository provides two tools for detecting and redacting sensitive informa
 
 ```
 project/
-├── app/                       # Streamlit app and GUI code
-│   └── app.py                 # Main Streamlit app
-├── models/                    # Model artifacts
+├── app/                       
+│   ├── redactor_gui.py       # Main Streamlit interface
+│   ├── config/               
+│   │   ├── config.yaml           # App configuration
+│   │   └── patterns/             # Detection patterns
+│   │       ├── detection_patterns.yaml
+│   │       ├── confidential_terms.yaml
+│   │       └── custom_word_filters.yaml
+│   └── utils/
+│       ├── __init__.py
+│       ├── logger.py         # Centralized logging
+│       └── config_loader.py  # Config management
+├── redactor/
+│   ├── __init__.py
+│   ├── redactor_logic.py     # Core orchestration
+│   ├── file_processor.py     # PDF handling
+│   └── detectors/            # Detection modules
+│       ├── __init__.py
+│       ├── pattern_matcher.py  # Presidio patterns
+│       └── entity_detector.py  # spaCy integration
 ├── data/                      # Input/output folders
 │   ├── redact_input/          # Input PDFs
 │   └── redact_output/         # Redacted PDFs
+├── models/                    # Model artifacts
+│   └── spacy_model/           # spaCy model directory
+├── logs/                      # Log files directory
 ├── scripts/                   # Environment setup and utility scripts
-│   └── setup_environment.sh   # Script to create a new Conda environment
-├── requirements.txt           # Python dependencies (pip installable)
-├── README.md                  # Project description and instructions
-└── .gitignore                 # Git ignore rules
+│   └── setup_environment.sh   # Create Conda environment
+├── requirements.txt           # Python dependencies
+├── README.md                  # Project documentation
+└── .gitignore                # Git ignore rules
 ```
 
 ---
-
-## Application Structure
-```
-redactor_gui.py (main orchestrator)
-  └─ redactor_logic.py (processing orchestrator)
-      └─ redactor_file_processing.py
-      
-```
 
 ## Quick Start
 
