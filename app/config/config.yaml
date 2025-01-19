@@ -16,9 +16,6 @@ redaction_options:
   preserve_formatting: true            # Preserve formatting during redaction
   redaction_char: "█"                  # Character used for redacting text
 
-jobbert:
-  max_length: 128 #1-2 sentences should be ~30 tokens, this is a factor of safety
-  jobbbert_sensitivity: 0.9  # Default value for sensitivity
 
 logging:
   level: DEBUG                          # Logging level (INFO, DEBUG, etc.)

@@ -1,34 +1,29 @@
 import re
+import spacy
 import fitz
 from pytesseract import image_to_string
 from pdf2image import convert_from_path
-import torch
-import torch.nn.functional as F
-from transformers import AutoTokenizer, AutoModel
 from presidio_analyzer import AnalyzerEngine, PatternRecognizer, Pattern
 from typing import Dict, Any, List, Tuple
 import yaml
 from redactor_file_processing import RedactFileProcessor
 from typing import Optional
 import string
+from dataclasses import dataclass
+from pathlib import Path
 
+@dataclass
+class Entity:
+    """Entity class to store detected entities with their metadata."""
+    text: str
+    entity_type: str
+    confidence: float
+    start: int
+    end: int
 
-def _split_text_into_sentences(text: str, max_tokens: int = None) -> List[str]:
-    """
-    Split text into meaningful sentences for analysis, capping length for JobBERT.
-    """
-    sentences = re.split(r'(?<=[.!?])\s+', text.strip())  # Split by punctuation
-    split_sentences = []
-
-    for sentence in sentences:
-        tokens = sentence.split()
-        if max_tokens is not None and len(tokens) > max_tokens:
-            for i in range(0, len(tokens), max_tokens):
-                split_sentences.append(" ".join(tokens[i:i + max_tokens]))
-        else:
-            split_sentences.append(sentence)
-
-    return split_sentences
+def _split_text_into_sentences(text: str) -> List[str]:
+    """Split text into meaningful sentences for analysis."""
+    return re.split(r'(?<=[.!?])\s+', text.strip())
 
 def setup_presidio_analyzer(custom_patterns: List[Dict], detection_config: Dict) -> AnalyzerEngine:
     """Set up Presidio Analyzer with all patterns dynamically."""
@@ -60,52 +55,58 @@ def setup_presidio_analyzer(custom_patterns: List[Dict], detection_config: Dict)
 
 class RedactionProcessor:
     def __init__(self, custom_patterns: List[Dict], keep_words_path: str = None,
-                 confidence_threshold: float = None, model_directory: str = None,
+                 confidence_threshold: float = None,
                  detection_patterns_path: str = "detection_patterns.yaml",
                  trigger_words_path: str = "custom_word_filters.yaml"):
-        # Load detection patterns
+        print("\n=== Initializing RedactionProcessor ===")
+        
+        # Load detection patterns once
+        print("Loading detection patterns...")
         self.detection_config = self._load_detection_config(detection_patterns_path)
-
-        # Initialize Presidio analyzer
+        
+        # Initialize Presidio analyzer once
+        print("Setting up Presidio analyzer...")
         self.analyzer = self._setup_presidio_analyzer(custom_patterns)
-
+        
         # Set basic configurations
         self.confidence_threshold = confidence_threshold or 0.7
         self.custom_terms = []
         self.keep_words = set()
         self.trigger_words = set()
-
+        
         # PDF processing settings
         self.validate_pdfs = False
         self.ocr_enabled = False
-
-        # Load NLP model
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.tokenizer = AutoTokenizer.from_pretrained(model_directory)
-        self.model = AutoModel.from_pretrained(model_directory).to(self.device)
-
-        # Load custom word filters and trigger words if provided
+        
+        # Load spaCy model
+        print("Loading spaCy model...")
+        self.nlp = spacy.load("en_core_web_lg")
+        print("spaCy model loaded successfully")
+        
+        # Load word filters
         if keep_words_path:
+            print("Loading keep words...")
             self._load_custom_word_filters(keep_words_path)
-
+        
         if trigger_words_path:
+            print("Loading trigger words...")
             self._load_trigger_words(trigger_words_path)
-
+        
+        print("=== Initialization Complete ===\n")
+    
     def _load_trigger_words(self, path: str):
-        """
-        Load trigger words from a YAML file with proper structure handling.
-        """
+        """Load trigger words from a YAML file."""
         try:
             with open(path, 'r') as file:
                 data = yaml.safe_load(file)
             self.trigger_words = set(data.get("trigger_words", []))
-            print(f"Loaded trigger words: {self.trigger_words}")  # Debug output
+            print(f"Loaded trigger words: {self.trigger_words}")
         except Exception as e:
             print(f"Error loading trigger words: {e}")
             self.trigger_words = set()
 
-
     def _load_detection_config(self, path: str) -> Dict[str, Any]:
+        """Load detection patterns configuration."""
         try:
             with open(path, 'r') as file:
                 return yaml.safe_load(file)
@@ -114,6 +115,7 @@ class RedactionProcessor:
             return {}
 
     def _setup_presidio_analyzer(self, custom_patterns: List[Dict]) -> AnalyzerEngine:
+        """Initialize and configure Presidio analyzer."""
         analyzer = AnalyzerEngine()
         all_patterns = []
 
@@ -126,7 +128,7 @@ class RedactionProcessor:
 
         for pattern in all_patterns:
             try:
-                print(f"Loading pattern: {pattern['name']} | Regex: {pattern['regex']}")  # Debug output
+                print(f"Loading pattern: {pattern['name']} | Regex: {pattern['regex']}")
                 recognizer = PatternRecognizer(
                     supported_entity=pattern["entity_type"],
                     patterns=[Pattern(
@@ -142,55 +144,28 @@ class RedactionProcessor:
         return analyzer
 
     def _load_custom_word_filters(self, path: str):
+        """Load custom word filters from YAML file."""
         try:
             with open(path, 'r') as file:
                 data = yaml.safe_load(file)
             self.keep_words = set(data.get('custom_word_filters', {}).get('keep_words', []))
-            print(f"Loaded keep words: {self.keep_words}")  # Debugging output
+            print(f"Loaded keep words: {self.keep_words}")
         except Exception as e:
             print(f"Error loading keep words: {e}")
 
     @staticmethod
     def _normalize_text(text: str) -> str:
-        """
-        Normalize text by stripping punctuation and converting to lowercase.
-    
-        Args:
-            text (str): Input text.
-    
-        Returns:
-            str: Normalized text.
-        """
+        """Normalize text by stripping punctuation and converting to lowercase."""
         return text.translate(str.maketrans('', '', string.punctuation)).strip().lower()
 
     @staticmethod
     def normalize_domain_specific_text(text: str) -> str:
-        """
-        Normalize text while retaining domain-specific characters like '.', '/', '@', and ':'.
-        
-        Args:
-            text (str): Input text.
-            
-        Returns:
-            str: Normalized text for domain-specific use cases.
-        """
+        """Normalize text while retaining domain-specific characters."""
         return re.sub(r'[^a-zA-Z0-9@./:_-]', '', text).strip().lower()
 
-    
     @staticmethod
     def _get_line_bbox(matched_text: str, wordlist: list, entity_type: str = None) -> List[fitz.Rect]:
-        """
-        Identifies bounding boxes for matched text within wordlist, with domain-specific handling.
-    
-        Args:
-            matched_text (str): Text to find bounding boxes for.
-            wordlist (list): List of words with their positions.
-            entity_type (str): Optional entity type to apply domain-specific normalization.
-    
-        Returns:
-            List[fitz.Rect]: List of combined bounding boxes for matched text.
-        """
-        # Normalize matched text
+        """Get bounding boxes for matched text within wordlist."""
         if entity_type in {"WEBSITE", "EMAIL_ADDRESS", "SOCIAL_MEDIA"}:
             normalized_matched_text = RedactionProcessor.normalize_domain_specific_text(matched_text)
         else:
@@ -207,7 +182,6 @@ class RedactionProcessor:
                 text = word[4]
                 bbox = fitz.Rect(word[0], word[1], word[2], word[3])
     
-            # Normalize text
             if entity_type in {"WEBSITE", "EMAIL_ADDRESS", "SOCIAL_MEDIA"}:
                 text = RedactionProcessor.normalize_domain_specific_text(text)
             else:
@@ -215,7 +189,6 @@ class RedactionProcessor:
     
             words.append({'text': text, 'bbox': bbox})
     
-        # Split matched text into words and match line-by-line
         match_words = normalized_matched_text.split()
         matching_bboxes = []
         current_match_bboxes = []
@@ -234,36 +207,9 @@ class RedactionProcessor:
             print(f"No BBox found for: {matched_text}")
         return matching_bboxes
 
-    
     @staticmethod
     def _combine_bboxes(bboxes: list) -> fitz.Rect:
-        """
-        Combines multiple bounding boxes into one unified rectangle.
-    
-        Args:
-            bboxes (list): List of bounding boxes to combine.
-    
-        Returns:
-            fitz.Rect: Combined bounding box.
-        """
-        x0 = min(bbox.x0 for bbox in bboxes if bbox)
-        y0 = min(bbox.y0 for bbox in bboxes if bbox)
-        x1 = max(bbox.x1 for bbox in bboxes if bbox)
-        y1 = max(bbox.y1 for bbox in bboxes if bbox)
-        return fitz.Rect(x0, y0, x1, y1)
-
-    
-    @staticmethod
-    def _aggregate_line_bboxes(bboxes: list) -> fitz.Rect:
-        """
-        Combines bounding boxes for a single line into one rectangle.
-        
-        Args:
-            bboxes (list): List of bounding boxes to combine.
-        
-        Returns:
-            fitz.Rect: Combined bounding box for the line.
-        """
+        """Combine multiple bounding boxes into one unified rectangle."""
         x0 = min(bbox.x0 for bbox in bboxes if bbox)
         y0 = min(bbox.y0 for bbox in bboxes if bbox)
         x1 = max(bbox.x1 for bbox in bboxes if bbox)
@@ -271,92 +217,76 @@ class RedactionProcessor:
         return fitz.Rect(x0, y0, x1, y1)
     
     def _detect_redactions(self, wordlist: list) -> List[fitz.Rect]:
-        """
-        Detect areas requiring redaction using trigger word logic, URL patterns, and standard detection.
-    
-        Args:
-            wordlist (list): List of words with their positions.
-    
-        Returns:
-            List[fitz.Rect]: List of bounding boxes for redaction.
-        """
+        """Detect areas requiring redaction using spaCy and pattern matching."""
         redact_areas = []
-    
+        
+        print("\n--- Starting Detection for New Page ---")
+        print(f"Processing {len(wordlist)} words")
+        
         # Group words by line using y-coordinates
         lines = []
         current_line = []
         prev_y = None
-    
+        
         for word in wordlist:
             bbox = word.get('bbox') if isinstance(word, dict) else fitz.Rect(word[0], word[1], word[2], word[3])
             text = word.get('text', '') if isinstance(word, dict) else word[4]
-    
+            
             if prev_y is not None and abs(bbox.y0 - prev_y) > 5:
                 lines.append(current_line)
                 current_line = []
-    
+            
             current_line.append({'text': text, 'bbox': bbox})
             prev_y = bbox.y0
-    
+        
         if current_line:
             lines.append(current_line)
-    
+        
+        print(f"Grouped into {len(lines)} lines")
+        
         # Process each line
-        for line in lines:
-            context_words = line
-            context_text = " ".join(word['text'] for word in context_words)
-            line_should_be_redacted = False
-    
-            # Check for trigger words
-            for word in context_words:
-                word_text = word['text']
-                word_bbox = word['bbox']
-    
-                if any(trigger in word_text.lower() for trigger in self.trigger_words):
-                    print(f"Trigger word '{word_text}' detected.")
-                    redact_areas.append(word_bbox)
-                    continue  # Skip to next word
-    
-            # Check for URL patterns
-            if not line_should_be_redacted:
-                try:
-                    results = self.analyzer.analyze(
-                        text=context_text,
-                        language="en",
-                        entities=["WEBSITE"],  # Only check for website patterns
-                        score_threshold=self.confidence_threshold
-                    )
-                    for result in results:
-                        matched_text = context_text[result.start:result.end]
-                        print(f"URL pattern matched: {matched_text}")
-                        bboxes = self._get_line_bbox(matched_text, context_words, "WEBSITE")
+        for line_idx, line in enumerate(lines, 1):
+            context_text = " ".join(word['text'] for word in line)
+            print(f"\nProcessing line {line_idx}: {context_text[:50]}...")
+            
+            # Use spaCy for entity detection
+            doc = self.nlp(context_text)
+            for ent in doc.ents:
+                if ent.label_ in {'PERSON', 'ORG', 'GPE', 'LOC'}:
+                    print(f"spaCy found entity: {ent.label_} - '{ent.text}'")
+                    bboxes = self._get_line_bbox(ent.text, line)
+                    if bboxes:
+                        redact_areas.extend(bboxes)
+            
+            # Check trigger words
+            for word in line:
+                if any(trigger in word['text'].lower() for trigger in self.trigger_words):
+                    print(f"Trigger word found in: {word['text']}")
+                    redact_areas.append(word['bbox'])
+                    continue
+            
+            # Use pattern detection for specific patterns
+            try:
+                results = self.analyzer.analyze(
+                    text=context_text,
+                    language="en",
+                    score_threshold=self.confidence_threshold
+                )
+                for result in results:
+                    matched_text = context_text[result.start:result.end]  # Back to using start/end indices
+                    if not any(word.lower() in matched_text.lower() for word in self.keep_words):
+                        print(f"Pattern matched: {result.entity_type} - '{matched_text}'")
+                        bboxes = self._get_line_bbox(matched_text, line, result.entity_type)
                         if bboxes:
                             redact_areas.extend(bboxes)
-                            line_should_be_redacted = True
-                except Exception as e:
-                    print(f"Error in URL analysis: {e}")
-    
-            # Apply standard detection logic if not already redacted
-            if not line_should_be_redacted:
-                try:
-                    results = self.analyzer.analyze(
-                        text=context_text,
-                        language="en",
-                        score_threshold=self.confidence_threshold
-                    )
-                    for result in results:
-                        matched_text = context_text[result.start:result.end]
-                        entity_type = result.entity_type
-                        bboxes = self._get_line_bbox(matched_text, context_words, entity_type)
-                        if bboxes:
-                            redact_areas.extend(bboxes)
-                except Exception as e:
-                    print(f"Error in standard analysis: {e}")
-    
+            except Exception as e:
+                print(f"Error in pattern analysis: {e}")
+        
+        print(f"\nFound {len(redact_areas)} areas to redact")
         return redact_areas
 
-
     def process_pdf(self, input_path: str, output_path: str, redact_color: Tuple[float, float, float] = (0, 0, 0), redact_opacity: float = 1.0):
+        """Process a PDF file and apply redactions."""
         file_processor = RedactFileProcessor(
             redact_color=redact_color,
             redact_opacity=redact_opacity,

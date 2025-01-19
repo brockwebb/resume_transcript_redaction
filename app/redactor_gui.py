@@ -9,11 +9,16 @@ class ConfigLoader:
     """Handles loading and validation of all configuration files"""
 
     def __init__(self):
+        # Get the app directory path (where this file is located)
+        self.app_dir = Path(__file__).parent
+        self.config_dir = self.app_dir / 'config'
+
+        # Define config files relative to config directory
         self.config_files = {
-            'main': 'config.yaml',
-            'confidential': 'confidential_terms.yaml',
-            'word_filters': 'custom_word_filters.yaml',
-            'detection': 'detection_patterns.yaml'
+            'main': self.config_dir / 'config.yaml',
+            'confidential': self.config_dir / 'confidential_terms.yaml',
+            'word_filters': self.config_dir / 'custom_word_filters.yaml',
+            'detection': self.config_dir / 'detection_patterns.yaml'
         }
         self.configs: Dict[str, Optional[dict]] = {}
         self.load_status: Dict[str, bool] = {}
@@ -23,46 +28,46 @@ class ConfigLoader:
         Load all configuration files and validate their structure.
         Returns True if all critical configs loaded successfully.
         """
-        for config_name, filename in self.config_files.items():
-            success = self._load_single_config(config_name, filename)
+        for config_name, filepath in self.config_files.items():
+            success = self._load_single_config(config_name, filepath)
             self.load_status[config_name] = success
 
             if not success and config_name in ['main', 'confidential']:  # Critical configs
-                st.error(f"Failed to load critical configuration: {filename}")
+                st.error(f"Failed to load critical configuration: {filepath}")
                 return False
 
         return True
 
-    def _load_single_config(self, config_name: str, filename: str) -> bool:
+    def _load_single_config(self, config_name: str, filepath: Path) -> bool:
         """Load and validate a single configuration file."""
         try:
-            with open(filename, 'r') as file:
+            with open(filepath, 'r') as file:
                 config_data = yaml.safe_load(file)
 
             # Validate config structure based on type
             if config_name == 'main' and not self._validate_main_config(config_data):
-                st.error(f"Invalid structure in {filename}")
+                st.error(f"Invalid structure in {filepath}")
                 return False
 
             if config_name == 'confidential' and not self._validate_confidential_config(config_data):
-                st.error(f"Invalid structure in {filename}")
+                st.error(f"Invalid structure in {filepath}")
                 return False
 
             self.configs[config_name] = config_data
             return True
 
         except FileNotFoundError:
-            st.warning(f"Configuration file not found: {filename}")
+            st.warning(f"Configuration file not found: {filepath}")
             self.configs[config_name] = None
             return config_name not in ['main', 'confidential']
 
         except yaml.YAMLError as e:
-            st.error(f"Error parsing {filename}: {str(e)}")
+            st.error(f"Error parsing {filepath}: {str(e)}")
             self.configs[config_name] = None
             return False
 
         except Exception as e:
-            st.error(f"Unexpected error loading {filename}: {str(e)}")
+            st.error(f"Unexpected error loading {filepath}: {str(e)}")
             self.configs[config_name] = None
             return False
 
@@ -115,9 +120,10 @@ def display_gui():
     try:
         processor = RedactionProcessor(
             custom_patterns=confidential_config.get('custom_patterns', []),
-            keep_words_path=config_loader.config_files['word_filters'],
+            keep_words_path=str(config_loader.config_files['word_filters']),
             confidence_threshold=main_config.get('confidence_threshold', 0.75),
-            model_directory=main_config.get('model_directory')
+            detection_patterns_path=str(config_loader.config_files['detection']),
+            trigger_words_path=str(config_loader.config_files['word_filters'])
         )
     except AttributeError as e:
         st.error(f"Failed to initialize redaction processor due to missing attribute: {str(e)}")
