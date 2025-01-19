@@ -34,23 +34,23 @@ project/
 ├── app/                       
 │   ├── redactor_gui.py       # Main Streamlit interface
 │   ├── config/               
-│   │   ├── config.yaml           # App configuration
-│   │   └── patterns/             # Detection patterns
-│   │       ├── detection_patterns.yaml
-│   │       ├── confidential_terms.yaml
-│   │       └── custom_word_filters.yaml
+│   │   └── config.yaml       # App-specific config (paths, UI settings)
 │   └── utils/
 │       ├── __init__.py
-│       ├── logger.py         # Centralized logging
-│       └── config_loader.py  # Config management
+│       ├── logger.py         
+│       └── config_loader.py  
 ├── redactor/
 │   ├── __init__.py
-│   ├── redactor_logic.py     # Core orchestration
-│   ├── file_processor.py     # PDF handling
-│   └── detectors/            # Detection modules
+│   ├── redactor_logic.py     
+│   ├── file_processor.py     
+│   ├── config/               # Moved from app/config/patterns
+│   │   ├── detection_patterns.yaml
+│   │   ├── confidential_terms.yaml
+│   │   └── custom_word_filters.yaml
+│   └── detectors/            
 │       ├── __init__.py
-│       ├── pattern_matcher.py  # Presidio patterns
-│       └── entity_detector.py  # spaCy integration
+│       ├── pattern_matcher.py
+│       └── entity_detector.py
 ├── data/                      # Input/output folders
 │   ├── redact_input/          # Input PDFs
 │   └── redact_output/         # Redacted PDFs
