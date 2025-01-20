@@ -1,94 +1,44 @@
-import yaml
-from pathlib import Path
+# app/redactor_gui.py
 import streamlit as st
 import os
 from typing import Dict, Optional
-from redactor_logic import RedactionProcessor
+import sys
+from pathlib import Path
 
-class ConfigLoader:
-    """Handles loading and validation of all configuration files"""
+# Add project root to Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-    def __init__(self):
-        # Get the app directory path (where this file is located)
-        self.app_dir = Path(__file__).parent
-        self.config_dir = self.app_dir / 'config'
+# Use absolute imports
+from redactor.redactor_logic import RedactionProcessor
+from utils.config_loader import ConfigLoader  
+from utils.logger import RedactionLogger
 
-        # Define config files relative to config directory
-        self.config_files = {
-            'main': self.config_dir / 'config.yaml',
-            'confidential': self.config_dir / 'confidential_terms.yaml',
-            'word_filters': self.config_dir / 'custom_word_filters.yaml',
-            'detection': self.config_dir / 'detection_patterns.yaml'
-        }
-        self.configs: Dict[str, Optional[dict]] = {}
-        self.load_status: Dict[str, bool] = {}
 
-    def load_all_configs(self) -> bool:
-        """
-        Load all configuration files and validate their structure.
-        Returns True if all critical configs loaded successfully.
-        """
-        for config_name, filepath in self.config_files.items():
-            success = self._load_single_config(config_name, filepath)
-            self.load_status[config_name] = success
+def resolve_paths(config_loader):
+    """Resolve all relative paths in configuration to absolute paths."""
+    main_config = config_loader.get_config('main')
+    project_root = Path(__file__).parent.parent
 
-            if not success and config_name in ['main', 'confidential']:  # Critical configs
-                st.error(f"Failed to load critical configuration: {filepath}")
-                return False
+    # Resolve core directories
+    paths = {
+        'input_dir': project_root / main_config.get('input_folder').replace('../', ''),
+        'output_dir': project_root / main_config.get('output_folder').replace('../', ''),
+        'models_dir': project_root / main_config.get('models_dir').replace('../', '')
+    }
 
-        return True
+    # Resolve config paths
+    config_paths = {
+        'redaction_patterns': project_root / main_config.get('redaction_patterns_path').replace('../', ''),
+        'confidential_terms': project_root / main_config.get('confidential_terms_path').replace('../', ''),
+        'word_filters': project_root / main_config.get('word_filters_path').replace('../', '')
+    }
 
-    def _load_single_config(self, config_name: str, filepath: Path) -> bool:
-        """Load and validate a single configuration file."""
-        try:
-            with open(filepath, 'r') as file:
-                config_data = yaml.safe_load(file)
+    # Create directories if they don't exist
+    for path in paths.values():
+        path.mkdir(parents=True, exist_ok=True)
 
-            # Validate config structure based on type
-            if config_name == 'main' and not self._validate_main_config(config_data):
-                st.error(f"Invalid structure in {filepath}")
-                return False
-
-            if config_name == 'confidential' and not self._validate_confidential_config(config_data):
-                st.error(f"Invalid structure in {filepath}")
-                return False
-
-            self.configs[config_name] = config_data
-            return True
-
-        except FileNotFoundError:
-            st.warning(f"Configuration file not found: {filepath}")
-            self.configs[config_name] = None
-            return config_name not in ['main', 'confidential']
-
-        except yaml.YAMLError as e:
-            st.error(f"Error parsing {filepath}: {str(e)}")
-            self.configs[config_name] = None
-            return False
-
-        except Exception as e:
-            st.error(f"Unexpected error loading {filepath}: {str(e)}")
-            self.configs[config_name] = None
-            return False
-
-    def _validate_main_config(self, config: dict) -> bool:
-        """Validate main configuration structure."""
-        required_keys = ['input_folder', 'output_folder', 'model_directory', 'confidence_threshold']
-        return all(key in config for key in required_keys)
-
-    def _validate_confidential_config(self, config: dict) -> bool:
-        """Validate confidential terms configuration structure."""
-        required_keys = ['identity_terms', 'race_ethnicity_terms', 'protected_categories']
-        return all(key in config for key in required_keys)
-
-    def get_config(self, config_name: str) -> Optional[dict]:
-        """Safely get a configuration by name."""
-        return self.configs.get(config_name)
-
-    def get_load_status(self) -> Dict[str, bool]:
-        """Get the loading status of all configurations."""
-        return self.load_status
-
+    return paths, config_paths
 
 def display_gui():
     """Main GUI for the Resume Redaction Web App."""
@@ -96,40 +46,53 @@ def display_gui():
 
     # Initialize config loader
     config_loader = ConfigLoader()
+    logger = config_loader.logger
 
-    # Load all configurations
+    # Load configurations and resolve paths
     if not config_loader.load_all_configs():
         st.error("Failed to load critical configurations. Please check the configuration files.")
         return
 
-    # Display configuration status
-    with st.expander("Configuration Status"):
-        status = config_loader.get_load_status()
-        for config_name, success in status.items():
-            if success:
-                st.success(f"{config_name}: Loaded successfully")
-            else:
-                st.error(f"{config_name}: Failed to load")
+    # Resolve paths
+    try:
+        paths, config_paths = resolve_paths(config_loader)
+    except Exception as e:
+        st.error(f"Failed to resolve paths: {str(e)}")
+        logger.error(f"Path resolution failed: {str(e)}")
+        return
 
-    # Get configurations
-    main_config = config_loader.get_config('main')
-    confidential_config = config_loader.get_config('confidential')
+    # Load word filters configuration - ADD THIS LINE HERE
     word_filters = config_loader.get_config('word_filters')
 
-    # Initialize processor with loaded configurations
+    # Display configuration status
+    with st.expander("Configuration Status"):
+        st.write("Directories:")
+        for name, path in paths.items():
+            if path.exists():
+                st.success(f"{name}: {path}")
+            else:
+                st.error(f"{name}: {path} (not found)")
+
+        st.write("Configuration Files:")
+        for name, path in config_paths.items():
+            if path.exists():
+                st.success(f"{name}: {path}")
+            else:
+                st.error(f"{name}: {path} (not found)")
+
+    # Initialize processor with resolved paths
     try:
         processor = RedactionProcessor(
-            custom_patterns=confidential_config.get('custom_patterns', []),
-            keep_words_path=str(config_loader.config_files['word_filters']),
-            confidence_threshold=main_config.get('confidence_threshold', 0.75),
-            detection_patterns_path=str(config_loader.config_files['detection']),
-            trigger_words_path=str(config_loader.config_files['word_filters'])
+            custom_patterns=config_loader.get_config('detection'),  # Remove the .get('custom_patterns', [])
+            keep_words_path=str(config_paths['word_filters']),
+            confidence_threshold=config_loader.get_config('main').get('confidence_threshold', 0.75),
+            detection_patterns_path=str(config_paths['redaction_patterns']),
+            trigger_words_path=str(config_paths['word_filters']),
+            logger=logger
         )
-    except AttributeError as e:
-        st.error(f"Failed to initialize redaction processor due to missing attribute: {str(e)}")
-        return
     except Exception as e:
         st.error(f"Failed to initialize redaction processor: {str(e)}")
+        logger.error(f"Processor initialization failed: {str(e)}")
         return
 
     # GUI Components
@@ -137,8 +100,8 @@ def display_gui():
     col1, col2 = st.columns(2)
 
     with col1:
-        input_dir = st.text_input("Input Directory", main_config.get('input_folder', ''))
-        output_dir = st.text_input("Output Directory", main_config.get('output_folder', ''))
+        input_dir = st.text_input("Input Directory", str(paths['input_dir']))
+        output_dir = st.text_input("Output Directory", str(paths['output_dir']))
 
     with col2:
         mode = st.radio("Select Output Mode:", options=["Blackline", "Highlight"], index=0)
@@ -150,36 +113,42 @@ def display_gui():
     col1, col2 = st.columns(2)
 
     with col1:
-        current_keep_words = ', '.join(word_filters.get('keep_words', []))
+        # Safely get keep_words with fallback to empty list if None
+        current_keep_words = ', '.join(word_filters.get('keep_words', []) if word_filters else [])
         manual_keep_words = st.text_area("Whitelist (Words to Keep)", 
-                                         value=current_keep_words,
-                                         placeholder="Enter words to keep (comma-separated)")
+                                       value=current_keep_words,
+                                       placeholder="Enter words to keep (comma-separated)")
         if st.button("Update Whitelist"):
             new_keep_words = [word.strip() for word in manual_keep_words.split(",") if word.strip()]
             processor.keep_words.update(new_keep_words)
+            logger.info(f"Added {len(new_keep_words)} words to the whitelist")
             st.success(f"Added {len(new_keep_words)} words to the whitelist.")
 
     with col2:
-        current_discard_words = ', '.join(word_filters.get('discard_words', []))
+        # Safely get discard_words with fallback to empty list if None
+        current_discard_words = ', '.join(word_filters.get('discard_words', []) if word_filters else [])
         manual_discard_words = st.text_area("Blacklist (Words to Remove)", 
-                                            value=current_discard_words,
-                                            placeholder="Enter words to remove (comma-separated)")
+                                          value=current_discard_words,
+                                          placeholder="Enter words to remove (comma-separated)")
         if st.button("Update Blacklist"):
             new_discard_words = [word.strip() for word in manual_discard_words.split(",") if word.strip()]
             processor.discard_words.update(new_discard_words)
+            logger.info(f"Added {len(new_discard_words)} words to the blacklist")
             st.success(f"Added {len(new_discard_words)} words to the blacklist.")
-
     # Step 3: Start Redaction
     st.header("Step 3: Start Redaction")
     if st.button("Start Redaction"):
         if not os.path.exists(input_dir):
             st.error("Input directory does not exist.")
+            logger.error(f"Input directory does not exist: {input_dir}")
         elif not os.path.exists(output_dir):
             st.error("Output directory does not exist.")
+            logger.error(f"Output directory does not exist: {output_dir}")
         else:
             pdf_files = [f for f in os.listdir(input_dir) if f.endswith('.pdf')]
             if not pdf_files:
                 st.warning("No PDF files found in the input directory.")
+                logger.warning(f"No PDF files found in: {input_dir}")
             else:
                 progress_bar = st.progress(0)
                 status_text = st.empty()
@@ -191,6 +160,8 @@ def display_gui():
 
                     try:
                         status_text.text(f"Processing file {idx} of {len(pdf_files)}: {pdf_file}")
+                        logger.info(f"Processing file {idx}/{len(pdf_files)}: {pdf_file}")
+                        
                         stats = processor.process_pdf(
                             input_path=input_path,
                             output_path=output_path,
@@ -204,9 +175,11 @@ def display_gui():
 
                         progress = idx / len(pdf_files)
                         progress_bar.progress(progress)
+                        logger.info(f"Completed {pdf_file} - Words: {stats['total_words']}, Redacted: {stats['redacted_words']}")
 
                     except Exception as e:
                         st.error(f"Error processing {pdf_file}: {str(e)}")
+                        logger.error(f"Error processing {pdf_file}: {str(e)}")
 
                 status_text.empty()
 
@@ -217,7 +190,7 @@ def display_gui():
                 if total_stats['total_words'] > 0:
                     redaction_rate = (total_stats['total_redacted'] / total_stats['total_words'] * 100)
                     st.write(f"Overall redaction rate: {redaction_rate:.2f}%")
+                    logger.info(f"Processing complete - Rate: {redaction_rate:.2f}%")
 
 if __name__ == "__main__":
     display_gui()
-

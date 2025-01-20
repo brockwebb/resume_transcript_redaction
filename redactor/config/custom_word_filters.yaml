@@ -1,3 +1,7 @@
+# custom_word_filters.yaml
+# Purpose: Define allowlist/blocklist terms and trigger words
+# Location: app/config/patterns/custom_word_filters.yaml
+
 trigger_words: #"List of patterns that trigger full-line redaction for high-risk entities."
   - "www"
   - "http"

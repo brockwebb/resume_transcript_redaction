@@ -1,9 +1,7 @@
-# Resume Redaction Detection Patterns
-# Organization: Patterns are grouped by category with clear descriptions and examples
-# Scoring: 0.7-1.0 range where:
-#   0.9-1.0: High confidence patterns (exact matches like phone numbers)
-#   0.8-0.9: Strong confidence (well-structured patterns like emails)
-#   0.7-0.8: Medium confidence (contextual patterns like names)
+# detection_patterns.yaml
+# Purpose: Define regex patterns for entity detection
+# Location: app/config/patterns/detection_patterns.yaml
+# Note: All paths are relative to app directory
 
 # Personal Identifiers
 # Handles various forms of personal identification including names, pronouns, and titles

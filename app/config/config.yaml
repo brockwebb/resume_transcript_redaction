@@ -1,28 +1,44 @@
-#Basic Configuration Opetions
-input_folder: "data/redact_input"
-output_folder: "data/redact_output"
-model_directory: "models/jobbert_model"
+# Application Configuration
+# Location: app/config/config.yaml
+
+# Basic Configuration Options
+# Paths are relative to app directory
+input_folder: "../data/redact_input"
+output_folder: "../data/redact_output"
+redaction_patterns_path: "./redactor/config/detection_patterns.yaml"
+confidential_terms_path: "./redactor/config/confidential_terms.yaml"
+word_filters_path: "./redactor/config/custom_word_filters.yaml"
+entity_routing_path: "./redactor/config/entity_routing.yaml"
+
+
+# Model Configuration (reserved for future use)
+models_dir: "../models"
+
+# Core Settings
 test_mode: true
 language: "en"
 confidence_threshold: 0.8
 batch_size: 32
 cache_enabled: true
 
-# Additional Configuration Options
+# Redaction Options
 redaction_options:
-  minimum_confidence_score: 0.7       # Minimum confidence for redaction
-  context_words_before: 2              # Number of context words before PII
-  context_words_after: 2             # Number of context words after PII
-  preserve_formatting: true            # Preserve formatting during redaction
-  redaction_char: "█"                  # Character used for redacting text
+  minimum_confidence_score: 0.7
+  context_words_before: 2
+  context_words_after: 2
+  preserve_formatting: true
+  redaction_char: "█"
 
-
+# Logging Configuration
 logging:
-  level: DEBUG                          # Logging level (INFO, DEBUG, etc.)
-  file: "redaction.log"                # Log file path
-  console_output: true                 # Enable console logging
-  detailed_summary: true               # Generate detailed summary of redaction
+  level: DEBUG
+  file: "../logs/redaction.log"
+  console_output: true
+  detailed_summary: true
 
+# Pattern handling is in redactor/config/detection_patterns.yaml
+# Word filters are in redactor/config/custom_word_filters.yaml
+# Sensitive terms are in redactor/config/confidential_terms.yaml
 
 # Comprehensive PII types
 pii_types:

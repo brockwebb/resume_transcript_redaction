@@ -1,6 +1,7 @@
 # confidential_terms.yaml
-## Focuses on context-sensitive terms (e.g., protected categories, identity terms, advocacy-related phrases).
-## Includes custom patterns for privacy-sensitive information that doesn't fit general PII detection.
+# Purpose: Define sensitive terms and protected categories for redaction
+# Location: app/config/patterns/confidential_terms.yaml
+
 identity_terms:
   - "pronouns"
   - "they/them"
