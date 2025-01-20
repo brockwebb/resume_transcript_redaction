@@ -28,7 +28,6 @@ This repository provides two tools for detecting and redacting sensitive informa
 ---
 
 ## Project Structure
-
 ```
 project/
 ├── app/                       
@@ -43,7 +42,7 @@ project/
 │   ├── __init__.py
 │   ├── redactor_logic.py     
 │   ├── file_processor.py     
-│   ├── config/               # Moved from app/config/patterns
+│   ├── config/               
 │   │   ├── detection_patterns.yaml
 │   │   ├── confidential_terms.yaml
 │   │   └── custom_word_filters.yaml
@@ -51,19 +50,17 @@ project/
 │       ├── __init__.py
 │       ├── pattern_matcher.py
 │       └── entity_detector.py
-├── data/                      # Input/output folders
-│   ├── redact_input/          # Input PDFs
-│   └── redact_output/         # Redacted PDFs
-├── models/                    # Model artifacts
-│   └── spacy_model/           # spaCy model directory
-├── logs/                      # Log files directory
-├── scripts/                   # Environment setup and utility scripts
-│   └── setup_environment.sh   # Create Conda environment
-├── requirements.txt           # Python dependencies
-├── README.md                  # Project documentation
-└── .gitignore                # Git ignore rules
+├── data/                     
+│   ├── redact_input/         
+│   └── redact_output/        
+├── models/                    # Reserved for future custom models/artifacts
+├── logs/                     
+├── scripts/                  
+│   └── setup_environment.sh  
+├── requirements.txt          
+├── README.md                 
+└── .gitignore
 ```
-
 ---
 
 ## Quick Start
