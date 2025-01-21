@@ -5,154 +5,178 @@ import spacy
 from .base_detector import BaseDetector, Entity
 
 class SpacyDetector(BaseDetector):
-    """Detector implementation using spaCy for entity detection."""
-    
-    def __init__(self, 
-                 config_loader: Any,
-                 logger: Optional[Any] = None,
-                 model: str = "en_core_web_lg"):
-        """Initialize spaCy detector."""
+    def __init__(self, config_loader, logger):
+        """
+        Initializes the SpaCy Detector with a loaded configuration and logger.
+
+        Args:
+            config_loader (ConfigLoader): Handles loading configurations.
+            logger (RedactionLogger): Logger for debugging and error reporting.
+        """
         super().__init__(config_loader, logger)
-        
-        self.model_name = model
         self.nlp = None
-        self.allowed_entities = set()
+        self.entity_types = set()
+        self.entity_mappings = {}
         self.confidence_thresholds = {}
-        
-        # Initialize spaCy
-        self._init_spacy()
+        self._validate_config()
+        self._load_spacy_model()
+
+    def _load_spacy_model(self):
+        """
+        Loads the SpaCy NLP model specified in the configuration or defaults to `en_core_web_lg`.
+        """
+        try:
+            import spacy
+
+            model_name = self.config_loader.get_config("main").get("language_model", "en_core_web_lg")
+            self.nlp = spacy.load(model_name)
+            self.logger.info(f"SpaCy model {model_name} loaded successfully")
+        except Exception as e:
+            self.logger.error(f"Error loading SpaCy model: {e}")
+            raise
 
     def _validate_config(self) -> bool:
-        """Validate spaCy-specific configuration."""
+        """Validates and loads the routing configuration for SpaCy."""
         try:
-            # Get entity routing config
             routing_config = self.config_loader.get_config("entity_routing")
-            if not routing_config:
-                self.logger.error("Missing entity routing configuration")
+            if not routing_config or "routing" not in routing_config:
+                self.logger.error("Missing routing configuration for SpacyDetector")
                 return False
-
-            # Get spaCy section
-            spacy_section = routing_config.get("routing", {}).get("spacy_primary", {})
-            if not spacy_section:
-                self.logger.error("Missing spacy_primary configuration")
-                return False
-
-            # Store allowed entities and their thresholds
-            self.allowed_entities = set(spacy_section.get("entities", []))
-            base_threshold = spacy_section.get("confidence_threshold", 0.75)
-            
-            # Store thresholds for each entity type
-            self.confidence_thresholds = {
-                entity: spacy_section.get("thresholds", {}).get(entity, base_threshold)
-                for entity in self.allowed_entities
-            }
-
-            self.logger.debug(
-                f"Configured for entities: {self.allowed_entities} "
-                f"with thresholds: {self.confidence_thresholds}"
-            )
+        
+            spacy_config = routing_config["routing"].get("spacy_primary", {})
+            self.entity_types = set(spacy_config.get("entities", []))
+            self.entity_mappings = spacy_config.get("mappings", {})
+        
+            # Get entity-specific thresholds from config
+            self.confidence_thresholds = {}
+            thresholds = spacy_config.get("thresholds", {})
+            for entity in self.entity_types:
+                # Map the entity if needed
+                mapped_entity = self.entity_mappings.get(entity, entity)
+                # Get threshold or use a default
+                threshold = thresholds.get(mapped_entity, 0.6)
+                self.confidence_thresholds[mapped_entity] = threshold
+    
+            self.logger.debug(f"Loaded spaCy entity types: {self.entity_types}")
+            self.logger.debug(f"Entity mappings: {self.entity_mappings}")
+            self.logger.debug(f"Confidence thresholds: {self.confidence_thresholds}")
+    
             return True
-
+    
         except Exception as e:
             self.logger.error(f"Error validating spaCy config: {str(e)}")
             return False
-
-    def _init_spacy(self) -> None:
-        """Initialize spaCy model."""
-        try:
-            self.nlp = spacy.load(self.model_name)
-            self.logger.info(f"spaCy model {self.model_name} loaded successfully")
             
-            # Log available entity types
-            self.logger.debug(
-                f"Available spaCy entity types: {self.nlp.pipe_labels['ner']}"
-            )
-            
-        except Exception as e:
-            self.logger.error(f"Error loading spaCy model: {str(e)}")
-            raise
-
-    def detect_entities(self, text: str) -> List[Entity]:
-        """Detect entities using spaCy."""
-        if not text or not self.nlp:
-            return []
-            
-        try:
-            # Process text with spaCy
-            self.logger.debug(f"Processing text: {text[:100]}...")
-            doc = self.nlp(text)
-            
-            entities = []
-            for ent in doc.ents:
-                # Skip if not in allowed entities
-                if ent.label_ not in self.allowed_entities:
-                    self.logger.debug(f"Skipping entity type: {ent.label_}")
-                    continue
-                
-                # Calculate confidence based on vector norm
-                confidence = float(ent.vector_norm) / 10.0  # Normalize to 0-1 range
-                
-                # Check against entity-specific threshold
-                threshold = self.confidence_thresholds.get(ent.label_, 0.75)
-                if confidence < threshold:
-                    self.logger.debug(
-                        f"Entity {ent.text} ({ent.label_}) below threshold: "
-                        f"{confidence} < {threshold}"
-                    )
-                    continue
-                
-                entity = Entity(
-                    text=ent.text,
-                    entity_type=ent.label_,
-                    confidence=confidence,
-                    start=ent.start_char,
-                    end=ent.end_char,
-                    source="spacy",
-                    metadata={
-                        "dep": ent.root.dep_,  # Dependency parsing info
-                        "pos": ent.root.pos_,  # Part of speech
-                        "is_title": ent.root.is_title  # Capitalization check
-                    }
-                )
-                
-                # Validate before adding
-                if self.validate_detection(entity):
-                    entities.append(entity)
-                    self.log_detection(entity)
-                else:
-                    self.logger.debug(f"Entity failed validation: {entity}")
-            
+    def _merge_adjacent_entities(self, entities: List[Entity]) -> List[Entity]:
+        """
+        Merges adjacent entities that are likely part of the same address or location.
+        """
+        if not entities:
             return entities
-            
+
+        merged = []
+        current = None
+
+        for entity in entities:
+            if not current:
+                current = entity
+                continue
+
+            # Check if entities should be merged
+            if (entity.start - current.end <= 2  # Allow for spaces between entities
+                and entity.entity_type == current.entity_type
+                and self._is_mergeable_entity(current, entity)):
+                
+                # Merge entities
+                current.text = f"{current.text} {entity.text}".strip()
+                current.end = entity.end
+                current.confidence = min(current.confidence, entity.confidence)
+            else:
+                merged.append(current)
+                current = entity
+
+        if current:
+            merged.append(current)
+
+        return merged
+
+    def _is_mergeable_entity(self, ent1: Entity, ent2: Entity) -> bool:
+        """
+        Determines if two entities should be merged based on their content.
+        """
+        # Check if entities form a typical address pattern
+        text1 = ent1.text.lower()
+        text2 = ent2.text.lower()
+        
+        address_indicators = {'street', 'st', 'avenue', 'ave', 'road', 'rd', 'lane', 'ln', 'drive', 'dr'}
+        has_number = any(c.isdigit() for c in text1 + text2)
+        has_street = any(indicator in text1.split() or indicator in text2.split() 
+                        for indicator in address_indicators)
+        
+        return has_number or has_street
+
+    def detect_entities(self, text: str):
+        """
+        Detect entities in the provided text using SpaCy NLP.
+    
+        Args:
+            text (str): Input text to analyze.
+    
+        Returns:
+            list[Entity]: List of detected entities.
+        """
+        if not text:
+            self.logger.warning("Empty text provided for entity detection.")
+            return []
+    
+        try:
+            doc = self.nlp(text)
+            entities = []
+    
+            for ent in doc.ents:
+                if ent.label_ in self.entity_types:
+                    # Map entity type if needed
+                    mapped_type = self.entity_mappings.get(ent.label_, ent.label_)
+                    confidence = self.confidence_thresholds.get(ent.label_, 0.85)
+    
+                    entity = Entity(
+                        text=ent.text,
+                        entity_type=mapped_type,
+                        confidence=confidence,
+                        start=ent.start_char,
+                        end=ent.end_char,
+                        source="spacy",
+                    )
+    
+                    if self.validate_detection(entity):
+                        entities.append(entity)
+    
+            # Merge adjacent entities that might be part of the same address
+            merged_entities = self._merge_adjacent_entities(entities)
+            return merged_entities
+
         except Exception as e:
-            self.logger.error(f"Error in spaCy detection: {str(e)}")
+            self.logger.error(f"Error detecting entities with SpaCy: {e}")
             return []
 
-    def validate_detection(self, entity: Entity) -> bool:
-        """Validate spaCy detection."""
-        try:
-            # Entity type validation already done in detect_entities
-            
-            # Additional validation based on entity type
-            if entity.entity_type == "PERSON":
-                return self._validate_person(entity)
-            elif entity.entity_type == "ORG":
-                return self._validate_organization(entity)
-                
-            return True
-            
-        except Exception as e:
-            self.logger.error(f"Error validating entity {entity}: {str(e)}")
+    def validate_detection(self, entity: Entity):
+        """
+        Validates if the detected entity passes confidence and formatting checks.
+
+        Args:
+            entity (Entity): The entity to validate.
+
+        Returns:
+            bool: True if valid, False otherwise.
+        """
+        if entity.confidence < self.confidence_thresholds.get(entity.entity_type, 0.75):
+            self.logger.debug(
+                f"Entity '{entity.text}' confidence below threshold: {entity.confidence}"
+            )
             return False
 
-    def _validate_person(self, entity: Entity) -> bool:
-        """Additional validation for person entities."""
-        # Skip single-word persons unless they're titles
-        if len(entity.text.split()) == 1:
-            return entity.metadata.get("is_title", False)
-        return True
+        if not entity.text or len(entity.text.strip()) == 0:
+            self.logger.debug(f"Entity '{entity.text}' has invalid text.")
+            return False
 
-    def _validate_organization(self, entity: Entity) -> bool:
-        """Additional validation for organization entities."""
-        # Require proper noun for organizations
-        return entity.metadata.get("pos") == "PROPN"
+        return True

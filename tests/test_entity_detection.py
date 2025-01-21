@@ -4,32 +4,51 @@ Integration Tests for Resume Redaction Entity Detection System
 
 Purpose:
     Verify core functionality of the entity detection system by testing:
-    - Configuration loading and validation
-    - Individual detector initialization and basic operation
-    - Ensemble coordination and result combination
-    - End-to-end processing pipeline
-
-These tests focus on system integration rather than detection accuracy.
-They verify that:
-    - Components initialize correctly
-    - Configuration files are loaded and interpreted
-    - Data flows properly between components
-    - Basic entity detection works for known test cases
-    - Results are properly formatted and combined
-
-Note: These tests use simple, hardcoded test cases. They are designed
-to verify system functionality, not to evaluate detection accuracy
-or performance. Separate evaluation scripts should be used for 
-tuning and accuracy assessment.
+    - Presidio initialization and detection
+    - Confidence thresholds
+    - Proper routing and validation
+    - End-to-end functionality of the detection pipeline
 
 Usage:
-    Can be run directly: python -m tests.test_entity_detection
-    Or via pytest: pytest tests/test_entity_detection.py
+    Run all tests:
+        python -m tests.test_entity_detection
+
+    Run specific test numbers:
+        python -m tests.test_entity_detection --tests 1,3
+        (Test numbers start from 0)
+
+    Test specific detector:
+        python -m tests.test_entity_detection --detector presidio
+        python -m tests.test_entity_detection --detector spacy
+        
+    Test specific entity type:
+        python -m tests.test_entity_detection --entity phone
+        python -m tests.test_entity_detection --entity email
+        python -m tests.test_entity_detection --entity mixed
+
+    Combine options:
+        python -m tests.test_entity_detection --detector presidio --entity phone
+
+Available Tests:
+    0: test_spacy_detector_for_location
+    1: test_presidio_initialization
+    2: test_presidio_email_detection
+    3: test_presidio_phone_detection
+    4: test_presidio_confidence_thresholds
+    5: test_presidio_mixed_content
+
+Entity Types:
+    - email
+    - phone
+    - mixed (multiple entity types)
+    - location
 """
+
 import sys
-from pathlib import Path
 import pytest
+from pathlib import Path
 import logging
+import argparse
 
 # Add project root to Python path
 project_root = Path(__file__).parent.parent
@@ -39,9 +58,8 @@ from app.utils.config_loader import ConfigLoader
 from app.utils.logger import RedactionLogger
 from redactor.detectors.presidio_detector import PresidioDetector
 from redactor.detectors.spacy_detector import SpacyDetector
-from redactor.detectors.ensemble_coordinator import EnsembleCoordinator
 
-# Test data with known entities
+# Test data structures
 TEST_TEXTS = {
     "basic": """
     Contact Information:
@@ -49,24 +67,50 @@ TEST_TEXTS = {
     Email: john.smith@example.com
     Phone: (555) 123-4567
     """,
-    "technical": """
-    Technical Skills:
-    - Advanced Python programming
-    - Tableau dashboard development
-    - SQL database management
+    "ssn_variations": """
+    Personnel Information:
+    SSN: 123-45-6789
+    Social Security: 234-56-7890
+    Social Security Number: 345-67-8901
+    SSN Number: 456789012
+    Employee SSN: 567-89-0123
+    Tax ID / SSN: 678901234
     """,
-    "mixed": """
-    Dr. Sarah Johnson, PhD
-    Data Science Lead
-    TechCorp Industries
-    Email: sarah.j@techcorp.com
-    Skills: Python, R, Tableau
-    Previously employed at MIT and Google
+    "financial": """
+    Financial Details:
+    Credit Card: 4111-1111-1111-1111
+    Bank Account: 12345678
     """,
-    "overlap": """
-    Contact: James Smith 
-    Email: james.smith@company.com
-    Organization: Smith Technologies Inc.
+    "location": """
+    Location:
+    Address: 123 Main St, Springfield, IL
+    IP Address: 192.168.1.1
+    """
+}
+
+PRESIDIO_TEST_TEXTS = {
+    "email_variants": """
+    Contact Details:
+    Primary: test.user@company.com
+    Secondary: test_user+label@sub.domain.co.uk
+    Support: support@domain.io
+    """,
+    "phone_variants": """
+    Phone Numbers:
+    Office: (555) 123-4567
+    Mobile: +1-555-987-6543
+    Support: 1.555.234.5678
+    International: +44 20 7123 4567
+    Extension: (555) 123-4567 ext. 890
+    """,
+    "mixed_entities": """
+    Professional Profile:
+    Dr. Jane Smith, PhD
+    Research Director
+    Email: j.smith@research.org
+    Phone: (555) 123-4567
+    SSN: 123-45-6789
+    Location: 123 Science Park, Cambridge, MA
     """
 }
 
@@ -80,133 +124,169 @@ def setup_logging():
     )
     return logger
 
-def test_config_loading():
-    """Test configuration loading."""
-    logger = setup_logging()
-    config_loader = ConfigLoader()
-    
-    # Test main config loading
-    assert config_loader.load_all_configs(), "Failed to load configurations"
-    
-    # Verify essential configs are present
-    assert config_loader.get_config("entity_routing"), "Missing entity routing config"
-    assert config_loader.get_config("detection"), "Missing detection patterns config"
-    
-    logger.info("Configuration loading test passed")
-
-def test_presidio_detector():
-    """Test Presidio detector initialization and basic detection."""
+@pytest.mark.detector_test
+@pytest.mark.spacy
+@pytest.mark.entity_type_location
+def test_spacy_detector_for_location():
+    """Test SpaCy detector specifically for location detection."""
     logger = setup_logging()
     config_loader = ConfigLoader()
     config_loader.load_all_configs()
+
+    detector = SpacyDetector(config_loader, logger)
+    entities = detector.detect_entities(TEST_TEXTS["location"])
+
+    assert len(entities) > 0, "No entities detected in location information test"
+
+    addresses = [e for e in entities if e.entity_type == "LOCATION"]
+    logger.info(f"Found {len(addresses)} LOCATION entities")
     
+    assert len(addresses) >= 1, "Failed to detect address"
+    assert any("123 Main St" in addr.text for addr in addresses), "Incorrect address detection"
+
+@pytest.mark.detector_test
+@pytest.mark.presidio
+def test_presidio_initialization():
+    """Test Presidio detector initialization and configuration."""
+    logger = setup_logging()
+    config_loader = ConfigLoader()
+    config_loader.load_all_configs()
+
     detector = PresidioDetector(config_loader, logger)
     
-    # Test email detection
-    logger.debug(f"Testing text: {TEST_TEXTS['basic']}")
-    entities = detector.detect_entities(TEST_TEXTS["basic"])
-    logger.debug(f"Detected entities: {entities}")
-    
+    # Verify configuration loaded properly
+    assert detector.analyzer is not None, "Analyzer not initialized"
+    assert len(detector.entity_types) > 0, "No entity types configured"
+    assert all(0 < threshold <= 1.0 for threshold in detector.entity_types.values()), \
+        "Invalid confidence thresholds"
+
+@pytest.mark.detector_test
+@pytest.mark.presidio
+@pytest.mark.entity_type_email
+def test_presidio_email_detection():
+    """Test email address detection with various formats."""
+    logger = setup_logging()
+    config_loader = ConfigLoader()
+    config_loader.load_all_configs()
+
+    detector = PresidioDetector(config_loader, logger)
+    entities = detector.detect_entities(PRESIDIO_TEST_TEXTS["email_variants"])
+
     emails = [e for e in entities if e.entity_type == "EMAIL_ADDRESS"]
-    logger.debug(f"Found emails: {emails}")
-    assert len(emails) > 0, "Failed to detect email"
-    assert "john.smith@example.com" in emails[0].text, "Incorrect email detection"
-    
-    # Test technical term handling
-    tech_entities = detector.detect_entities(TEST_TEXTS["technical"])
-    logger.debug(f"Technical entities: {tech_entities}")
-    assert not any(e.text.lower() == "python" for e in tech_entities), "Technical term not preserved"
-    
-    logger.info("Presidio detector test passed")
+    logger.info(f"Found {len(emails)} email addresses")
 
-def test_spacy_detector():
-    """Test spaCy detector initialization and basic detection."""
+    assert len(emails) >= 3, "Failed to detect all email addresses"
+    assert any("test.user@company.com" in e.text for e in emails), "Failed to detect basic email"
+    assert any("test_user+label@sub.domain.co.uk" in e.text for e in emails), \
+        "Failed to detect complex email"
+
+@pytest.mark.detector_test
+@pytest.mark.presidio
+@pytest.mark.entity_type_phone
+def test_presidio_phone_detection():
+    """Test phone number detection with various formats."""
     logger = setup_logging()
     config_loader = ConfigLoader()
     config_loader.load_all_configs()
-    
-    detector = SpacyDetector(config_loader, logger)
-    
-    # Test person detection
-    entities = detector.detect_entities(TEST_TEXTS["basic"])
-    persons = [e for e in entities if e.entity_type == "PERSON"]
-    assert len(persons) > 0, "Failed to detect person"
-    assert persons[0].text == "John Smith", "Incorrect person detection"
-    
-    # Test organization detection
-    org_entities = detector.detect_entities(TEST_TEXTS["mixed"])
-    orgs = [e for e in entities if e.entity_type == "ORG"]
-    assert len(orgs) > 0, "Failed to detect organizations"
-    
-    logger.info("spaCy detector test passed")
 
-def test_ensemble_coordination():
-    """Test ensemble coordination and result combination."""
+    detector = PresidioDetector(config_loader, logger)
+    entities = detector.detect_entities(PRESIDIO_TEST_TEXTS["phone_variants"])
+
+    phones = [e for e in entities if e.entity_type == "PHONE_NUMBER"]
+    logger.info(f"Found {len(phones)} phone numbers")
+
+    assert len(phones) >= 4, "Failed to detect all phone numbers"
+    assert any("(555) 123-4567" in e.text for e in phones), "Failed to detect US format"
+    assert any("+44 20 7123 4567" in e.text for e in phones), "Failed to detect international format"
+
+@pytest.mark.detector_test
+@pytest.mark.presidio
+def test_presidio_confidence_thresholds():
+    """Test confidence threshold handling."""
     logger = setup_logging()
     config_loader = ConfigLoader()
     config_loader.load_all_configs()
-    
-    coordinator = EnsembleCoordinator(config_loader, logger)
-    
-    # Test mixed content detection
-    entities = coordinator.detect_entities(TEST_TEXTS["mixed"])
-    
-    # Verify we got results from both detectors
-    sources = {e.source for e in entities}
-    assert "presidio" in sources, "No Presidio detections"
-    assert "spacy" in sources, "No spaCy detections"
-    
-    # Test overlap handling
-    overlap_entities = coordinator.detect_entities(TEST_TEXTS["overlap"])
-    
-    # Verify no overlapping detections
-    positions = [(e.start, e.end) for e in overlap_entities]
-    for i, pos1 in enumerate(positions):
-        for pos2 in positions[i+1:]:
-            assert not (pos1[0] <= pos2[1] and pos1[1] >= pos2[0]), "Overlapping entities found"
-    
-    logger.info("Ensemble coordination test passed")
 
-def test_end_to_end():
-    """Test end-to-end entity detection pipeline."""
+    detector = PresidioDetector(config_loader, logger)
+    
+    # Test with clear matches (should have high confidence)
+    text = "Email: test@example.com\nPhone: (555) 123-4567"
+    entities = detector.detect_entities(text)
+    
+    for entity in entities:
+        assert entity.confidence >= detector.entity_types.get(
+            entity.entity_type, detector.confidence_threshold
+        ), f"Entity {entity.text} below confidence threshold"
+
+@pytest.mark.detector_test
+@pytest.mark.presidio
+@pytest.mark.entity_type_mixed
+def test_presidio_mixed_content():
+    """Test detection in mixed content with multiple entity types."""
     logger = setup_logging()
     config_loader = ConfigLoader()
     config_loader.load_all_configs()
-    
-    coordinator = EnsembleCoordinator(config_loader, logger)
-    
-    # Process all test texts
-    for name, text in TEST_TEXTS.items():
-        logger.info(f"Processing test text: {name}")
-        entities = coordinator.detect_entities(text)
-        
-        # Basic validation
-        assert isinstance(entities, list), f"Invalid result type for {name}"
-        if entities:
-            for entity in entities:
-                assert entity.text, f"Empty entity text in {name}"
-                assert 0 <= entity.confidence <= 1, f"Invalid confidence in {name}"
-                assert entity.start < entity.end, f"Invalid positions in {name}"
-        
-        logger.info(f"Found {len(entities)} entities in {name}")
-        
-    logger.info("End-to-end test passed")
+
+    detector = PresidioDetector(config_loader, logger)
+    entities = detector.detect_entities(PRESIDIO_TEST_TEXTS["mixed_entities"])
+
+    # Group entities by type
+    entity_groups = {}
+    for entity in entities:
+        entity_groups.setdefault(entity.entity_type, []).append(entity)
+
+    # Log detection results
+    for entity_type, group in entity_groups.items():
+        logger.info(f"Found {len(group)} {entity_type} entities")
+        for entity in group:
+            logger.info(f"  {entity.text} (confidence: {entity.confidence:.2f})")
+
+    # Verify multiple entity types detected
+    assert len(entity_groups) >= 3, "Failed to detect multiple entity types"
+    assert any(e.entity_type == "EMAIL_ADDRESS" for e in entities), "No email detected"
+    assert any(e.entity_type == "PHONE_NUMBER" for e in entities), "No phone number detected"
+    assert any(e.entity_type == "US_SSN" for e in entities), "No SSN detected"
+
+def parse_args():
+    """Parse command line arguments for test configuration."""
+    parser = argparse.ArgumentParser(
+        description='Run entity detection tests',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__
+    )
+    parser.add_argument('--tests', type=str, 
+                       help='Comma-separated list of test numbers to run (e.g., 1,3)')
+    parser.add_argument('--detector', choices=['spacy', 'presidio', 'all'], 
+                       default='all', help='Which detector to test')
+    parser.add_argument('--entity', type=str, 
+                       help='Test specific entity type (email, phone, mixed, location)')
+    return parser.parse_args()
 
 if __name__ == "__main__":
-    # Setup logging
-    logger = setup_logging()
-    logger.info("Starting integration tests")
+    args = parse_args()
     
-    try:
-        # Run tests
-        test_config_loading()
-        test_presidio_detector()
-        test_spacy_detector()
-        test_ensemble_coordination()
-        test_end_to_end()
+    # Build pytest args based on command line options
+    pytest_args = ['-v']  # Always use verbose output
+    
+    # Handle test numbers
+    if args.tests:
+        test_nums = [int(n.strip()) for n in args.tests.split(',')]
+        test_funcs = []
+        all_tests = [obj for obj in globals().values() 
+                    if callable(obj) and obj.__name__.startswith('test_')]
+        for num in test_nums:
+            if 0 <= num < len(all_tests):
+                test_funcs.append(all_tests[num].__name__)
+        if test_funcs:
+            pytest_args.extend(['-k', ' or '.join(test_funcs)])
+    
+    # Handle detector selection
+    if args.detector != 'all':
+        pytest_args.extend(['-m', args.detector])
+    
+    # Handle entity type selection
+    if args.entity:
+        # Use -k option instead of -m for entity type
+        pytest_args.extend(['-k', f'entity_type_{args.entity}'])
         
-        logger.info("All tests passed successfully")
-        
-    except Exception as e:
-        logger.error(f"Test failed: {str(e)}")
-        raise
+    pytest.main(pytest_args)

@@ -31,71 +31,136 @@ class EnsembleCoordinator:
         self.presidio_detector = PresidioDetector(config_loader, logger)
         self.spacy_detector = SpacyDetector(config_loader, logger)
         
-    def _load_config(self) -> bool:
-        """Load and validate ensemble configuration."""
-        try:
-            routing_config = self.config_loader.get_config("entity_routing")
-            if not routing_config:
-                self.logger.error("Missing entity routing configuration")
-                return False
+def _load_config(self) -> bool:
+    """Load and validate ensemble configuration."""
+    try:
+        routing_config = self.config_loader.get_config("entity_routing")
+        if not routing_config:
+            self.logger.error("Missing entity routing configuration")
+            return False
                 
-            routing = routing_config.get("routing", {})
+        routing = routing_config.get("routing", {})
             
-            # Load entity type assignments
-            self.presidio_entities = set(
-                routing.get("presidio_primary", {}).get("entities", [])
-            )
-            self.spacy_entities = set(
-                routing.get("spacy_primary", {}).get("entities", [])
-            )
-            self.ensemble_entities = set(
-                routing.get("ensemble_required", {}).get("entities", [])
-            )
-            
-            # Load ensemble configuration
-            ensemble_config = routing.get("ensemble_required", {}).get("confidence_thresholds", {})
-            self.ensemble_weights = {
-                "presidio": ensemble_config.get("presidio_weight", 0.4),
-                "spacy": ensemble_config.get("spacy_weight", 0.6)
+        # Load entity type assignments
+        self.presidio_entities = set(
+            routing.get("presidio_primary", {}).get("entities", [])
+        )
+        self.spacy_entities = set(
+            routing.get("spacy_primary", {}).get("entities", [])
+        )
+        self.ensemble_entities = set(
+            routing.get("ensemble_required", {}).get("entities", [])
+        )
+        
+        # Load per-entity ensemble configurations
+        ensemble_config = routing.get("ensemble_required", {})
+        entity_thresholds = ensemble_config.get("confidence_thresholds", {})
+        
+        # Initialize threshold configurations for each entity
+        self.entity_configs = {}
+        for entity in self.ensemble_entities:
+            thresholds = entity_thresholds.get(entity, {})
+            self.entity_configs[entity] = {
+                "minimum_combined": thresholds.get("minimum_combined", 0.8),
+                "minimum_individual": thresholds.get("minimum_individual", 0.4),
+                "weights": {
+                    "presidio": thresholds.get("presidio_weight", 0.4),
+                    "spacy": thresholds.get("spacy_weight", 0.6)
+                }
             }
             
-            self.min_combined_confidence = ensemble_config.get("minimum_combined", 0.8)
-            self.min_individual_confidence = ensemble_config.get("minimum_individual", 0.6)
-            
-            # Validate configuration
-            if not self._validate_config():
-                return False
+        # Validate configuration
+        if not self._validate_config():
+            return False
                 
-            self.logger.debug(
-                f"Loaded ensemble config:\n"
-                f"Presidio entities: {self.presidio_entities}\n"
-                f"spaCy entities: {self.spacy_entities}\n"
-                f"Ensemble entities: {self.ensemble_entities}\n"
-                f"Weights: {self.ensemble_weights}"
-            )
-            
-            return True
-            
-        except Exception as e:
-            self.logger.error(f"Error loading ensemble config: {str(e)}")
-            return False
-            
-    def _validate_config(self) -> bool:
-        """Validate ensemble configuration."""
-        # Check for overlapping entity assignments
-        presidio_overlap = self.presidio_entities & self.spacy_entities
-        if presidio_overlap:
-            self.logger.error(f"Entities assigned to both Presidio and spaCy: {presidio_overlap}")
-            return False
-            
-        # Validate weights
-        weight_sum = sum(self.ensemble_weights.values())
-        if not (0.99 <= weight_sum <= 1.01):  # Allow for floating point imprecision
-            self.logger.error(f"Ensemble weights must sum to 1.0, got {weight_sum}")
-            return False
+        self.logger.debug(
+            f"Loaded ensemble config:\n"
+            f"Presidio entities: {self.presidio_entities}\n"
+            f"spaCy entities: {self.spacy_entities}\n"
+            f"Ensemble entities: {self.ensemble_entities}\n"
+            f"Entity configs: {self.entity_configs}"
+        )
             
         return True
+            
+    except Exception as e:
+        self.logger.error(f"Error loading ensemble config: {str(e)}")
+        return False
 
+def _validate_config(self) -> bool:
+    """Validate ensemble configuration."""
+    # Check for overlapping entity assignments
+    presidio_overlap = self.presidio_entities & self.spacy_entities
+    if presidio_overlap:
+        self.logger.error(f"Entities assigned to both Presidio and spaCy: {presidio_overlap}")
+        return False
+
+    # Validate entity configs
+    for entity, config in self.entity_configs.items():
+        # Validate weights sum to 1.0 (allowing for floating point imprecision)
+        weight_sum = sum(config["weights"].values())
+        if not (0.99 <= weight_sum <= 1.01):
+            self.logger.error(f"Ensemble weights for {entity} must sum to 1.0, got {weight_sum}")
+            return False
+            
+        # Validate threshold ranges
+        if not (0 <= config["minimum_combined"] <= 1):
+            self.logger.error(f"Invalid combined threshold for {entity}: {config['minimum_combined']}")
+            return False
+            
+        if not (0 <= config["minimum_individual"] <= 1):
+            self.logger.error(f"Invalid individual threshold for {entity}: {config['minimum_individual']}")
+            return False
+
+    return True
+
+def _combine_entities(self, presidio_ent: Entity, spacy_ent: Entity) -> Optional[Entity]:
+    """Combine two entity detections into one."""
+    try:
+        entity_type = presidio_ent.entity_type
+        if entity_type not in self.entity_configs:
+            return None
+
+        config = self.entity_configs[entity_type]
+        
+        # Calculate combined confidence using entity-specific weights
+        combined_confidence = (
+            presidio_ent.confidence * config["weights"]["presidio"] +
+            spacy_ent.confidence * config["weights"]["spacy"]
+        )
+        
+        # Check against entity-specific thresholds
+        if (combined_confidence < config["minimum_combined"] or
+            presidio_ent.confidence < config["minimum_individual"] or
+            spacy_ent.confidence < config["minimum_individual"]):
+            return None
+                
+        # Use the entity with larger span
+        base_ent = (
+            presidio_ent 
+            if (presidio_ent.end - presidio_ent.start) > (spacy_ent.end - spacy_ent.start)
+            else spacy_ent
+        )
+        
+        return Entity(
+            text=base_ent.text,
+            entity_type=base_ent.entity_type,
+            confidence=combined_confidence,
+            start=base_ent.start,
+            end=base_ent.end,
+            source="ensemble",
+            metadata={
+                "presidio_confidence": presidio_ent.confidence,
+                "spacy_confidence": spacy_ent.confidence,
+                "presidio_metadata": presidio_ent.metadata,
+                "spacy_metadata": spacy_ent.metadata
+            }
+        )
+            
+    except Exception as e:
+        self.logger.error(f"Error combining entities: {str(e)}")
+        return None
+        
     def detect_entities(self, text: str) -> List[Entity]:
         """Detect entities using appropriate detectors based on entity type."""
         if not text:

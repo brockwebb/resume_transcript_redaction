@@ -1,194 +1,122 @@
 # redactor/detectors/presidio_detector.py
 
-from typing import List, Dict, Optional, Any
-from presidio_analyzer import AnalyzerEngine, PatternRecognizer, Pattern
+from typing import List, Optional, Any, Dict, Set, Union
+from pathlib import Path
+
+from presidio_analyzer import AnalyzerEngine
+from presidio_analyzer.recognizer_result import RecognizerResult
+from presidio_analyzer.pattern_recognizer import PatternRecognizer
+
 from .base_detector import BaseDetector, Entity
+from .custom_recognizers import ConfigDrivenPhoneRecognizer, ConfigDrivenSsnRecognizer
 
 class PresidioDetector(BaseDetector):
-    """Detector implementation using Presidio for entity detection."""
+    """Detector implementation using Presidio's built-in recognizers."""
     
-    def __init__(self, 
+    def __init__(self,
                  config_loader: Any,
                  logger: Optional[Any] = None,
                  language: str = "en"):
-        """Initialize Presidio detector."""
-        super().__init__(config_loader, logger)
-        
+        """Initialize Presidio detector with configuration."""
         self.language = language
         self.analyzer = None
-        self.patterns_by_type = {}
-        self.entity_configs = {}
+        self.entity_types = {}
         
-        # Initialize Presidio
+        # Initialize base class to set up logger and config
+        super().__init__(config_loader, logger)
+        
+        # Now do our initialization using the logger
         self._init_presidio()
+        self._load_entity_types()
+
+    def _load_entity_types(self) -> None:
+        """Load entity types from configuration."""
+        try:
+            routing_config = self.config_loader.get_config("entity_routing")
+            if not routing_config or "routing" not in routing_config:
+                self.logger.error("Missing entity routing configuration")
+                return
+
+            presidio_config = routing_config["routing"].get("presidio_primary", {})
+            base_threshold = presidio_config.get("confidence_threshold", 0.75)
+            entities = presidio_config.get("entities", [])
+
+            for entity in entities:
+                threshold = presidio_config.get("thresholds", {}).get(entity, base_threshold)
+                self.entity_types[entity] = threshold
+
+            self.logger.debug("Loaded Presidio entity types with thresholds:")
+            for entity, threshold in self.entity_types.items():
+                self.logger.debug(f"  {entity}: {threshold}")
+
+        except Exception as e:
+            self.logger.error(f"Error loading entity types: {str(e)}")
+            raise
 
     def _validate_config(self) -> bool:
         """Validate Presidio-specific configuration."""
-        try:
-            # Initialize our supported entities
-            self.entity_configs = {
-                "EMAIL_ADDRESS": {"threshold": 0.8},
-                "PHONE_NUMBER": {"threshold": 0.8},
-                "PERSON": {"threshold": 0.8},
-                "ORGANIZATION": {"threshold": 0.8}
-            }
-    
-            # Get detection patterns
-            detection_config = self.config_loader.get_config("detection")
-            if not detection_config:
-                self.logger.warning("Missing detection patterns configuration, using defaults")
-    
-            # Even if no config, we proceed with defaults
-            self.patterns_by_type = {
-                "EMAIL_ADDRESS": [{
-                    "name": "email_basic",
-                    "regex": r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
-                    "score": 0.85
-                }],
-                "PHONE_NUMBER": [{
-                    "name": "phone_basic",
-                    "regex": r"\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}",
-                    "score": 0.85
-                }]
-            }
-    
-            return True
-    
-        except Exception as e:
-            self.logger.error(f"Error validating Presidio config: {str(e)}")
-            return False
-
-    def _process_detection_patterns(self, config: Dict) -> Dict[str, List[Dict]]:
-        """Process detection patterns into Presidio-compatible format."""
-        patterns_by_type = {}
-        
-        try:
-            # Add basic email pattern (since this is what our test is looking for)
-            patterns_by_type["EMAIL_ADDRESS"] = [{
-                "name": "email_basic",
-                "regex": r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
-                "score": 0.85
-            }]
-            
-            # Add phone pattern
-            patterns_by_type["PHONE_NUMBER"] = [{
-                "name": "phone_basic",
-                "regex": r"\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}",
-                "score": 0.85
-            }]
-            
-            # Log what we're adding
-            self.logger.debug(f"Adding pattern recognizers: {list(patterns_by_type.keys())}")
-            
-            return patterns_by_type
-            
-        except Exception as e:
-            self.logger.error(f"Error processing detection patterns: {str(e)}")
-            return {}
+        return True  # Initial validation always passes, we'll load config after
 
     def _init_presidio(self) -> None:
-        """Initialize Presidio analyzer with patterns."""
+        """Initialize Presidio analyzer with default recognizers and our custom ones."""
         try:
             self.analyzer = AnalyzerEngine()
             
-            # Add basic email recognizer
-            email_pattern = Pattern(
-                name="email_basic",
-                regex=r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
-                score=0.85
-            )
-            email_recognizer = PatternRecognizer(
-                supported_entity="EMAIL_ADDRESS",
-                patterns=[email_pattern]
-            )
-            self.analyzer.registry.add_recognizer(email_recognizer)
+            # Remove default recognizers that we're replacing with custom ones
+            self.analyzer.registry.remove_recognizer("PhoneRecognizer")
+            self.analyzer.registry.remove_recognizer("UsSsnRecognizer")
             
-            # Add phone recognizer
-            phone_pattern = Pattern(
-                name="phone_basic",
-                regex=r"\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}",
-                score=0.85
+            # Add our custom phone recognizer
+            custom_phone = ConfigDrivenPhoneRecognizer(
+                config_loader=self.config_loader,
+                logger=self.logger
             )
-            phone_recognizer = PatternRecognizer(
-                supported_entity="PHONE_NUMBER",
-                patterns=[phone_pattern]
-            )
-            self.analyzer.registry.add_recognizer(phone_recognizer)
+            self.analyzer.registry.add_recognizer(custom_phone)
             
-            active_recognizers = [r.supported_entity for r in self.analyzer.registry.recognizers]
-            self.logger.debug(f"Active recognizers: {active_recognizers}")
-                
+            # Add our custom SSN recognizer
+            custom_ssn = ConfigDrivenSsnRecognizer(
+                config_loader=self.config_loader,
+                logger=self.logger
+            )
+            self.analyzer.registry.add_recognizer(custom_ssn)
+            
+            # Debug recognizer information
+            recognizers = self.analyzer.get_recognizers()
+            self.logger.debug(
+                f"Initialized Presidio with recognizers: "
+                f"{[r.name for r in recognizers]}"
+            )
+            
         except Exception as e:
-            self.logger.error(f"Error initializing Presidio: {str(e)}")
+            self.logger.error(f"Error initializing Presidio analyzer: {str(e)}")
             raise
 
-
-    def validate_detection(self, entity: Entity) -> bool:
-        """
-        Validate Presidio detection.
-        
-        Args:
-            entity: Entity to validate
-            
-        Returns:
-            bool: Whether entity is valid
-        """
-        try:
-            # Check confidence threshold
-            if not self.check_threshold(entity.confidence):
-                self.logger.debug(
-                    f"Entity {entity.text} failed confidence check: "
-                    f"{entity.confidence} < {self.confidence_threshold}"
-                )
-                return False
-                
-            # Validate based on entity type
-            if entity.entity_type == "EMAIL_ADDRESS":
-                return self._validate_email(entity)
-            elif entity.entity_type == "PHONE_NUMBER":
-                return self._validate_phone(entity)
-            elif entity.entity_type == "US_SSN":
-                return self._validate_ssn(entity)
-            
-            # Default validation for other types
-            return True
-            
-        except Exception as e:
-            self.logger.error(f"Error validating entity {entity}: {str(e)}")
-            return False
-
-    def _validate_email(self, entity: Entity) -> bool:
-        """Validate email format."""
-        return '@' in entity.text and '.' in entity.text.split('@')[1]
-
-    def _validate_phone(self, entity: Entity) -> bool:
-        """Validate phone number format."""
-        # Remove all non-digits
-        digits = ''.join(c for c in entity.text if c.isdigit())
-        return 10 <= len(digits) <= 15  # Most phone numbers are 10-15 digits
-
-    def _validate_ssn(self, entity: Entity) -> bool:
-        """Validate SSN format."""
-        digits = ''.join(c for c in entity.text if c.isdigit())
-        return len(digits) == 9
-
-    
     def detect_entities(self, text: str) -> List[Entity]:
-        """Detect entities using Presidio."""
-        if not text or not self.analyzer:
+        """Detect entities using Presidio's built-in recognizers."""
+        if not text or not self.analyzer or not self.entity_types:
             return []
-            
+
         try:
-            self.logger.debug(f"Analyzing text: {text[:100]}...")
-            
-            # Get Presidio results
+            self.logger.debug(f"Analyzing text with Presidio: {text[:100]}...")
+
             results = self.analyzer.analyze(
                 text=text,
-                language=self.language
+                language=self.language,
+                entities=list(self.entity_types.keys())
             )
-            
-            self.logger.debug(f"Raw results: {[f'{r.entity_type}: {text[r.start:r.end]}' for r in results]}")
-            
+
+            self.logger.debug(
+                f"Raw Presidio results before filtering:"
+            )
+            for result in results:
+                self.logger.debug(
+                    f"  Found: '{text[result.start:result.end]}' "
+                    f"Type: {result.entity_type} "
+                    f"Score: {result.score:.3f} "
+                    f"Start: {result.start} End: {result.end} "
+                    f"Recognition data: {result.recognition_metadata}"
+                )
+
             entities = []
             for result in results:
                 entity = Entity(
@@ -199,6 +127,7 @@ class PresidioDetector(BaseDetector):
                     end=result.end,
                     source="presidio",
                     metadata={
+                        "recognition_metadata": result.recognition_metadata,
                         "analysis_explanation": result.analysis_explanation
                     }
                 )
@@ -206,9 +135,44 @@ class PresidioDetector(BaseDetector):
                 if self.validate_detection(entity):
                     entities.append(entity)
                     self.log_detection(entity)
-                
+                else:
+                    self.logger.debug(
+                        f"Entity failed validation: {entity.entity_type} "
+                        f"({entity.confidence:.3f} < "
+                        f"{self.entity_types.get(entity.entity_type, self.confidence_threshold)}) "
+                        f"Text: '{entity.text}'"
+                    )
+
             return entities
-                
+
         except Exception as e:
-            self.logger.error(f"Error in Presidio detection: {str(e)}")
+            self.logger.error(f"Error during Presidio detection: {str(e)}")
             return []
+
+    def validate_detection(self, entity: Entity) -> bool:
+        """Validate detection against configured thresholds."""
+        try:
+            # Get entity-specific threshold
+            threshold = self.entity_types.get(
+                entity.entity_type, 
+                self.confidence_threshold
+            )
+            
+            # Check confidence threshold
+            if entity.confidence < threshold:
+                self.logger.debug(
+                    f"Entity '{entity.text}' confidence below threshold: "
+                    f"{entity.confidence:.2f} < {threshold}"
+                )
+                return False
+
+            # Check for empty or whitespace-only text
+            if not entity.text or not entity.text.strip():
+                self.logger.debug(f"Entity has invalid text: '{entity.text}'")
+                return False
+
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Error validating entity {entity}: {str(e)}")
+            return False
