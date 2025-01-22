@@ -1,9 +1,7 @@
 ###############################################################################
 # 1) Keep the /data directory in the repo, but ignore all files/subdirectories
 ###############################################################################
-/data/*
-!/data/test_samples
-!/data/.keep
+/data/archive/
 
 # Ignore the model and all files (large >100MB)
 # Model is downloaded and set up inside Jupyter notebook
