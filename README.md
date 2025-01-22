@@ -3,12 +3,11 @@
 This repository provides two tools for detecting and redacting sensitive information (PII) from resumes:
 
 1. **Redaction Pipeline Script**:
-   - A script for batch processing PDF resumes using [Microsoft Presidio](https://github.com/microsoft/presidio).
-   - Supports random sampling, PII detection, and PDF redaction with summary statistics.
+   - A script for batch processing PDF resumes using regex patterns, [Microsoft Presidio](https://github.com/microsoft/presidio), spaCy, and an ensemble of both detectors for a wide range of PII types.
+   - Supports custom filters, PII detection, and PDF redaction with summary statistics.
 
 2. **Streamlit Web App**:
    - An interactive web-based interface for selecting input/output directories, loading models, and processing resumes.
-   - Integrates the **JobBERT** model for improved PII detection.
 
 ---
 
@@ -16,10 +15,14 @@ This repository provides two tools for detecting and redacting sensitive informa
 
 - **Presidio-based PII detection**:
   - Detects names, emails, phone numbers, and more.
+- **spaCy detection**:
+  - Uses NLP for longer sentences / less 'pattern' focused than Presidio
+- **Ensemble**:
+  - Combination of spaCy and Presidio where they can overlap/support each other.
+- **Custom Patterns**:
+  - Regex detection for edge cases or where built-in/out of the box capabilities fall short.
 - **True PDF redaction**:
   - Redacts detected PII with black rectangles in the output PDFs.
-- **Random sampling**:
-  - Processes a random subset of resumes during testing.
 - **Streamlit Web App**:
   - Provides an intuitive interface for model loading, directory selection, and PDF redaction.
 - **Summary statistics**:
