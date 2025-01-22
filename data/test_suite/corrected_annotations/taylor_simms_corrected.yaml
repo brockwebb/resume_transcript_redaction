@@ -1,0 +1,74 @@
+file_name: taylor_simms_corrected
+entities:
+- text: Taylor Simms
+  type: NAME
+  should_redact: true
+  location:
+    page: 1
+    start_char: 0
+    end_char: 12
+  sensitivity: high
+- text: 555-123-4567
+  type: PHONE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 72
+    end_char: 84
+  sensitivity: high
+- text: taylorsimms@example.com
+  type: EMAIL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 119
+    end_char: 142
+  sensitivity: high
+- text: linkedin.com/in/taylorsimms
+  type: LINKEDIN
+  should_redact: true
+  location:
+    page: 1
+    start_char: 88
+    end_char: 115
+  sensitivity: medium
+- text: "2014-09 \u2013 2021-05"
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 472
+    end_char: 489
+  sensitivity: medium
+- text: "2013-01 \u2013 2014-08"
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 892
+    end_char: 909
+  sensitivity: medium
+- text: "2011-06 \u2013 2013-01"
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 1231
+    end_char: 1248
+  sensitivity: medium
+- text: "2008 \u2013 2012"
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 371
+    end_char: 382
+  sensitivity: medium
+- text: Westfield University
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 349
+    end_char: 369
+  sensitivity: high

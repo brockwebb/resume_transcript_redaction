@@ -1,0 +1,147 @@
+file_name: jordan_patel_corrected
+entities:
+- text: Jordan K. Patel
+  type: NAME
+  should_redact: true
+  location:
+    page: 1
+    start_char: 0
+    end_char: 15
+  sensitivity: high
+- text: 22 Maplewood Drive, Unit B
+  type: STREET_ADDRESS
+  should_redact: true
+  location:
+    page: 1
+    start_char: 26
+    end_char: 52
+  sensitivity: high
+- text: Seattle, WA 98101
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 54
+    end_char: 71
+  sensitivity: medium
+- text: (206) 555-7890
+  type: PHONE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 80
+    end_char: 94
+  sensitivity: high
+- text: jordan.k.patel@cloudmail.com
+  type: EMAIL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 103
+    end_char: 131
+  sensitivity: high
+- text: jordanpatel.dev
+  type: WEBSITE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 142
+    end_char: 157
+  sensitivity: medium
+- text: 2010-2016
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 217
+    end_char: 226
+  sensitivity: medium
+- text: "July 2018 \u2013 Present"
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 75
+    end_char: 94
+  sensitivity: medium
+- text: "January 2010 \u2013 January 2016"
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 537
+    end_char: 564
+  sensitivity: medium
+- text: June 2018
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 606
+    end_char: 615
+  sensitivity: medium
+- text: June 2016
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 740
+    end_char: 749
+  sensitivity: medium
+- text: 3.8/4.0
+  type: GPA
+  should_redact: true
+  location:
+    page: 1
+    start_char: 622
+    end_char: 629
+  sensitivity: high
+- text: University of Washington
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 556
+    end_char: 580
+  sensitivity: medium
+- text: Seattle, WA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 54
+    end_char: 65
+  sensitivity: medium
+- text: Seattle Community College
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 689
+    end_char: 714
+  sensitivity: medium
+- text: Seattle, WA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 54
+    end_char: 65
+  sensitivity: medium
+- text: Bellevue, WA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 61
+    end_char: 73
+  sensitivity: medium
+- text: 'Accessibility Statement: Will require screen magnification tools for extended
+    periods of computer work due to partial visual impairment'
+  type: ACCESSIBILITY
+  should_redact: true
+  location:
+    page: 3
+    start_char: 221
+    end_char: 356
+  sensitivity: high

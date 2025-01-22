@@ -1,0 +1,106 @@
+file_name: jack_spencer_corrected
+entities:
+- text: JACK SPENCER
+  type: NAME
+  should_redact: true
+  location:
+    page: 1
+    start_char: 0
+    end_char: 12
+  sensitivity: high
+- text: (730) 555-3414
+  type: PHONE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 67
+    end_char: 81
+  sensitivity: high
+- text: jspencer@example.com
+  type: EMAIL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 82
+    end_char: 102
+  sensitivity: high
+- text: 2017 - Present
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 307
+    end_char: 321
+  sensitivity: medium
+- text: 2014 - 2017
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 898
+    end_char: 909
+  sensitivity: medium
+- text: 2012 - 2013
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 1157
+    end_char: 1168
+  sensitivity: medium
+- text: 2013 - 2014
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 1491
+    end_char: 1502
+  sensitivity: medium
+- text: 2009 - 2012
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 1563
+    end_char: 1574
+  sensitivity: medium
+- text: Jeffersonville, IN
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 48
+    end_char: 66
+  sensitivity: medium
+- text: Indianapolis, IN
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 932
+    end_char: 948
+  sensitivity: medium
+- text: San Diego, CA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 1191
+    end_char: 1204
+  sensitivity: medium
+- text: Ashford University
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 1503
+    end_char: 1521
+  sensitivity: high
+- text: San Diego, CA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 1191
+    end_char: 1204
+  sensitivity: medium

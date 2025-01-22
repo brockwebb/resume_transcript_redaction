@@ -1,0 +1,170 @@
+file_name: samira_nguyen_corrected
+entities:
+- text: Samira H. Nguyen
+  type: NAME
+  should_redact: true
+  location:
+    page: 1
+    start_char: 0
+    end_char: 16
+  sensitivity: high
+- text: (+44) 20-7946-0958
+  type: PHONE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 47
+    end_char: 65
+  sensitivity: high
+- text: samira.nguyen.bio@example.org
+  type: EMAIL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 75
+    end_char: 104
+  sensitivity: high
+- text: github.com/samira-nguyen
+  type: GITHUB
+  should_redact: true
+  location:
+    page: 1
+    start_char: 115
+    end_char: 139
+  sensitivity: medium
+- text: 12 Willow Lane, Flat 3B
+  type: STREET_ADDRESS
+  should_redact: true
+  location:
+    page: 1
+    start_char: 151
+    end_char: 174
+  sensitivity: high
+- text: London, UK
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 176
+    end_char: 186
+  sensitivity: medium
+- text: 987654321UK
+  type: PASSPORT_NUMBER
+  should_redact: true
+  location:
+    page: 1
+    start_char: 206
+    end_char: 217
+  sensitivity: high
+- text: "October 2017 \u2013 Present"
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 77
+    end_char: 99
+  sensitivity: medium
+- text: "October 2013 \u2013 September 2017"
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 462
+    end_char: 491
+  sensitivity: medium
+- text: September 2017
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 595
+    end_char: 609
+  sensitivity: medium
+- text: September 2013
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 692
+    end_char: 706
+  sensitivity: medium
+- text: May 2011
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 778
+    end_char: 786
+  sensitivity: medium
+- text: University College London (UCL)
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 540
+    end_char: 571
+  sensitivity: high
+- text: London, UK
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 176
+    end_char: 186
+  sensitivity: medium
+- text: Imperial College London
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 645
+    end_char: 668
+  sensitivity: high
+- text: London, UK
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 176
+    end_char: 186
+  sensitivity: medium
+- text: University of Hanoi
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 738
+    end_char: 757
+  sensitivity: high
+- text: Vietnam
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 759
+    end_char: 766
+  sensitivity: medium
+- text: Cambridge, UK
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 63
+    end_char: 76
+  sensitivity: medium
+- text: Mentor, Women in Science and Engineering (WISE) UK
+  type: ACTIVITY
+  should_redact: true
+  location:
+    page: 2
+    start_char: 742
+    end_char: 792
+  sensitivity: medium
+- text: 'Travel Restrictions: Requires visa support for non-EU countries'
+  type: TRAVEL_RESTRICTION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 873
+    end_char: 936
+  sensitivity: high

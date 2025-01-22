@@ -1,0 +1,138 @@
+file_name: taylor_smith_corrected
+entities:
+- text: Taylor M. Smith
+  type: NAME
+  should_redact: true
+  location:
+    page: 1
+    start_char: 0
+    end_char: 15
+  sensitivity: high
+- text: 5678 Oakwood Lane, Suite 101
+  type: STREET_ADDRESS
+  should_redact: true
+  location:
+    page: 1
+    start_char: 26
+    end_char: 54
+  sensitivity: high
+- text: Raleigh, NC 27601
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 56
+    end_char: 73
+  sensitivity: medium
+- text: (919) 987-6543
+  type: PHONE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 82
+    end_char: 96
+  sensitivity: high
+- text: taylor.smith_123@examplemail.com
+  type: EMAIL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 105
+    end_char: 137
+  sensitivity: high
+- text: linkedin.com/in/taylormsmith
+  type: LINKEDIN
+  should_redact: true
+  location:
+    page: 1
+    start_char: 149
+    end_char: 177
+  sensitivity: medium
+- text: 05/15/1986
+  type: DATE_OF_BIRTH
+  should_redact: true
+  location:
+    page: 1
+    start_char: 194
+    end_char: 204
+  sensitivity: high
+- text: "June 2015 \u2013 Present"
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 90
+    end_char: 109
+  sensitivity: medium
+- text: "August 2010 \u2013 May 2015"
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 560
+    end_char: 582
+  sensitivity: medium
+- text: May 2008
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 628
+    end_char: 636
+  sensitivity: medium
+- text: 3.7/4.0
+  type: GPA
+  should_redact: true
+  location:
+    page: 1
+    start_char: 643
+    end_char: 650
+  sensitivity: high
+- text: University of North Carolina
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 570
+    end_char: 598
+  sensitivity: high
+- text: Chapel Hill, NC
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 600
+    end_char: 615
+  sensitivity: medium
+- text: Diverse Futures, Inc.
+  type: ORGANIZATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 55
+    end_char: 76
+  sensitivity: medium
+- text: Durham, NC
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 78
+    end_char: 88
+  sensitivity: medium
+- text: Raleigh, NC
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 56
+    end_char: 67
+  sensitivity: medium
+- text: Mentor, Women in Leadership Initiative
+  type: ACTIVITY
+  should_redact: true
+  location:
+    page: 2
+    start_char: 1176
+    end_char: 1214
+  sensitivity: medium

@@ -1,0 +1,147 @@
+file_name: deshawn_carter_corrected
+entities:
+- text: DeShawn L. Carter
+  type: NAME
+  should_redact: true
+  location:
+    page: 1
+    start_char: 0
+    end_char: 17
+  sensitivity: high
+- text: (404) 555-7890
+  type: PHONE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 44
+    end_char: 58
+  sensitivity: high
+- text: d.carter.ai@outlook.com
+  type: EMAIL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 68
+    end_char: 91
+  sensitivity: high
+- text: deshawnaitech.com
+  type: SOCIAL_MEDIA
+  should_redact: true
+  location:
+    page: 1
+    start_char: 105
+    end_char: 122
+  sensitivity: medium
+- text: '9876'
+  type: SSN
+  should_redact: true
+  location:
+    page: 1
+    start_char: 165
+    end_char: 169
+  sensitivity: high
+- text: "June 2018 \u2013 Present"
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 828
+    end_char: 847
+  sensitivity: medium
+- text: "September 2015 \u2013 May 2018"
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 61
+    end_char: 86
+  sensitivity: medium
+- text: May 2015
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 426
+    end_char: 434
+  sensitivity: medium
+- text: May 2011
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 528
+    end_char: 536
+  sensitivity: medium
+- text: Atlanta, GA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 816
+    end_char: 827
+  sensitivity: medium
+- text: San Francisco, CA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 43
+    end_char: 60
+  sensitivity: medium
+- text: Georgia Institute of Technology
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 370
+    end_char: 401
+  sensitivity: medium
+- text: Atlanta, GA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 816
+    end_char: 827
+  sensitivity: medium
+- text: Howard University
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 481
+    end_char: 498
+  sensitivity: medium
+- text: Washington, D.C.
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 500
+    end_char: 516
+  sensitivity: medium
+- text: Black and Latinx youth
+  type: DEMOGRAPHIC
+  should_redact: true
+  location:
+    page: 2
+    start_char: 727
+    end_char: 749
+  sensitivity: high
+- text: 'Accessibility Needs: Prefers voice-to-text tools due to repetitive strain
+    injury'
+  type: ACCESSIBILITY
+  should_redact: true
+  location:
+    page: 2
+    start_char: 996
+    end_char: 1076
+  sensitivity: high
+- text: 'Pronouns: He/Him'
+  type: PRONOUNS
+  should_redact: true
+  location:
+    page: 2
+    start_char: 903
+    end_char: 919
+  sensitivity: high

@@ -1,0 +1,155 @@
+file_name: priya_ahmed_corrected
+entities:
+- text: Priya S. Ahmed
+  type: NAME
+  should_redact: true
+  location:
+    page: 1
+    start_char: 0
+    end_char: 14
+  sensitivity: high
+- text: 45 Lotus Crescent, Unit 3
+  type: STREET_ADDRESS
+  should_redact: true
+  location:
+    page: 1
+    start_char: 25
+    end_char: 50
+  sensitivity: high
+- text: San Jose, CA 95123
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 52
+    end_char: 70
+  sensitivity: medium
+- text: (408) 678-9101
+  type: PHONE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 79
+    end_char: 93
+  sensitivity: high
+- text: priya.ahmed.scientist@example.com
+  type: EMAIL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 102
+    end_char: 135
+  sensitivity: high
+- text: linkedin.com/in/priya-ahmed-phd
+  type: LINKEDIN
+  should_redact: true
+  location:
+    page: 1
+    start_char: 147
+    end_char: 178
+  sensitivity: medium
+- text: 'Medical Disclosure: Type 1 diabetic, requires accommodations for insulin
+    pump usage during work hours'
+  type: MEDICAL_DISCLOSURE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 175
+    end_char: 276
+  sensitivity: high
+- text: "July 2015 \u2013 Present"
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 79
+    end_char: 98
+  sensitivity: medium
+- text: "August 2010 \u2013 May 2015"
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 524
+    end_char: 546
+  sensitivity: medium
+- text: June 2015
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 626
+    end_char: 635
+  sensitivity: medium
+- text: May 2010
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 732
+    end_char: 740
+  sensitivity: medium
+- text: Stanford University
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 580
+    end_char: 599
+  sensitivity: high
+- text: Stanford, CA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 601
+    end_char: 613
+  sensitivity: medium
+- text: University of California
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 681
+    end_char: 705
+  sensitivity: high
+- text: Berkeley, CA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 707
+    end_char: 719
+  sensitivity: medium
+- text: San Francisco, CA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 60
+    end_char: 77
+  sensitivity: medium
+- text: Stanford University
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 580
+    end_char: 599
+  sensitivity: high
+- text: Muslim Women in STEM
+  type: DEMOGRAPHIC
+  should_redact: true
+  location:
+    page: 2
+    start_char: 1119
+    end_char: 1139
+  sensitivity: high
+- text: Islamic
+  type: DEMOGRAPHIC
+  should_redact: true
+  location:
+    page: 2
+    start_char: 1240
+    end_char: 1247
+  sensitivity: high

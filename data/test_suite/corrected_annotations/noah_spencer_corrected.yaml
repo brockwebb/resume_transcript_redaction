@@ -1,0 +1,122 @@
+file_name: noah_spencer_corrected
+entities:
+- text: NOAH SPENCER
+  type: NAME
+  should_redact: true
+  location:
+    page: 1
+    start_char: 0
+    end_char: 12
+  sensitivity: high
+- text: (830) 555-3727
+  type: PHONE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 53
+    end_char: 67
+  sensitivity: high
+- text: nspencer@example.com
+  type: EMAIL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 68
+    end_char: 88
+  sensitivity: high
+- text: 2019 - Present
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 294
+    end_char: 308
+  sensitivity: medium
+- text: 2016 - 2019
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 380
+    end_char: 391
+  sensitivity: medium
+- text: 2012 - 2015
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 427
+    end_char: 438
+  sensitivity: medium
+- text: 2015 - 2016
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 499
+    end_char: 510
+  sensitivity: medium
+- text: 2009 - 2012
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 603
+    end_char: 614
+  sensitivity: medium
+- text: Riverside, CA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 39
+    end_char: 52
+  sensitivity: medium
+- text: Beltsville, MD
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 397
+    end_char: 411
+  sensitivity: medium
+- text: Greensboro, NC
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 447
+    end_char: 461
+  sensitivity: medium
+- text: Rutgers, The State University of New Jersey
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 511
+    end_char: 554
+  sensitivity: high
+- text: New Brunswick, NJ
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 555
+    end_char: 572
+  sensitivity: medium
+- text: University of North Carolina at Greensboro
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 615
+    end_char: 657
+  sensitivity: high
+- text: Greensboro, NC
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 447
+    end_char: 461
+  sensitivity: medium

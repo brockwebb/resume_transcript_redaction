@@ -1,0 +1,122 @@
+file_name: elena_garcia_corrected
+entities:
+- text: "Dr. Elena R. Garc\xEDa"
+  type: NAME
+  should_redact: true
+  location:
+    page: 1
+    start_char: 0
+    end_char: 19
+  sensitivity: high
+- text: (+1) 212-345-6789
+  type: PHONE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 72
+    end_char: 89
+  sensitivity: high
+- text: elena.garcia.researcher@biosciences.net
+  type: EMAIL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 30
+    end_char: 69
+  sensitivity: high
+- text: garcia_researcher1234@genmail.io
+  type: EMAIL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 559
+    end_char: 591
+  sensitivity: high
+- text: www.drelena.bio
+  type: WEBSITE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 100
+    end_char: 115
+  sensitivity: medium
+- text: 123 Genomics Lane, Floor 5
+  type: STREET_ADDRESS
+  should_redact: true
+  location:
+    page: 1
+    start_char: 126
+    end_char: 152
+  sensitivity: high
+- text: New York, NY
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 154
+    end_char: 166
+  sensitivity: medium
+- text: 0000-0002-1234-5678
+  type: ORCID
+  should_redact: true
+  location:
+    page: 1
+    start_char: 175
+    end_char: 194
+  sensitivity: high
+- text: A123-456-789
+  type: RESIDENT_ID
+  should_redact: true
+  location:
+    page: 1
+    start_char: 526
+    end_char: 538
+  sensitivity: high
+- text: "July 2014 \u2013 Present"
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 689
+    end_char: 708
+  sensitivity: medium
+- text: "June 2010 \u2013 June 2014"
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 1266
+    end_char: 1287
+  sensitivity: medium
+- text: May 2010
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 317
+    end_char: 325
+  sensitivity: medium
+- text: May 2006
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 406
+    end_char: 414
+  sensitivity: medium
+- text: NYU Medical Center
+  type: INSTITUTION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 669
+    end_char: 687
+  sensitivity: medium
+- text: New York, NY
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 154
+    end_char: 166
+  sensitivity: medium

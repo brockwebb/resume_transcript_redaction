@@ -1,0 +1,154 @@
+file_name: alexis_rivera_corrected
+entities:
+- text: Alexis N. Rivera
+  type: NAME
+  should_redact: true
+  location:
+    page: 1
+    start_char: 0
+    end_char: 16
+  sensitivity: high
+- text: 909 Jasmine Street, Apartment 8
+  type: STREET_ADDRESS
+  should_redact: true
+  location:
+    page: 1
+    start_char: 26
+    end_char: 57
+  sensitivity: high
+- text: Miami, FL 33130
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 59
+    end_char: 74
+  sensitivity: medium
+- text: (305) 234-5678
+  type: PHONE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 82
+    end_char: 96
+  sensitivity: high
+- text: alexis.rivera.tech@example.com
+  type: EMAIL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 104
+    end_char: 134
+  sensitivity: high
+- text: linkedin.com/in/alexisrivera-tech
+  type: URL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 145
+    end_char: 178
+  sensitivity: medium
+- text: '@alexis_rivera_dev'
+  type: SOCIAL_MEDIA
+  should_redact: true
+  location:
+    page: 1
+    start_char: 188
+    end_char: 206
+  sensitivity: medium
+- text: May 2019
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 582
+    end_char: 590
+  sensitivity: medium
+- text: May 2016
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 692
+    end_char: 700
+  sensitivity: medium
+- text: "July 2019 \u2013 Present"
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 58
+    end_char: 77
+  sensitivity: medium
+- text: "June 2018 \u2013 May 2019"
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 507
+    end_char: 527
+  sensitivity: medium
+- text: 4.0/4.0
+  type: GPA
+  should_redact: true
+  location:
+    page: 1
+    start_char: 596
+    end_char: 603
+  sensitivity: high
+- text: 3.9/4.0
+  type: GPA
+  should_redact: true
+  location:
+    page: 1
+    start_char: 706
+    end_char: 713
+  sensitivity: high
+- text: Florida International University
+  type: INSTITUTION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 527
+    end_char: 559
+  sensitivity: medium
+- text: Miami, FL
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 59
+    end_char: 68
+  sensitivity: medium
+- text: University of Puerto Rico
+  type: INSTITUTION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 638
+    end_char: 663
+  sensitivity: medium
+- text: "R\xEDo Piedras, PR"
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 665
+    end_char: 680
+  sensitivity: medium
+- text: Women in Data Science (WiDS) initiative
+  type: DEMOGRAPHIC
+  should_redact: true
+  location:
+    page: 2
+    start_char: 977
+    end_char: 1016
+  sensitivity: medium
+- text: UnidosUS
+  type: DEMOGRAPHIC
+  should_redact: true
+  location:
+    page: 2
+    start_char: 1080
+    end_char: 1088
+  sensitivity: medium

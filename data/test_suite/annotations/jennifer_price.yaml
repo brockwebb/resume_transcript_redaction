@@ -1,0 +1,122 @@
+file_name: jennifer_price_corrected
+entities:
+- text: JENNIFER PRICE
+  type: NAME
+  should_redact: true
+  location:
+    page: 1
+    start_char: 0
+    end_char: 14
+  sensitivity: high
+- text: (690) 555-0897
+  type: PHONE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 44
+    end_char: 58
+  sensitivity: high
+- text: jprice@example.com
+  type: EMAIL
+  should_redact: true
+  location:
+    page: 1
+    start_char: 59
+    end_char: 77
+  sensitivity: high
+- text: 2011 - Present
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 102
+    end_char: 116
+  sensitivity: medium
+- text: 2001 - 2011
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 690
+    end_char: 701
+  sensitivity: medium
+- text: 1999 - 2000
+  type: DATE
+  should_redact: true
+  location:
+    page: 1
+    start_char: 1229
+    end_char: 1240
+  sensitivity: medium
+- text: 2000 - 2001
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 163
+    end_char: 174
+  sensitivity: medium
+- text: 1996 - 1999
+  type: DATE
+  should_redact: true
+  location:
+    page: 2
+    start_char: 269
+    end_char: 280
+  sensitivity: medium
+- text: Rocky Mount, NC
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 28
+    end_char: 43
+  sensitivity: medium
+- text: Rocky Mount, NC
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 28
+    end_char: 43
+  sensitivity: medium
+- text: Philadelphia, PA
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 1
+    start_char: 1254
+    end_char: 1270
+  sensitivity: medium
+- text: Rutgers, The State University of New Jersey
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 175
+    end_char: 218
+  sensitivity: high
+- text: New Brunswick, NJ
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 221
+    end_char: 238
+  sensitivity: medium
+- text: New York University
+  type: EDUCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 281
+    end_char: 300
+  sensitivity: high
+- text: New York, NY
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 303
+    end_char: 315
+  sensitivity: medium
