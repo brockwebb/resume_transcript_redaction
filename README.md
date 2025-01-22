@@ -21,8 +21,50 @@ A robust system for detecting and redacting sensitive information from resumes a
 - **Error Analysis**: Identify missed entities and mapping conflicts
 - **Configuration Tuning**: Tools for optimizing detection parameters
 
-[Project Structure section - same as before]
-
+## Project Structure
+```
+project/
+├── app/                       
+│   ├── redactor_gui.py        # Main interface
+│   ├── config/               
+│   │   └── config.yaml        # App configuration
+│   └── utils/
+│       ├── logger.py          # Logging utilities
+│       └── config_loader.py   # Configuration management
+├── redactor/
+│   ├── redactor_logic.py      # Core redaction logic
+│   ├── file_processor.py      # PDF processing
+│   ├── config/               
+│   │   ├── core_patterns.yaml     # Base detection patterns
+│   │   ├── entity_routing.yaml    # Detector routing rules
+│   │   └── custom_word_filters.yaml
+│   └── detectors/            
+│       ├── ensemble_coordinator.py # Detector coordination
+│       ├── presidio_detector.py    # Presidio integration
+│       ├── spacy_detector.py      # spaCy integration
+│       └── custom_recognizers.py   # Custom entity recognition
+├── evaluation/
+│   ├── evaluate.py            # Evaluation framework
+│   └── test_suite/           
+│       ├── originals/         # Original test PDFs
+│       │   ├── alexis_rivera.pdf
+│       │   └── ...
+│       ├── annotations/       # Ground truth annotations
+│       │   ├── alexis_rivera.yaml
+│       │   └── ...
+│       ├── results/          # Test run results
+│       │   ├── run_20240121/ # Date-stamped test runs
+│       │   │   ├── metrics.json
+│       │   │   └── test_results.yaml
+│       │   └── ...
+│       └── test_manifest.yaml # Test suite metadata
+├── data/                     
+│   ├── redact_input/         # Documents to be redacted
+│   └── redact_output/        # Redacted output documents
+├── scripts/
+│   └── setup_environment.sh  # Environment setup script
+└── requirements.txt
+```
 ## Setup and Usage
 
 ### Environment Setup
@@ -72,7 +114,40 @@ conda activate redaction_env
 python -m evaluation.evaluate detect --test [test_id]
 ```
 
-[Rest of configuration sections remain the same]
+## Configuration
+
+### Entity Routing
+Configure detector assignments in `entity_routing.yaml`:
+```yaml
+routing:
+  presidio_primary:
+    entities:
+      - EMAIL_ADDRESS
+      - PHONE_NUMBER
+      # ...
+  spacy_primary:
+    entities:
+      - PERSON
+      - LOCATION
+      # ...
+```
+
+### Detection Patterns
+Define custom patterns in `core_patterns.yaml`:
+```yaml
+phone_patterns:
+  - name: "us_standard"
+    regex: "\\(?[0-9]{3}\\)?[-. ]?[0-9]{3}[-. ]?[0-9]{4}"
+    score: 0.75
+```
+
+## Current Development
+
+The project is currently focused on:
+1. Optimizing entity detection and mapping
+2. Tuning confidence thresholds
+3. Expanding pattern coverage
+4. Improving evaluation metrics
 
 ## License
 
