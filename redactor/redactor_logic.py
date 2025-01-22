@@ -1,24 +1,20 @@
 # redactor/redactor_logic.py
 import re
 import yaml
-import spacy
 import fitz
 from typing import Dict, List, Tuple, Optional, Any
 from dataclasses import dataclass
 import string
 from pathlib import Path
+
+# Keep pattern matcher for fallback
 from .detectors.pattern_matcher import PatternMatcher
+# Add new detection system
+from .detectors.ensemble_coordinator import EnsembleCoordinator
+from .detectors.base_detector import Entity
 from .redactor_file_processing import RedactFileProcessor
 from app.utils.logger import RedactionLogger
-
-@dataclass
-class Entity:
-    """Entity class to store detected entities with their metadata."""
-    text: str
-    entity_type: str
-    confidence: float
-    start: int
-    end: int
+from app.utils.config_loader import ConfigLoader
 
 class RedactionProcessor:
     """Processor for detecting and applying redactions to documents."""
@@ -30,6 +26,7 @@ class RedactionProcessor:
                  detection_patterns_path: str = "detection_patterns.yaml",
                  trigger_words_path: str = "custom_word_filters.yaml",
                  logger: Optional[RedactionLogger] = None):
+        """Initialize RedactionProcessor with both detection systems."""
         
         # Initialize logger
         self.logger = logger if logger else RedactionLogger(
@@ -40,19 +37,10 @@ class RedactionProcessor:
         )
 
         self.logger.info("=== Initializing RedactionProcessor ===")
-
-        # Flatten the patterns structure
-        flattened_patterns = []
-        for category, patterns in custom_patterns.items():
-            if isinstance(patterns, list):
-                flattened_patterns.extend(patterns)
-
-        # Initialize pattern matcher with flattened list
-        self.pattern_matcher = PatternMatcher(
-            detection_config={'patterns': flattened_patterns},
-            confidence_threshold=confidence_threshold or 0.7,
-            logger=self.logger
-        )
+        
+        # Initialize config loader
+        self.config_loader = ConfigLoader()
+        self.config_loader.load_all_configs()
 
         # Set basic configurations
         self.confidence_threshold = confidence_threshold or 0.7
@@ -62,6 +50,34 @@ class RedactionProcessor:
         # PDF processing settings
         self.validate_pdfs = False
         self.ocr_enabled = False
+
+        # Initialize pattern matcher (fallback detection)
+        try:
+            # Flatten the patterns structure
+            flattened_patterns = []
+            for category, patterns in custom_patterns.items():
+                if isinstance(patterns, list):
+                    flattened_patterns.extend(patterns)
+
+            # Initialize pattern matcher with flattened list
+            self.pattern_matcher = PatternMatcher(
+                detection_config={'patterns': flattened_patterns},
+                confidence_threshold=self.confidence_threshold,
+                logger=self.logger
+            )
+        except Exception as e:
+            self.logger.error(f"Error initializing pattern matcher: {str(e)}")
+            raise
+
+        # Initialize ensemble detection system
+        try:
+            self.ensemble = EnsembleCoordinator(
+                config_loader=self.config_loader,
+                logger=self.logger
+            )
+        except Exception as e:
+            self.logger.error(f"Error initializing ensemble detection: {str(e)}")
+            raise
 
         # Load word filters if provided
         if keep_words_path:
@@ -74,24 +90,85 @@ class RedactionProcessor:
 
         self.logger.info("=== Initialization Complete ===")
 
+    def _detect_redactions(self, wordlist: list) -> List[fitz.Rect]:
+        """Detect areas requiring redaction using ensemble detection with pattern matcher fallback."""
+        redact_areas = []
+        
+        self.logger.debug(f"Processing wordlist with {len(wordlist)} items")
+        
+        text = self._get_text_from_wordlist(wordlist)
+        
+        # First try ensemble detection
+        try:
+            entities = self.ensemble.detect_entities(text)
+            self.logger.debug(f"Found {len(entities)} entities using ensemble detection")
+        except Exception as e:
+            self.logger.error(f"Ensemble detection failed: {str(e)}")
+            entities = []
 
+        # If ensemble detection fails or finds nothing, fall back to pattern matcher
+        if not entities:
+            self.logger.debug("Falling back to pattern matcher")
+            pattern_entities = self.pattern_matcher.detect_entities(text)
+            entities.extend([
+                Entity(
+                    text=ent["text"],
+                    entity_type=ent["entity_type"],
+                    confidence=ent["confidence"],
+                    start=ent["start"],
+                    end=ent["end"],
+                    source="pattern_matcher",  # Add source parameter
+                    metadata=ent.get("metadata", {})  # Optional metadata
+                ) for ent in pattern_entities
+            ])
+        
+        self.logger.debug(f"Found {len(entities)} total entities before keep_words filtering")
+        
+        # Convert entities to redaction areas
+        for entity in entities:
+            self.logger.debug(f"Processing entity: {entity}")
+            
+            # Check if this is a keep_word before redacting
+            if self._should_keep(entity.text):
+                self.logger.info(f"Preserving term '{entity.text}' matched in keep_words")
+                continue
+                
+            # Also check normalized version
+            normalized_text = self._normalize_text(entity.text)
+            if self._should_keep(normalized_text):
+                self.logger.info(f"Preserving term '{entity.text}' (normalized: '{normalized_text}') matched in keep_words")
+                continue
+                
+            # If we get here, term should be redacted
+            self.logger.debug(f"Term will be redacted: '{entity.text}' (type: {entity.entity_type})")
+            
+            # Get bounding boxes for the entity
+            bboxes = self._get_entity_bbox(entity.text, wordlist, entity.entity_type)
+            
+            if bboxes:
+                redact_areas.extend(bboxes)
+            else:
+                self.logger.warning(f"No bounding boxes found for entity: {entity.text}")
+
+        self.logger.info(f"Final redaction count: {len(redact_areas)} areas after keep_words filtering")
+        return redact_areas
 
     def _normalize_text(self, text: str) -> str:
-            """Normalize text while preserving certain special characters."""
-            if not text:
-                return ""
-                
-            # Convert to lowercase and strip whitespace
-            normalized = text.lower().strip()
+        """Normalize text while preserving certain special characters."""
+        if not text:
+            return ""
             
-            # Remove all punctuation except .-_ and space
-            normalized = re.sub(r'[^\w\s.\-_]', '', normalized)
-            
-            # Normalize whitespace
-            normalized = re.sub(r'\s+', ' ', normalized)
-            
-            self.logger.debug(f"Normalized text: '{text}' -> '{normalized}'")
-            return normalized
+        # Convert to lowercase and strip whitespace
+        normalized = text.lower().strip()
+        
+        # Remove all punctuation except .-_ and space
+        normalized = re.sub(r'[^\w\s.\-_]', '', normalized)
+        
+        # Normalize whitespace
+        normalized = re.sub(r'\s+', ' ', normalized)
+        
+        self.logger.debug(f"Normalized text: '{text}' -> '{normalized}'")
+        return normalized
     
     @staticmethod
     def normalize_domain_specific_text(text: str) -> str:
@@ -126,16 +203,6 @@ class RedactionProcessor:
                 self.logger.debug(f"Partial keep word match: '{text}' is part of '{keep_word}'")
                 return True
         
-        # Debug log for non-matches
-        self.logger.debug(
-            f"Keep word check:\n"
-            f"  Original: '{text}'\n"
-            f"  Normalized: '{normalized_text}'\n"
-            f"  Text parts: {text_parts}\n"
-            f"  Keep words: {list(normalized_keep_words)[:5]}...\n"
-            f"  Match: False"
-        )
-        
         return False
 
     def _load_custom_word_filters(self, path: str):
@@ -166,43 +233,7 @@ class RedactionProcessor:
         except Exception as e:
             self.logger.error(f"Error loading trigger words: {e}")
             self.trigger_words = set()
-    
-    def _detect_redactions(self, wordlist: list) -> List[fitz.Rect]:
-            """Detect areas requiring redaction using pattern matcher."""
-            redact_areas = []
-            
-            self.logger.debug(f"Processing wordlist with {len(wordlist)} items")
-            
-            text = self._get_text_from_wordlist(wordlist)
-            
-            # Get entities from pattern matcher
-            entities = self.pattern_matcher.detect_entities(text)
-            
-            self.logger.debug(f"Found {len(entities)} entities before keep_words filtering")
-            
-            # Convert entities to redaction areas
-            for entity in entities:
-                self.logger.debug(f"Processing entity: {entity}")
-                
-                # Check if this is a keep_word before redacting
-                if self._should_keep(entity["text"]):
-                    self.logger.info(f"Preserving term '{entity['text']}' matched in keep_words")
-                    continue
-                    
-                # Also check normalized version
-                normalized_text = self._normalize_text(entity["text"])
-                if self._should_keep(normalized_text):
-                    self.logger.info(f"Preserving term '{entity['text']}' (normalized: '{normalized_text}') matched in keep_words")
-                    continue
-                    
-                # If we get here, term should be redacted
-                self.logger.debug(f"Term will be redacted: '{entity['text']}' (type: {entity['entity_type']})")
-                bboxes = self._get_entity_bbox(entity["text"], wordlist, entity["entity_type"])
-                redact_areas.extend(bboxes)
-    
-            self.logger.info(f"Final redaction count: {len(redact_areas)} areas after keep_words filtering")
-            return redact_areas
-    
+
     def _get_entity_bbox(self, matched_text: str, wordlist: list, entity_type: str = None) -> List[fitz.Rect]:
         """Get bounding boxes for matched text within wordlist."""
         if entity_type in {"WEBSITE", "EMAIL_ADDRESS", "SOCIAL_MEDIA"}:
@@ -269,8 +300,8 @@ class RedactionProcessor:
                 text = word.get('text', '')
                 y_pos = word.get('bbox', {}).get('y0')
             else:  # Tuple format
-                text = word[4]  # Text is at index 4 in tuple format
-                y_pos = word[1]  # y0 is at index 1
+                text = word[4]
+                y_pos = word[1]
             
             # Add newline if y position changes significantly
             if last_y is not None and abs(y_pos - last_y) > 5:
@@ -280,42 +311,31 @@ class RedactionProcessor:
             last_y = y_pos
         
         return ' '.join(text_parts)
-    
+
     def process_pdf(self, 
-                       input_path: str, 
-                       output_path: str, 
-                       redact_color: Tuple[float, float, float] = (0, 0, 0), 
-                       redact_opacity: float = 1.0) -> Dict[str, int]:
-            """
-            Process a PDF file and apply redactions.
-    
-            Args:
-                input_path: Path to input PDF
-                output_path: Path to output PDF
-                redact_color: RGB color tuple for redactions
-                redact_opacity: Opacity level for redactions
-    
-            Returns:
-                Dict containing statistics about the processing
-            """
-            self.logger.info(f"Processing PDF: {input_path}")
-            try:
-                file_processor = RedactFileProcessor(
-                    redact_color=redact_color,
-                    redact_opacity=redact_opacity,
-                    ocr_enabled=self.ocr_enabled,
-                    validate_pdfs=self.validate_pdfs
-                )
-    
-                stats = file_processor.process_pdf(
-                    input_path=input_path,
-                    output_path=output_path,
-                    detect_redactions=self._detect_redactions
-                )
-    
-                self.logger.info(f"PDF processing complete: {stats}")
-                return stats
-    
-            except Exception as e:
-                self.logger.error(f"Error processing PDF {input_path}: {str(e)}")
-                raise
+                   input_path: str, 
+                   output_path: str, 
+                   redact_color: Tuple[float, float, float] = (0, 0, 0), 
+                   redact_opacity: float = 1.0) -> Dict[str, int]:
+        """Process a PDF file and apply redactions."""
+        self.logger.info(f"Processing PDF: {input_path}")
+        try:
+            file_processor = RedactFileProcessor(
+                redact_color=redact_color,
+                redact_opacity=redact_opacity,
+                ocr_enabled=self.ocr_enabled,
+                validate_pdfs=self.validate_pdfs
+            )
+
+            stats = file_processor.process_pdf(
+                input_path=input_path,
+                output_path=output_path,
+                detect_redactions=self._detect_redactions
+            )
+
+            self.logger.info(f"PDF processing complete: {stats}")
+            return stats
+
+        except Exception as e:
+            self.logger.error(f"Error processing PDF {input_path}: {str(e)}")
+            raise
