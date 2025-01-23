@@ -1,21 +1,51 @@
 # entity_routing.yaml
+#
+# Entity Detection Routing and Configuration
+# ========================================
+#
+# Detection Strategy:
+# 1. Presidio Primary: Used for well-structured entities with clear patterns
+#    - ADDRESS: Various addresses 
+#    - EMAIL_ADDRESS: Standard email format
+#    - PHONE_NUMBER: Various phone formats
+#    - URL: Web addresses and links
+#    - US_SSN: Social security numbers
+#    - CREDIT_CARD: Credit card numbers
+#
+# 2. spaCy Primary: Used for context-aware named entities
+#    - PERSON: Names and personal references
+#    - LOCATION: (mapped from GPE, LOC, FAC)
+#    - ORGANIZATION: (mapped from ORG)
+#    - Handles context and variations better than pattern matching
+#
+# 3. Ensemble Required: Cases needing both pattern and context
+#    - CERTIFICATION: Needs context and format validation
+#    - PORTFOLIO_URL: Pattern + context for portfolio links
+#    - ORGANIZATION: Complex cases needing both approaches
+#    - PROFESSIONAL_REFERENCE: Context with format validation
+#    - TITLE: Professional titles with context
+
 settings:
   case_sensitive: false
   enable_partial_matches: true
-  debug_mode: true  
+  debug_mode: true
   fallback_detector: "presidio"
 
 routing:
   presidio_primary:
     entities:
-      - EMAIL_ADDRESS
-      - PHONE_NUMBER
-      - CREDIT_CARD
-      - URL
-      - US_SSN
+      - ADDRESS           # Addresses 
+      - EMAIL_ADDRESS     # Standard email detection
+      - PHONE_NUMBER      # Various phone formats
+      - DATE_TIME        # Various dates
+      - CREDIT_CARD      # Credit card numbers
+      - URL              # Web addresses
+      - US_SSN          # Social security numbers
     thresholds:
+      ADDRESS: 0.8       # Address by pattern can be sketch 
       EMAIL_ADDRESS: 0.7  # Emails need high confidence
       PHONE_NUMBER: 0.4   # Phone formats vary a lot
+      DATE_TIME: 0.8     # Dates are important to remove
       CREDIT_CARD: 0.7   # Financial info needs high confidence
       URL: 0.5           # URLs can vary in format
       US_SSN: 0.6        # SSNs need moderate confidence
@@ -25,38 +55,37 @@ routing:
 
   spacy_primary:
     entities:
-      - PERSON
-      - LOCATION
-      - GPE
-      - ORG
-      - LOC
-      - FAC
-      - CARDINAL
+      - PERSON           # Names detection
+      - LOCATION         # Places and addresses
+      - GPE             # Geo-political entities
+      - ORG             # Organizations
+      - LOC             # Locations
+      - FAC             # Facilities
+      - CARDINAL        # Numbers that might be part of addresses
     mappings:
-      GPE: LOCATION
-      LOC: LOCATION
-      FAC: LOCATION
-      CARDINAL: LOCATION
-      ORG: ORGANIZATION
+      GPE: LOCATION     # Map geo-political entities to locations
+      LOC: LOCATION     # Map location references to locations
+      FAC: LOCATION     # Map facilities to locations
+      CARDINAL: LOCATION  # Map numbers to locations when in address context
+      ORG: ORGANIZATION   # Map organizations consistently
     thresholds:
-      PERSON: 0.7
-      LOCATION: 0.6
-      ORGANIZATION: 0.6
+      PERSON: 0.7         # Names need high confidence
+      LOCATION: 0.6       # Locations can be more flexible
+      ORGANIZATION: 0.6   # Organizations can be more flexible
     validation:
       require_format: false
       context_check: true
-      context_window: 50
+      context_window: 50  # Words to check for context
 
   ensemble_required:
     entities:
       - CERTIFICATION
       - PROFESSIONAL_REFERENCE
       - PORTFOLIO_URL
-      - ORGANIZATION
+      - ORGANIZATION      # Complex org names need both approaches
       - TITLE
     confidence_thresholds:
-      # Minimum thresholds per entity type
-      CERTIFICATION: 
+      CERTIFICATION:
         minimum_combined: 0.80
         minimum_individual: 0.40
         presidio_weight: 0.3

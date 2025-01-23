@@ -1,5 +1,24 @@
 # redactor/config/core_patterns.yaml
 
+address_patterns:
+  - entity_type: "ADDRESS"
+    name: "full_address"
+    regex: "\\b\\d+\\s+[A-Za-z0-9\\s,]+(?:Street|St|Avenue|Ave|Boulevard|Blvd|Lane|Ln|Road|Rd|Drive|Dr|Court|Ct|Circle|Cir|Way|Parkway|Pkwy)\\s*,?\\s*[A-Za-z\\s]+,\\s*[A-Z]{2}\\s*\\d{5}(?:-\\d{4})?\\b"
+    score: 0.9
+    examples: ["123 Main St, City, ST 12345", "456 Park Ave, Town, CA 12345-6789"]
+
+  - entity_type: "ADDRESS"
+    name: "city_state"
+    regex: "\\b[A-Z][a-zA-Z\\s]+,\\s*[A-Z]{2}\\b"
+    score: 0.8
+    examples: ["San Francisco, CA", "New York, NY"]
+
+  - entity_type: "ADDRESS"
+    name: "state_zip"
+    regex: "\\b[A-Z]{2}\\s*\\d{5}(?:-\\d{4})?\\b"
+    score: 0.9
+    examples: ["CA 94105", "NY 10001-1234"]
+
 phone_patterns:
   - name: "us_standard"
     regex: '\(?[0-9]{3}\)?[-. ]?[0-9]{3}[-. ]?[0-9]{4}'

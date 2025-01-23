@@ -4,6 +4,173 @@ from typing import List, Dict, Any, Optional
 from presidio_analyzer import Pattern, PatternRecognizer
 import logging
 
+
+class ConfigDrivenAddressRecognizer(PatternRecognizer):
+    """Address recognizer using patterns from config."""
+    
+    def __init__(
+        self,
+        config_loader: Any,
+        logger: Optional[logging.Logger] = None,
+        supported_language: str = "en",
+        name: str = "CustomAddressRecognizer",
+    ):
+        """Initialize recognizer with patterns from config."""
+        self.logger = logger
+        
+        try:
+            # Load patterns from detection_patterns.yaml
+            patterns_config = config_loader.get_config("core_patterns")
+            if not patterns_config:
+                raise ValueError("Missing detection patterns configuration")
+            
+            # Convert config patterns to Presidio Pattern objects
+            patterns = []
+            address_patterns = patterns_config.get("address_patterns", [])
+            for pattern in address_patterns:
+                if pattern["entity_type"] == "ADDRESS":
+                    if self.logger:
+                        self.logger.debug(f"Loading address pattern: {pattern['name']}")
+                    patterns.append(
+                        Pattern(
+                            name=pattern["name"],
+                            regex=pattern["regex"],
+                            score=pattern["score"]
+                        )
+                    )
+            
+            # Add context words if available
+            context = patterns_config.get("context_words", {}).get("address", [])
+            
+            if self.logger:
+                self.logger.debug(f"Loaded {len(patterns)} address patterns")
+                self.logger.debug(f"Loaded {len(context)} context words")
+            
+            super().__init__(
+                supported_entity="ADDRESS",  # Use standardized type
+                patterns=patterns,
+                supported_language=supported_language,
+                context=context,
+                name=name,
+            )
+            
+        except Exception as e:
+            error_msg = f"Error initializing {name}: {str(e)}"
+            if self.logger:
+                self.logger.error(error_msg)
+            raise ValueError(error_msg)
+
+    def validate_result(self, pattern_text: str) -> bool:
+        """Validate address beyond regex match.
+        
+        Args:
+            pattern_text: The text that matched the pattern
+                
+        Returns:
+            bool: Whether the match is valid
+        """
+        if not pattern_text or not pattern_text.strip():
+            return False
+
+        # Basic validation steps
+        try:
+            parts = pattern_text.strip().split()
+            
+            # Check for minimal address components
+            if len(parts) < 2:  # Need at least number and street
+                if self.logger:
+                    self.logger.debug(f"Address too short: {pattern_text}")
+                return False
+
+            # First part should be a number (building number)
+            if not parts[0].replace(',', '').isdigit():
+                if self.logger:
+                    self.logger.debug(f"Missing building number: {pattern_text}")
+                return False
+
+            # Look for street type indicators
+            street_types = {
+                'street', 'st', 'avenue', 'ave', 'boulevard', 'blvd', 
+                'lane', 'ln', 'road', 'rd', 'drive', 'dr', 'court', 
+                'ct', 'circle', 'cir', 'way', 'parkway', 'pkwy'
+            }
+            
+            has_street_type = False
+            for part in parts[1:]:  # Skip building number
+                clean_part = part.lower().strip('.,')
+                if clean_part in street_types:
+                    has_street_type = True
+                    break
+
+            if not has_street_type:
+                if self.logger:
+                    self.logger.debug(f"No street type found: {pattern_text}")
+                return False
+
+            # Validate unit/apartment if present
+            unit_indicators = {'apt', 'apartment', 'unit', 'suite', 'ste', '#'}
+            for part in parts:
+                clean_part = part.lower().strip('.,#')
+                if clean_part in unit_indicators:
+                    if not self._validate_unit_format(parts, part):
+                        return False
+
+            return True
+
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error in address validation: {str(e)}")
+            return False
+
+    def _validate_unit_format(self, address_parts: List[str], unit_indicator: str) -> bool:
+        """Validate unit/apartment number format.
+        
+        Args:
+            address_parts: Split address parts
+            unit_indicator: The part containing unit/apt indicator
+            
+        Returns:
+            bool: Whether unit format is valid
+        """
+        try:
+            # Find position of unit indicator
+            idx = address_parts.index(unit_indicator)
+            
+            # Check if there's a number after the indicator
+            if idx + 1 >= len(address_parts):
+                if self.logger:
+                    self.logger.debug("Missing unit number after indicator")
+                return False
+            
+            unit_num = address_parts[idx + 1].strip('.,#')
+            
+            # Allow digits or alphanumeric (e.g., "100A")
+            if not (unit_num.isdigit() or 
+                   (unit_num.isalnum() and len(unit_num) <= 4)):
+                if self.logger:
+                    self.logger.debug(f"Invalid unit number: {unit_num}")
+                return False
+                
+            return True
+            
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error validating unit format: {str(e)}")
+            return False
+
+    def invalidate_result(self, pattern_text: str) -> bool:
+        """Check if result should be invalidated.
+        
+        Args:
+            pattern_text: The text that matched the pattern
+            
+        Returns:
+            bool: Whether the match should be invalidated
+        """
+        # Use same validation logic for consistency
+        return not self.validate_result(pattern_text)
+        
+
 class ConfigDrivenPhoneRecognizer(PatternRecognizer):
     """Phone number recognizer that uses patterns from config."""
     

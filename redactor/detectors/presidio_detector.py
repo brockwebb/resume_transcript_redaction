@@ -8,7 +8,7 @@ from presidio_analyzer.recognizer_result import RecognizerResult
 from presidio_analyzer.pattern_recognizer import PatternRecognizer
 
 from .base_detector import BaseDetector, Entity
-from .custom_recognizers import ConfigDrivenPhoneRecognizer, ConfigDrivenSsnRecognizer
+from .custom_recognizers import ConfigDrivenPhoneRecognizer, ConfigDrivenSsnRecognizer, ConfigDrivenAddressRecognizer
 
 class PresidioDetector(BaseDetector):
     """Detector implementation using Presidio's built-in recognizers."""
@@ -65,6 +65,13 @@ class PresidioDetector(BaseDetector):
             # Remove default recognizers that we're replacing with custom ones
             self.analyzer.registry.remove_recognizer("PhoneRecognizer")
             self.analyzer.registry.remove_recognizer("UsSsnRecognizer")
+
+            # Add our custom address recognizer
+            custom_address = ConfigDrivenAddressRecognizer(
+                config_loader=self.config_loader,
+                logger=self.logger
+            )
+            self.analyzer.registry.add_recognizer(custom_address)    
             
             # Add our custom phone recognizer
             custom_phone = ConfigDrivenPhoneRecognizer(

@@ -57,7 +57,7 @@ entities:
     end_char: 206
   sensitivity: medium
 - text: May 2019
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -65,7 +65,7 @@ entities:
     end_char: 590
   sensitivity: medium
 - text: May 2016
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -73,7 +73,7 @@ entities:
     end_char: 700
   sensitivity: medium
 - text: "July 2019 \u2013 Present"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
@@ -81,7 +81,7 @@ entities:
     end_char: 77
   sensitivity: medium
 - text: "June 2018 \u2013 May 2019"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
