@@ -9,16 +9,38 @@ class SensitivityLevel(Enum):
     MEDIUM = "medium"
     LOW = "low"
 
-@dataclass
+@dataclass(frozen=True)
 class Entity:
-    """Represents a detected entity in the text"""
+    """Represents an entity detected in text"""
     text: str
     entity_type: str
     start_char: int
     end_char: int
-    sensitivity: SensitivityLevel
     confidence: float
     page: Optional[int] = None
+    sensitivity: Optional[SensitivityLevel] = None
+
+    def to_dict(self):
+        return {
+            "text": self.text,
+            "entity_type": self.entity_type,
+            "start_char": self.start_char,
+            "end_char": self.end_char,
+            "confidence": self.confidence,
+            "page": self.page,
+            "sensitivity": self.sensitivity.value if self.sensitivity else None
+        }
+
+    def __eq__(self, other):
+        if not isinstance(other, Entity):
+            return False
+        return (self.text == other.text and 
+                self.entity_type == other.entity_type and
+                self.start_char == other.start_char and 
+                self.end_char == other.end_char)
+
+    def __hash__(self):
+        return hash((self.text, self.entity_type, self.start_char, self.end_char))
 
 @dataclass
 class EntityMatchResult:
@@ -107,6 +129,59 @@ class EntityMetrics:
             false_negatives=false_negatives,
             partial_matches=partial_matches
         )
+
+    def get_type_based_metrics(self, results):
+        """Get metrics organized by detector and entity type"""
+        return {
+            "presidio_detections": self._calculate_metrics_for_types(results, [
+                "ADDRESS", "EMAIL_ADDRESS", "PHONE_NUMBER", "DATE_TIME",
+                "URL", "SOCIAL_MEDIA", "LOCATION", "GPA", 
+                "EDUCATIONAL_INSTITUTION", "DEMOGRAPHIC"
+            ]),
+            "spacy_detections": self._calculate_metrics_for_types(results, [
+                "PERSON", "GPE"
+            ]),
+            "ensemble_detections": self._calculate_metrics_for_types(results, [
+                "LOCATION_FULL", "EDUCATIONAL_INSTITUTION", "DEMOGRAPHIC"
+            ])
+        }
+
+    def _calculate_metrics_for_types(self, results: Dict, entity_types: List[str]) -> Dict[str, Dict[str, float]]:
+       """Calculate metrics broken down by entity type"""
+       metrics_by_type = {}
+       
+       for entity_type in entity_types:
+           # Filter results for this entity type
+           type_matches = {
+               "true_positives": self._filter_by_type(results.true_positives, entity_type),
+               "false_positives": self._filter_by_type(results.false_positives, entity_type),
+               "false_negatives": self._filter_by_type(results.false_negatives, entity_type)
+           }
+           
+           # Calculate core metrics
+           tp = len(type_matches["true_positives"])
+           fp = len(type_matches["false_positives"]) 
+           fn = len(type_matches["false_negatives"])
+           
+           precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+           recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+           f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+    
+           metrics_by_type[entity_type] = {
+               "precision": precision,
+               "recall": recall,
+               "f1_score": f1,
+               "false_positives": fp,
+               "false_negatives": fn,
+               "detection_count": tp + fp  # Total detections of this type
+           }
+           
+       return metrics_by_type
+
+    def _filter_by_type(self, entities: Set[Entity], entity_type: str) -> Set[Entity]:
+       """Helper to filter entity sets by type"""
+       return {e for e in entities if e.entity_type == entity_type}
+        
     
     @staticmethod
     def _is_matching_entity(gt_entity: Entity, 

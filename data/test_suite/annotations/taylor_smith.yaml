@@ -1,7 +1,7 @@
-file_name: taylor_smith_corrected
+file_name: taylor_smith
 entities:
 - text: Taylor M. Smith
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
@@ -9,7 +9,7 @@ entities:
     end_char: 15
   sensitivity: high
 - text: 5678 Oakwood Lane, Suite 101
-  type: STREET_ADDRESS
+  type: ADDRESS
   should_redact: true
   location:
     page: 1
@@ -25,7 +25,7 @@ entities:
     end_char: 73
   sensitivity: medium
 - text: (919) 987-6543
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
@@ -33,7 +33,7 @@ entities:
     end_char: 96
   sensitivity: high
 - text: taylor.smith_123@examplemail.com
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
@@ -41,7 +41,7 @@ entities:
     end_char: 137
   sensitivity: high
 - text: linkedin.com/in/taylormsmith
-  type: LINKEDIN
+  type: SOCIAL_MEDIA
   should_redact: true
   location:
     page: 1
@@ -49,31 +49,40 @@ entities:
     end_char: 177
   sensitivity: medium
 - text: 05/15/1986
-  type: DATE_OF_BIRTH
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
     start_char: 194
     end_char: 204
   sensitivity: high
-- text: "June 2015 \u2013 Present"
-  type: DATE
+- text: "June 2015"
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
     start_char: 90
-    end_char: 109
+    end_char: 99
   sensitivity: medium
-- text: "August 2010 \u2013 May 2015"
-  type: DATE
+- text: "August 2010"
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
     start_char: 560
+    end_char: 570
+  sensitivity: medium
+- text: "May 2015"
+  type: DATE_TIME
+  should_redact: true
+  location:
+    page: 2
+    start_char: 573
     end_char: 582
   sensitivity: medium
+
 - text: May 2008
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -89,7 +98,7 @@ entities:
     end_char: 650
   sensitivity: high
 - text: University of North Carolina
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
@@ -103,14 +112,6 @@ entities:
     page: 1
     start_char: 600
     end_char: 615
-  sensitivity: medium
-- text: Diverse Futures, Inc.
-  type: ORGANIZATION
-  should_redact: true
-  location:
-    page: 2
-    start_char: 55
-    end_char: 76
   sensitivity: medium
 - text: Durham, NC
   type: LOCATION
@@ -129,7 +130,7 @@ entities:
     end_char: 67
   sensitivity: medium
 - text: Mentor, Women in Leadership Initiative
-  type: ACTIVITY
+  type: DEMOGRAPHICS
   should_redact: true
   location:
     page: 2

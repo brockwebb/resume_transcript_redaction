@@ -1,7 +1,7 @@
-file_name: noah_spencer_corrected
+file_name: noah_spencer
 entities:
 - text: NOAH SPENCER
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
@@ -9,7 +9,7 @@ entities:
     end_char: 12
   sensitivity: high
 - text: (830) 555-3727
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
@@ -17,7 +17,7 @@ entities:
     end_char: 67
   sensitivity: high
 - text: nspencer@example.com
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
@@ -25,7 +25,7 @@ entities:
     end_char: 88
   sensitivity: high
 - text: 2019 - Present
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -33,7 +33,7 @@ entities:
     end_char: 308
   sensitivity: medium
 - text: 2016 - 2019
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -41,7 +41,7 @@ entities:
     end_char: 391
   sensitivity: medium
 - text: 2012 - 2015
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -49,7 +49,7 @@ entities:
     end_char: 438
   sensitivity: medium
 - text: 2015 - 2016
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -57,7 +57,7 @@ entities:
     end_char: 510
   sensitivity: medium
 - text: 2009 - 2012
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -89,7 +89,7 @@ entities:
     end_char: 461
   sensitivity: medium
 - text: Rutgers, The State University of New Jersey
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
@@ -105,7 +105,7 @@ entities:
     end_char: 572
   sensitivity: medium
 - text: University of North Carolina at Greensboro
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1

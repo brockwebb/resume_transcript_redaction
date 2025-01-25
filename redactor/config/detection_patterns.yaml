@@ -83,7 +83,7 @@ contact:
 
   - entity_type: "SOCIAL_MEDIA"
     name: "twitter_handle"
-    regex: "\\B@[A-Za-z0-9_]{1,15}\\b"
+    regex: '^@[A-Za-z0-9_]{1,19}$'
     score: 0.8
     examples: ["@username", "@user_name"]
 

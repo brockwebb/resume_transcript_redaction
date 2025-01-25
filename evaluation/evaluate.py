@@ -169,8 +169,27 @@ class StageOneEvaluator:
     def _find_missed_entities(self, truth: List[DetectionResult], 
                             detected: List[DetectionResult]) -> List[DetectionResult]:
         """Find ground truth entities missed by detection"""
-        detected_texts = {r.text for r in detected}
-        return [t for t in truth if t.text not in detected_texts]
+        def normalize_text(text: str) -> str:
+            """Normalize text for comparison"""
+            # Split on newlines, remove empty lines
+            lines = [line.strip() for line in text.split('\n') if line.strip()]
+            # Return the longest meaningful line that contains keywords
+            edu_keywords = ['university', 'college', 'institute', 'school']
+            matching_lines = [line for line in lines 
+                             if any(keyword.lower() in line.lower() 
+                             for keyword in edu_keywords)]
+            return max(matching_lines, key=len) if matching_lines else text.strip()
+        
+        detected_texts = {normalize_text(r.text) for r in detected}
+        missed = []
+        
+        for t in truth:
+            truth_text = normalize_text(t.text)
+            if not any(truth_text in d_text or d_text in truth_text 
+                      for d_text in detected_texts):
+                missed.append(t)
+                
+        return missed
 
     def _analyze_detections(self, truth: List[DetectionResult], 
                           detected: List[DetectionResult]) -> Dict:

@@ -1,0 +1,13 @@
+{
+  "run_id": "20250125_085520",
+  "timestamp": "2025-01-25T08:55:22.997452",
+  "results": {},
+  "summary_metrics": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1_score": 0.0,
+    "partial_matches": 0.0,
+    "false_positives": 14.857142857142858,
+    "false_negatives": 15.928571428571429
+  }
+}

@@ -7,7 +7,7 @@ input_folder: "../data/redact_input"
 output_folder: "../data/redact_output"
 redaction_patterns_path: "./redactor/config/detection_patterns.yaml"
 confidential_terms_path: "./redactor/config/confidential_terms.yaml"
-word_filters_path: "./redactor/config/custom_word_filters.yaml"
+word_filters_path: "../redactor/config/custom_word_filters.yaml"
 entity_routing_path: "./redactor/config/entity_routing.yaml"
 core_patterns_path: "./redactor/config/core_patterns.yaml"
 

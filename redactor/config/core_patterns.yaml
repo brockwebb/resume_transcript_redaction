@@ -2,22 +2,31 @@
 
 address_patterns:
   - entity_type: "ADDRESS"
-    name: "full_address"
-    regex: "\\b\\d+\\s+[A-Za-z0-9\\s,]+(?:Street|St|Avenue|Ave|Boulevard|Blvd|Lane|Ln|Road|Rd|Drive|Dr|Court|Ct|Circle|Cir|Way|Parkway|Pkwy)\\s*,?\\s*[A-Za-z\\s]+,\\s*[A-Z]{2}\\s*\\d{5}(?:-\\d{4})?\\b"
+    name: "street_address"
+    regex: '\b\d{1,5}\s[A-Za-z]+(?:\s[A-Za-z]+)*\s(?:Street|St|Avenue|Ave|Road|Rd|Lane|Ln|Drive|Dr|Boulevard|Blvd)\b'
     score: 0.9
-    examples: ["123 Main St, City, ST 12345", "456 Park Ave, Town, CA 12345-6789"]
-
+    examples: ["123 Main Street", "456 Elm Road"]
+    
   - entity_type: "ADDRESS"
-    name: "city_state"
-    regex: "\\b[A-Z][a-zA-Z\\s]+,\\s*[A-Z]{2}\\b"
-    score: 0.8
-    examples: ["San Francisco, CA", "New York, NY"]
-
-  - entity_type: "ADDRESS"
-    name: "state_zip"
-    regex: "\\b[A-Z]{2}\\s*\\d{5}(?:-\\d{4})?\\b"
+    name: "street_with_unit"
+    regex: '\b\d+\s[A-Za-z0-9\s,]+(?:Street|St|Avenue|Ave|Boulevard|Blvd|Lane|Ln|Road|Rd|Drive|Dr|Court|Ct|Circle|Cir|Way|Parkway|Pkwy),?\s*(?:Apt|Apartment|Unit|Suite|#)\s*[A-Za-z0-9-]+\b'
     score: 0.9
-    examples: ["CA 94105", "NY 10001-1234"]
+    examples: ["123 Main Street, Apt 4B", "456 Elm Road, Suite 12"]
+
+location_patterns:
+  - name: "city_state_zip"
+    regex: "\\b([A-ZÀ-ÿ][\\wÀ-ÿ\\s-]+),\\s*((?:AL|AK|AZ|AR|CA|CO|CT|DC|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|PR|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY))(?:\\s*\\d{5}(?:-\\d{4})?)?\\b"
+    score: 0.9
+
+  - name: "international_city_country"
+    regex: "\\b(?:[A-Z][a-zA-Z\\s]+(?:\\s[A-Z][a-zA-Z\\s]*)*)(?:,\\s*|\\s+)(?:[A-Z][a-zA-Z\\s]+(?:\\s[A-Z][a-zA-Z\\s]*)*)\\b"
+    score: 0.7  # Lower score since it's more prone to false positives
+    examples: ["London, United Kingdom", "Paris, France"]
+
+  - name: "city_state"
+    regex: '\b[A-Z][a-zA-Z\s]+,\s*[A-Z]{2}(?:\s+\d{5}(?:-\d{4})?)?\b'
+    score: 0.9
+    examples: ["New York, NY", "Pittsburgh, PA"]
 
 phone_patterns:
   - name: "us_standard"
@@ -45,6 +54,55 @@ phone_patterns:
     score: 0.75
     examples: ["(123) 456-7890 ext 123"]
 
+educational_institution_patterns:
+ - name: "university_name"
+   regex: '\b(?:[A-Z][a-z]+(?:\s+(?:of|the|and|&|\w+))*\s+)?(?:University|College|Institute|School)\b|\b(?:[A-Z][a-z]+\s+){1,3}(?:University|College|Institute|School)\b'
+   score: 0.9
+   examples: ["University of Michigan", "Florida International University"]
+
+ - name: "full_institution_name"
+   regex: '\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(?:University|College|Institute|School)\b'
+   score: 0.95
+   examples: ["Florida International University", "University of Puerto Rico"]
+
+ - name: "university_full"
+   regex: '\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+University|University\s+of\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b'
+   score: 0.95
+   examples: ["Florida International University", "University of Puerto Rico"]
+
+ - name: "university_multiline"
+   regex: '(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+)?(?:University|College|Institute|School)(?:\s+[A-Za-z\s]+)?'
+   score: 0.9
+   examples: ["Master of Science\nFlorida International University"]
+
+gpa_patterns:
+  - name: "gpa_standard_format"
+    regex: '\b(?:GPA|Grade[ -]?Point[ -]?Average)[\s:\-–—]*([0-3](?:\.[0-9]{1,2})?|4(?:\.0{1,2})?)\b'
+    score: 0.75
+    examples: ["GPA: 3.9", "Grade Point Average 4.0", "GPA-3.5"]
+
+  - name: "gpa_with_slash_format"
+    regex: '\b(?:GPA|Grade[ -]?Point[ -]?Average)[\s:\-–—]*([0-3](?:\.[0-9]{1,2})?|4(?:\.0{1,2})?)[/\s-]*4(?:\.0{1,2})?\b'
+    score: 0.75
+    examples: ["GPA: 3.9/4.0", "GPA 3.5 - 4.0", "Grade Point Average 4.0 / 4.0"]
+
+
+social_media_patterns:
+  - name: "twitter_handle"
+    regex: '@[A-Za-z0-9_]{1,19}$'
+    score: 0.7
+    examples: ["@username", "@user_name"]
+    
+  - name: "github_profile"
+    regex: "\\b(?:https?://)?(?:www\\.)?github\\.com/[\\w-]+/?\\b"
+    score: 0.9
+    examples: ["github.com/username"]
+
+  - name: "linkedin_profile"
+    regex: "\\b(?:https?://)?(?:www\\.)?linkedin\\.com/(?:in|pub)/[\\w-]+/?\\b"
+    score: 0.9
+    examples: ["linkedin.com/in/username"]
+
 ssn_patterns:
   - name: "us_ssn"
     regex: '\b(?!000|666|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}\b'
@@ -55,6 +113,52 @@ ssn_patterns:
     regex: '\b(?!000|666|9\d{2})\d{3}\s+(?!00)\d{2}\s+(?!0000)\d{4}\b'
     score: 0.75
     examples: ["123 45 6789"]
+
+pronoun_patterns:
+  - name: "pronoun_indicator"
+    regex: '\b(?:pronouns?:?\s*)?(?:\(|\[)?(?:they/them|he/him|she/her|they/he|they/she|he/they|she/they|ze/hir|xe/xem|any pronouns?)(?:\)|\])?\b'
+    score: 0.9
+
+demographic_patterns:
+  - name: "organization_initiatives"
+    regex: '\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+)?(?:Initiative|Association|Society|Organization|Council|Network|Alliance|Foundation)\b|\b(?:Women|People|Students)\s+(?:in|of|for)\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b'
+    score: 0.9
+    examples: ["Women in Data Science", "Hispanic Association"]
+
+  - name: "diversity_organizations"
+    regex: '\b(?:Unidos|NAACP|LULAC|NSBE|SHPE|SWE|WISE|WiDS)(?:US)?\b'
+    score: 0.9
+    examples: ["UnidosUS", "WISE Chapter"]
+
+  - name: "affinity_groups"
+    regex: '\b(?:Asian|Black|Hispanic|Latino|LGBTQ\+?|Women)(?:\s+(?:Professional|Student|Faculty|Leadership|Employee|Business|Tech))(?:\s+(?:Alliance|Association|Network|Group|Council|Caucus|Society))\b'
+    score: 0.95
+    examples: ["Women Leadership Network", "Black Student Alliance"]
+
+  - name: "professional_orgs"
+    regex: '\b(?:Society|Association|Organization)(?:\s+of|for)(?:\s+(?:Women|Hispanic|Black|Asian|Indigenous|LGBTQ\+?))(?:\s+(?:Engineers|Scientists|Professionals|Leaders|Entrepreneurs))\b'
+    score: 0.95
+    examples: ["Society of Women Engineers", "Association of Hispanic Professionals"]
+
+  - name: "diversity_programs"
+    regex: '\b(?:DEI|D&I|ERG|BRG|Pride|STEM|Diversity)(?:\s+(?:Initiative|Program|Committee|Chapter|Resource Group))\b'
+    score: 0.9
+    examples: ["DEI Committee", "ERG Chapter"]
+
+  - name: "advocacy_orgs"
+    regex: '\b(?:[A-Z][a-z]+|\b[A-Z]{3,}\b)(?:\s+(?:[A-Z][a-z]+|\b[A-Z]{3,}\b))*\b'
+    score: 0.6
+    context: ["advocacy", "initiative", "diversity", "inclusion", "equity", "alliance", "association"]
+    validation_rules:
+      - min_context_words: 2
+      - require_capitalization: true
+
+date_patterns:
+  - name: "year_range"
+    regex: '\b(?:19|20)\d{2}\s*[-–—]\s*(?:(?:19|20)\d{2}|[Pp]resent|[Cc]urrent|[Nn]ow)\b'
+    score: 0.9
+    examples: ["2018 - Present", "2010-2018"]
+
 
 context_words:
   phone:
@@ -69,6 +173,57 @@ context_words:
     - "office"
     - "support"
     - "fax"
+  location:
+    - "located in"
+    - "based in"
+    - "city"
+    - "state"
+    - "region"
+    - "county"
+    - "province"
+    - "territory"
+    - "near"
+    - "area" 
+    - "city of"
+    - "town of"
+    - "residing in"
+    - "lives in"
+    - "moved to"
+    - "relocated to"
+    - "headquarters in"
+    - "office in"
+    - "branch in"
+    - "located at"
+    - "situated in"
+  educational:
+    - "university"
+    - "college"
+    - "institute"
+    - "school"
+    - "campus"
+    - "alumni"
+    - "graduated"
+    - "studied"
+    - "department"
+    - "faculty"
+    - "academic"
+    - "polytechnic"    
+  gpa:
+    - "gpa"
+    - "grade point"
+    - "grade point average"
+    - "academic performance"
+    - "academic standing"
+  social_media:
+    - "twitter"
+    - "github"
+    - "linkedin"
+    - "social media"
+    - "profile"
+    - "handle"
+    - "facebook"
+    - "instagram"
+    - "tiktok"
   ssn:
     - "ssn"
     - "social security"

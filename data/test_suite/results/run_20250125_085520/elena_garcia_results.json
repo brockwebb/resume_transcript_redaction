@@ -1,0 +1,257 @@
+{
+  "test_id": "elena_garcia",
+  "matches": {
+    "exact": [],
+    "partial": [
+      {
+        "text": "Personal",
+        "entity_type": "UNKNOWN",
+        "start_char": 108,
+        "end_char": 154,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "2010",
+        "entity_type": "UNKNOWN",
+        "start_char": 98,
+        "end_char": 123,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      }
+    ],
+    "sensitivity_mismatch": [],
+    "type_mismatch": [],
+    "no_match": [
+      {
+        "text": "NY",
+        "entity_type": "UNKNOWN",
+        "start_char": 320,
+        "end_char": 335,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "garcia_researcher1234@genmail.io",
+        "entity_type": "UNKNOWN",
+        "start_char": 72,
+        "end_char": 262,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "America",
+        "entity_type": "UNKNOWN",
+        "start_char": 170,
+        "end_char": 211,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "high-profile",
+        "entity_type": "UNKNOWN",
+        "start_char": 173,
+        "end_char": 228,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "2010",
+        "entity_type": "UNKNOWN",
+        "start_char": 153,
+        "end_char": 178,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "2006",
+        "entity_type": "UNKNOWN",
+        "start_char": 153,
+        "end_char": 178,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "populations.",
+        "entity_type": "UNKNOWN",
+        "start_char": 108,
+        "end_char": 167,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "2014",
+        "entity_type": "UNKNOWN",
+        "start_char": 162,
+        "end_char": 186,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "California,",
+        "entity_type": "UNKNOWN",
+        "start_char": 135,
+        "end_char": 185,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      }
+    ],
+    "unmatched_ground_truth": [
+      {
+        "text": "elena.garcia.researcher@biosciences.net",
+        "entity_type": "EMAIL",
+        "start_char": 30,
+        "end_char": 69,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "high"
+      },
+      {
+        "text": "A123-456-789",
+        "entity_type": "RESIDENT_ID",
+        "start_char": 526,
+        "end_char": 538,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "high"
+      },
+      {
+        "text": "May 2006",
+        "entity_type": "DATE",
+        "start_char": 406,
+        "end_char": 414,
+        "confidence": 1.0,
+        "page": 2,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "NYU Medical Center",
+        "entity_type": "INSTITUTION",
+        "start_char": 669,
+        "end_char": 687,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "Dr. Elena R. Garc\u00eda",
+        "entity_type": "PERSON",
+        "start_char": 0,
+        "end_char": 19,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "high"
+      },
+      {
+        "text": "garcia_researcher1234@genmail.io",
+        "entity_type": "EMAIL",
+        "start_char": 559,
+        "end_char": 591,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "high"
+      },
+      {
+        "text": "July 2014 \u2013 Present",
+        "entity_type": "DATE_TIME",
+        "start_char": 689,
+        "end_char": 708,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "(+1) 212-345-6789",
+        "entity_type": "PHONE",
+        "start_char": 72,
+        "end_char": 89,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "high"
+      },
+      {
+        "text": "June 2010 \u2013 June 2014",
+        "entity_type": "DATE_TIME",
+        "start_char": 1266,
+        "end_char": 1287,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      }
+    ],
+    "unmatched_detected": [
+      {
+        "text": "MA",
+        "entity_type": "UNKNOWN",
+        "start_char": 463,
+        "end_char": 481,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "CA",
+        "entity_type": "UNKNOWN",
+        "start_char": 254,
+        "end_char": 269,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Lane,",
+        "entity_type": "UNKNOWN",
+        "start_char": 196,
+        "end_char": 224,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Technology,",
+        "entity_type": "UNKNOWN",
+        "start_char": 202,
+        "end_char": 259,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Genomics,",
+        "entity_type": "UNKNOWN",
+        "start_char": 337,
+        "end_char": 395,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      }
+    ]
+  },
+  "match_statistics": {
+    "exact_matches": 0,
+    "partial_matches": 2,
+    "sensitivity_mismatches": 0,
+    "type_mismatches": 0,
+    "unmatched_ground_truth": 9,
+    "unmatched_detected": 5
+  },
+  "metrics": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1_score": 0,
+    "partial_matches": 0,
+    "false_positives": 16,
+    "false_negatives": 14
+  }
+}

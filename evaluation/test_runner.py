@@ -6,10 +6,13 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
-from dataclasses import dataclass, asdict
-
-from .metrics.entity_metrics import EntityMetrics, Entity, SensitivityLevel
+from redactor.redactor_logic import RedactionProcessor
+from .wrappers import RedactionWrapper
 from .comparison.entity_matcher import EntityMatcher
+from dataclasses import dataclass, asdict
+from evaluation.metrics.entity_metrics import EntityMetrics, Entity, SensitivityLevel
+
+
 
 @dataclass
 class TestCase:
@@ -107,19 +110,23 @@ class TestRunner:
             metrics = self.entity_metrics.calculate_metrics(ground_truth, detected_entities)
             all_metrics.append(metrics)
             
-            # Store detailed results
-            test_results = {
+            # Convert sets to lists for JSON serialization
+            json_test_results = {
                 "test_id": test_case.test_id,
-                "matches": matches,
+                "matches": {
+                    k: [entity.to_dict() if hasattr(entity, 'to_dict') else vars(entity) 
+                        for entity in v] if isinstance(v, set) else v
+                    for k, v in matches.items()
+                },
                 "match_statistics": match_stats,
                 "metrics": metrics
             }
-            results[test_case.test_id] = test_results
             
             # Save individual test results
             result_path = run_dir / f"{test_case.test_id}_results.json"
             with open(result_path, "w") as f:
-                json.dump(test_results, f, indent=2)
+                json.dump(json_test_results, f, indent=2)
+
         
         # Calculate summary metrics
         summary_metrics = self._calculate_summary_metrics(all_metrics)
@@ -218,3 +225,13 @@ class TestRunner:
             }
             
         return differences
+
+def main():
+    test_runner = TestRunner("data/test_suite")
+    test_cases = test_runner.load_test_cases()
+    redactor = RedactionWrapper(RedactionProcessor({}))
+    results = test_runner.run_evaluation(redactor, test_cases)
+    print(results.summary_metrics)
+
+if __name__ == "__main__":
+    main()

@@ -1,122 +1,145 @@
 file_name: cheryl_turner_corrected
 entities:
-- text: Cheryl Turner
-  type: NAME
-  should_redact: true
-  location:
-    page: 1
-    start_char: 0
-    end_char: 13
-  sensitivity: high
-- text: (870) 555-7748
-  type: PHONE
-  should_redact: true
-  location:
-    page: 1
-    start_char: 44
-    end_char: 58
-  sensitivity: high
-- text: cturner@example.com
-  type: EMAIL
-  should_redact: true
-  location:
-    page: 1
-    start_char: 63
-    end_char: 82
-  sensitivity: high
-- text: 2018 - Present
-  type: DATE
-  should_redact: true
-  location:
-    page: 1
-    start_char: 136
-    end_char: 150
-  sensitivity: medium
-- text: 2010 - 2018
-  type: DATE
-  should_redact: true
-  location:
-    page: 1
-    start_char: 494
-    end_char: 505
-  sensitivity: medium
-- text: 2004 - 2010
-  type: DATE
-  should_redact: true
-  location:
-    page: 1
-    start_char: 887
-    end_char: 898
-  sensitivity: medium
-- text: 2003 - 2004
-  type: DATE
-  should_redact: true
-  location:
-    page: 1
-    start_char: 1557
-    end_char: 1568
-  sensitivity: medium
-- text: 2000 - 2003
-  type: DATE
-  should_redact: true
-  location:
-    page: 1
-    start_char: 1653
-    end_char: 1664
-  sensitivity: medium
-- text: New York, NY
-  type: LOCATION
-  should_redact: true
-  location:
-    page: 1
-    start_char: 27
-    end_char: 39
-  sensitivity: medium
-- text: New York, NY
-  type: LOCATION
-  should_redact: true
-  location:
-    page: 1
-    start_char: 27
-    end_char: 39
-  sensitivity: medium
-- text: New York, NY
-  type: LOCATION
-  should_redact: true
-  location:
-    page: 1
-    start_char: 27
-    end_char: 39
-  sensitivity: medium
-- text: Rutgers, The State University of New Jersey
-  type: EDUCATION
-  should_redact: true
-  location:
-    page: 1
-    start_char: 1491
-    end_char: 1534
-  sensitivity: medium
-- text: New Brunswick, NJ
-  type: LOCATION
-  should_redact: true
-  location:
-    page: 1
-    start_char: 1537
-    end_char: 1554
-  sensitivity: medium
-- text: Carnegie Mellon University
-  type: EDUCATION
-  should_redact: true
-  location:
-    page: 1
-    start_char: 1607
-    end_char: 1633
-  sensitivity: medium
-- text: Pittsburgh, PA
-  type: LOCATION
-  should_redact: true
-  location:
-    page: 1
-    start_char: 1636
-    end_char: 1650
-  sensitivity: medium
+ - text: "Cheryl Turner"
+   type: PERSON
+   should_redact: true
+   location:
+     page: 1
+     start_char: 0
+     end_char: 13
+   sensitivity: high
+
+ - text: "(870) 555-7748"
+   type: PHONE_NUMBER
+   should_redact: true
+   location:
+     page: 1
+     start_char: 44
+     end_char: 58
+   sensitivity: high
+
+ - text: "cturner@example.com"
+   type: EMAIL_ADDRESS
+   should_redact: true
+   location:
+     page: 1
+     start_char: 63
+     end_char: 82
+   sensitivity: high
+
+ - text: "New York, NY"
+   type: LOCATION
+   should_redact: true
+   location:
+     page: 1
+     start_char: 27
+     end_char: 39
+   sensitivity: medium
+
+ - text: "New York, NY"
+   type: LOCATION
+   should_redact: true
+   location:
+     page: 1
+     start_char: 121
+     end_char: 133
+   sensitivity: medium
+
+ - text: "2018"
+   type: DATE_TIME
+   should_redact: true
+   location:
+     page: 1
+     start_char: 136
+     end_char: 140
+   sensitivity: medium
+
+ - text: "New York, NY"
+   type: LOCATION
+   should_redact: true
+   location:
+     page: 1
+     start_char: 479
+     end_char: 491
+   sensitivity: medium
+
+ - text: "2010 - 2018"
+   type: DATE_TIME
+   should_redact: true
+   location:
+     page: 1
+     start_char: 494
+     end_char: 505
+   sensitivity: medium
+
+ - text: "New York, NY"
+   type: LOCATION
+   should_redact: true
+   location:
+     page: 1
+     start_char: 872
+     end_char: 884
+   sensitivity: medium
+
+ - text: "2004 - 2010"
+   type: DATE_TIME
+   should_redact: true
+   location:
+     page: 1
+     start_char: 887
+     end_char: 898
+   sensitivity: medium
+
+ - text: "Rutgers, The State University of New Jersey"
+   type: EDUCATIONAL_INSTITUTION
+   should_redact: true
+   location:
+     page: 1
+     start_char: 1491
+     end_char: 1534
+   sensitivity: medium
+
+ - text: "New Brunswick, NJ"
+   type: LOCATION
+   should_redact: true
+   location:
+     page: 1
+     start_char: 1537
+     end_char: 1554
+   sensitivity: medium
+
+ - text: "2003 - 2004"
+   type: DATE_TIME
+   should_redact: true
+   location:
+     page: 1
+     start_char: 1557
+     end_char: 1568
+   sensitivity: medium
+
+ - text: "Carnegie Mellon University"
+   type: EDUCATIONAL_INSTITUTION
+   should_redact: true
+   location:
+     page: 1
+     start_char: 1607
+     end_char: 1633
+   sensitivity: medium
+
+ - text: "Pittsburgh, PA"
+   type: LOCATION
+   should_redact: true
+   location:
+     page: 1
+     start_char: 1636
+     end_char: 1650
+   sensitivity: medium
+
+ - text: "2000 - 2003"
+   type: DATE_TIME
+   should_redact: true
+   location:
+     page: 1
+     start_char: 1653
+     end_char: 1664
+   sensitivity: medium

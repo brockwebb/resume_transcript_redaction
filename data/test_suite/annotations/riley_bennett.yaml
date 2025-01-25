@@ -1,7 +1,7 @@
-file_name: riley_bennett_corrected
+file_name: riley_bennett
 entities:
 - text: Riley J. Bennett
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
@@ -25,7 +25,7 @@ entities:
     end_char: 645
   sensitivity: high
 - text: (415) 678-1234
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
@@ -33,7 +33,7 @@ entities:
     end_char: 69
   sensitivity: high
 - text: riley.bennett.analytics@protonmail.com
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
@@ -49,7 +49,7 @@ entities:
     end_char: 151
   sensitivity: medium
 - text: "July 2018 \u2013 Present"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -57,7 +57,7 @@ entities:
     end_char: 786
   sensitivity: medium
 - text: "May 2017 \u2013 June 2018"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
@@ -65,7 +65,7 @@ entities:
     end_char: 70
   sensitivity: medium
 - text: May 2018
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
@@ -73,7 +73,7 @@ entities:
     end_char: 342
   sensitivity: medium
 - text: May 2015
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
@@ -89,7 +89,7 @@ entities:
     end_char: 766
   sensitivity: medium
 - text: University of California
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 2
@@ -105,7 +105,7 @@ entities:
     end_char: 322
   sensitivity: medium
 - text: University of Oregon
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 2

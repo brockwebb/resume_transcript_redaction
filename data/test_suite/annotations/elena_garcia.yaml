@@ -1,7 +1,7 @@
 file_name: elena_garcia_corrected
 entities:
 - text: "Dr. Elena R. Garc\xEDa"
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
@@ -41,7 +41,7 @@ entities:
     end_char: 115
   sensitivity: medium
 - text: 123 Genomics Lane, Floor 5
-  type: STREET_ADDRESS
+  type: ADDRESS
   should_redact: true
   location:
     page: 1
@@ -73,7 +73,7 @@ entities:
     end_char: 538
   sensitivity: high
 - text: "July 2014 \u2013 Present"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -81,7 +81,7 @@ entities:
     end_char: 708
   sensitivity: medium
 - text: "June 2010 \u2013 June 2014"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1

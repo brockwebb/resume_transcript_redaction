@@ -1,7 +1,7 @@
-file_name: samira_nguyen_corrected
+file_name: samira_nguyen
 entities:
 - text: Samira H. Nguyen
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
@@ -9,7 +9,7 @@ entities:
     end_char: 16
   sensitivity: high
 - text: (+44) 20-7946-0958
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
@@ -17,7 +17,7 @@ entities:
     end_char: 65
   sensitivity: high
 - text: samira.nguyen.bio@example.org
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
@@ -25,7 +25,7 @@ entities:
     end_char: 104
   sensitivity: high
 - text: github.com/samira-nguyen
-  type: GITHUB
+  type: SOCIAL_MEDIA
   should_redact: true
   location:
     page: 1
@@ -33,7 +33,7 @@ entities:
     end_char: 139
   sensitivity: medium
 - text: 12 Willow Lane, Flat 3B
-  type: STREET_ADDRESS
+  type: ADDRESS
   should_redact: true
   location:
     page: 1
@@ -56,16 +56,16 @@ entities:
     start_char: 206
     end_char: 217
   sensitivity: high
-- text: "October 2017 \u2013 Present"
-  type: DATE
+- text: "October 2017"
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
     start_char: 77
-    end_char: 99
+    end_char: 89
   sensitivity: medium
 - text: "October 2013 \u2013 September 2017"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
@@ -73,7 +73,7 @@ entities:
     end_char: 491
   sensitivity: medium
 - text: September 2017
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -81,7 +81,7 @@ entities:
     end_char: 609
   sensitivity: medium
 - text: September 2013
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -89,7 +89,7 @@ entities:
     end_char: 706
   sensitivity: medium
 - text: May 2011
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -97,7 +97,7 @@ entities:
     end_char: 786
   sensitivity: medium
 - text: University College London (UCL)
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
@@ -113,7 +113,7 @@ entities:
     end_char: 186
   sensitivity: medium
 - text: Imperial College London
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
@@ -129,7 +129,7 @@ entities:
     end_char: 186
   sensitivity: medium
 - text: University of Hanoi
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
@@ -161,7 +161,7 @@ entities:
     end_char: 792
   sensitivity: medium
 - text: 'Travel Restrictions: Requires visa support for non-EU countries'
-  type: TRAVEL_RESTRICTION
+  type: RESTRICTIONS
   should_redact: true
   location:
     page: 2

@@ -1,7 +1,7 @@
 file_name: alexis_rivera_corrected
 entities:
 - text: Alexis N. Rivera
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
@@ -48,7 +48,7 @@ entities:
     start_char: 145
     end_char: 178
   sensitivity: medium
-- text: '@alexis_rivera_dev'
+- text: "@alexis_rivera_dev"
   type: SOCIAL_MEDIA
   should_redact: true
   location:
@@ -72,7 +72,7 @@ entities:
     start_char: 692
     end_char: 700
   sensitivity: medium
-- text: "July 2019"
+- text: July 2019
   type: DATE_TIME
   should_redact: true
   location:
@@ -80,38 +80,38 @@ entities:
     start_char: 58
     end_char: 67
   sensitivity: medium
-- text: "June 2018"
+- text: June 2018
   type: DATE_TIME
   location:
     page: 2
     start_char: 507
     end_char: 516
   sensitivity: medium
-- text: "May 2019"
+- text: May 2019
   type: DATE_TIME
   location:
-    page: 2
-    start_char: 519
-    end_char: 527
+    page: 1
+    start_char: 582
+    end_char: 590
   sensitivity: medium
-- text: 4.0/4.0
+- text: 'GPA: 4.0/4.0'
   type: GPA
   should_redact: true
   location:
     page: 1
-    start_char: 596
+    start_char: 591
     end_char: 603
   sensitivity: high
-- text: 3.9/4.0
+- text: 'GPA: 3.9/4.0'
   type: GPA
   should_redact: true
   location:
     page: 1
-    start_char: 706
+    start_char: 701
     end_char: 713
   sensitivity: high
 - text: Florida International University
-  type: INSTITUTION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
@@ -122,12 +122,12 @@ entities:
   type: LOCATION
   should_redact: true
   location:
-    page: 1
-    start_char: 59
-    end_char: 68
+    page: 2
+    start_char: 561
+    end_char: 570
   sensitivity: medium
 - text: University of Puerto Rico
-  type: INSTITUTION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
@@ -157,4 +157,12 @@ entities:
     page: 2
     start_char: 1080
     end_char: 1088
+  sensitivity: medium
+- text: Miami, FL
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 2
+    start_char: 1566
+    end_char: 1575
   sensitivity: medium

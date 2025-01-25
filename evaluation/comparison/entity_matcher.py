@@ -5,16 +5,18 @@ from dataclasses import dataclass
 from collections import defaultdict
 import json
 from enum import Enum
+from evaluation.metrics.entity_metrics import Entity, SensitivityLevel
+
+
 
 @dataclass
 class EntityOverlap:
-    """Represents overlap between two entities"""
-    ground_truth: 'Entity'
+    ground_truth: 'Entity' 
     detected: 'Entity'
     char_overlap: int
     overlap_ratio: float
     type_match: bool
-    sensitivity_match: bool
+    sensitivity_match: Optional[bool] = None  # Make optional
 
 class MatchType(Enum):
     EXACT = "exact"
@@ -33,48 +35,33 @@ class EntityMatcher:
         self.partial_match_threshold = partial_match_threshold
         self.match_cache: Dict[Tuple[str, str], EntityOverlap] = {}
         
-    def find_matches(self,
-                    ground_truth: List['Entity'],
-                    detected: List['Entity']) -> Dict[str, Set['Entity']]:
-        """
-        Find all matching entities between ground truth and detected entities
-        
-        Args:
-            ground_truth: List of annotated ground truth entities
-            detected: List of detected entities
-            
-        Returns:
-            Dictionary containing matched entities by match type
-        """
+    def find_matches(self, ground_truth: List['Entity'], detected: List['Entity']) -> Dict[str, Set['Entity']]:
         matches = {
             MatchType.EXACT.value: set(),
             MatchType.PARTIAL.value: set(),
             MatchType.SENSITIVITY_MISMATCH.value: set(),
             MatchType.TYPE_MISMATCH.value: set(),
+            MatchType.NO_MATCH.value: set(),
             "unmatched_ground_truth": set(ground_truth),
             "unmatched_detected": set(detected)
         }
-        
-        # Create spatial index for optimization
+    
         gt_spatial_index = self._create_spatial_index(ground_truth)
         
-        # Find matches for each detected entity
         for det_entity in detected:
-            # Get candidate ground truth entities that could overlap
             candidates = self._get_candidates(det_entity, gt_spatial_index)
-            
-            # Find best matching ground truth entity
             best_match = self._find_best_match(det_entity, candidates)
             
             if best_match:
                 match_type = self._determine_match_type(best_match)
                 matches[match_type.value].add(det_entity)
                 
-                # Remove matched entities from unmatched sets
-                if match_type != MatchType.NO_MATCH:
+                # Only try to remove if entity exists in sets
+                if det_entity in matches["unmatched_detected"]:
                     matches["unmatched_detected"].remove(det_entity)
+                if best_match.ground_truth in matches["unmatched_ground_truth"]:
                     matches["unmatched_ground_truth"].remove(best_match.ground_truth)
-        
+    
         return matches
     
     def _create_spatial_index(self, entities: List['Entity']) -> Dict[int, Set['Entity']]:

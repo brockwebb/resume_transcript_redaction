@@ -1,7 +1,7 @@
-file_name: jack_spencer_corrected
+file_name: jack_spencer
 entities:
 - text: JACK SPENCER
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
@@ -25,7 +25,7 @@ entities:
     end_char: 102
   sensitivity: high
 - text: 2017 - Present
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -33,7 +33,7 @@ entities:
     end_char: 321
   sensitivity: medium
 - text: 2014 - 2017
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -41,7 +41,7 @@ entities:
     end_char: 909
   sensitivity: medium
 - text: 2012 - 2013
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -49,7 +49,7 @@ entities:
     end_char: 1168
   sensitivity: medium
 - text: 2013 - 2014
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -57,7 +57,7 @@ entities:
     end_char: 1502
   sensitivity: medium
 - text: 2009 - 2012
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -89,7 +89,7 @@ entities:
     end_char: 1204
   sensitivity: medium
 - text: Ashford University
-  type: EDUCATION
+  type: EEDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1

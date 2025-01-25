@@ -1,0 +1,329 @@
+{
+  "test_id": "johnathan_doe",
+  "matches": {
+    "exact": [],
+    "partial": [
+      {
+        "text": "AWS",
+        "entity_type": "UNKNOWN",
+        "start_char": 108,
+        "end_char": 132,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Intern",
+        "entity_type": "UNKNOWN",
+        "start_char": 141,
+        "end_char": 172,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "2017",
+        "entity_type": "UNKNOWN",
+        "start_char": 95,
+        "end_char": 120,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "2018",
+        "entity_type": "UNKNOWN",
+        "start_char": 98,
+        "end_char": 123,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Tableau,",
+        "entity_type": "UNKNOWN",
+        "start_char": 141,
+        "end_char": 183,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      }
+    ],
+    "sensitivity_mismatch": [],
+    "type_mismatch": [],
+    "no_match": [
+      {
+        "text": "Publications",
+        "entity_type": "UNKNOWN",
+        "start_char": 72,
+        "end_char": 158,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "daily,",
+        "entity_type": "UNKNOWN",
+        "start_char": 419,
+        "end_char": 444,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "\"Improving",
+        "entity_type": "UNKNOWN",
+        "start_char": 108,
+        "end_char": 160,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Azure",
+        "entity_type": "UNKNOWN",
+        "start_char": 155,
+        "end_char": 184,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "2017",
+        "entity_type": "UNKNOWN",
+        "start_char": 169,
+        "end_char": 194,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "junior",
+        "entity_type": "UNKNOWN",
+        "start_char": 166,
+        "end_char": 193,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "code",
+        "entity_type": "UNKNOWN",
+        "start_char": 335,
+        "end_char": 359,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      }
+    ],
+    "unmatched_ground_truth": [
+      {
+        "text": "May 2018",
+        "entity_type": "DATE_TIME",
+        "start_char": 500,
+        "end_char": 508,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "3.9/4.0",
+        "entity_type": "GPA",
+        "start_char": 514,
+        "end_char": 521,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "high"
+      },
+      {
+        "text": "Illinois State University",
+        "entity_type": "EDUCATIONAL_INSTITUTION",
+        "start_char": 557,
+        "end_char": 582,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "Normal, IL",
+        "entity_type": "LOCATION",
+        "start_char": 584,
+        "end_char": 594,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "Johnathan A. Doe",
+        "entity_type": "PERSON",
+        "start_char": 0,
+        "end_char": 16,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "high"
+      },
+      {
+        "text": "Urbana, IL",
+        "entity_type": "LOCATION",
+        "start_char": 478,
+        "end_char": 488,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "Springfield, IL 62704",
+        "entity_type": "LOCATION",
+        "start_char": 52,
+        "end_char": 73,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "1234 Elm Street, Apt. 56",
+        "entity_type": "ADDRESS",
+        "start_char": 26,
+        "end_char": 50,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "high"
+      },
+      {
+        "text": "Chicago, IL",
+        "entity_type": "LOCATION",
+        "start_char": 834,
+        "end_char": 845,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "June 2018 \u2013 Present",
+        "entity_type": "DATE_TIME",
+        "start_char": 846,
+        "end_char": 865,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "May 2015",
+        "entity_type": "DATE_TIME",
+        "start_char": 606,
+        "end_char": 614,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "3.8/4.0",
+        "entity_type": "GPA",
+        "start_char": 620,
+        "end_char": 627,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "high"
+      },
+      {
+        "text": "(555) 123-4567",
+        "entity_type": "PHONE",
+        "start_char": 81,
+        "end_char": 95,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "high"
+      }
+    ],
+    "unmatched_detected": [
+      {
+        "text": "pipelines",
+        "entity_type": "UNKNOWN",
+        "start_char": 188,
+        "end_char": 232,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "engineers",
+        "entity_type": "UNKNOWN",
+        "start_char": 196,
+        "end_char": 244,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "IL",
+        "entity_type": "UNKNOWN",
+        "start_char": 205,
+        "end_char": 214,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "(CKA)",
+        "entity_type": "UNKNOWN",
+        "start_char": 279,
+        "end_char": 308,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "IL",
+        "entity_type": "UNKNOWN",
+        "start_char": 229,
+        "end_char": 238,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "IL",
+        "entity_type": "UNKNOWN",
+        "start_char": 225,
+        "end_char": 234,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Java,",
+        "entity_type": "UNKNOWN",
+        "start_char": 220,
+        "end_char": 246,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Git,",
+        "entity_type": "UNKNOWN",
+        "start_char": 235,
+        "end_char": 252,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      }
+    ]
+  },
+  "match_statistics": {
+    "exact_matches": 0,
+    "partial_matches": 5,
+    "sensitivity_mismatches": 0,
+    "type_mismatches": 0,
+    "unmatched_ground_truth": 13,
+    "unmatched_detected": 8
+  },
+  "metrics": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1_score": 0,
+    "partial_matches": 0,
+    "false_positives": 20,
+    "false_negatives": 18
+  }
+}

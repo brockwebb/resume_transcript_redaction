@@ -1,0 +1,43 @@
+test_cases:
+  - id: alexis_rivera
+    original_file: alexis_rivera.pdf
+    annotation_file: alexis_rivera.yaml
+  - id: cheryl_turner
+    original_file: cheryl_turner.pdf
+    annotation_file: cheryl_turner.yaml
+  - id: deshawn_carter
+    original_file: deshawn_carter.pdf
+    annotation_file: deshawn_carter.yaml
+  - id: elena_garcia
+    original_file: elena_garcia.pdf
+    annotation_file: elena_garcia.yaml
+  - id: jack_spencer
+    original_file: jack_spencer.pdf
+    annotation_file: jack_spencer.yaml
+  - id: jennifer_price
+    original_file: jennifer_price.pdf
+    annotation_file: jennifer_price.yaml
+  - id: johnathan_doe
+    original_file: johnathan_doe.pdf
+    annotation_file: johnathan_doe.yaml
+  - id: jordan_patel
+    original_file: jordan_patel.pdf
+    annotation_file: jordan_patel.yaml
+  - id: noah_spencer
+    original_file: noah_spencer.pdf 
+    annotation_file: noah_spencer.yaml
+  - id: priya_ahmed
+    original_file: priya_ahmed.pdf
+    annotation_file: priya_ahmed.yaml
+  - id: riley_bennett
+    original_file: riley_bennett.pdf
+    annotation_file: riley_bennett.yaml
+  - id: samira_nguyen
+    original_file: samira_nguyen.pdf
+    annotation_file: samira_nguyen.yaml
+  - id: taylor_simms
+    original_file: taylor_simms.pdf
+    annotation_file: taylor_simms.yaml
+  - id: taylor_smith
+    original_file: taylor_smith.pdf
+    annotation_file: taylor_smith.yaml

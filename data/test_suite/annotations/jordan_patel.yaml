@@ -1,7 +1,7 @@
 file_name: jordan_patel_corrected
 entities:
 - text: Jordan K. Patel
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
@@ -9,7 +9,7 @@ entities:
     end_char: 15
   sensitivity: high
 - text: 22 Maplewood Drive, Unit B
-  type: STREET_ADDRESS
+  type: ADDRESS
   should_redact: true
   location:
     page: 1
@@ -25,7 +25,7 @@ entities:
     end_char: 71
   sensitivity: medium
 - text: (206) 555-7890
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
@@ -33,7 +33,7 @@ entities:
     end_char: 94
   sensitivity: high
 - text: jordan.k.patel@cloudmail.com
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
@@ -41,7 +41,7 @@ entities:
     end_char: 131
   sensitivity: high
 - text: jordanpatel.dev
-  type: WEBSITE
+  type: URL
   should_redact: true
   location:
     page: 1
@@ -49,7 +49,7 @@ entities:
     end_char: 157
   sensitivity: medium
 - text: 2010-2016
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -57,7 +57,7 @@ entities:
     end_char: 226
   sensitivity: medium
 - text: "July 2018 \u2013 Present"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
@@ -65,7 +65,7 @@ entities:
     end_char: 94
   sensitivity: medium
 - text: "January 2010 \u2013 January 2016"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
@@ -73,7 +73,7 @@ entities:
     end_char: 564
   sensitivity: medium
 - text: June 2018
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -81,7 +81,7 @@ entities:
     end_char: 615
   sensitivity: medium
 - text: June 2016
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -97,7 +97,7 @@ entities:
     end_char: 629
   sensitivity: high
 - text: University of Washington
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
@@ -113,7 +113,7 @@ entities:
     end_char: 65
   sensitivity: medium
 - text: Seattle Community College
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1

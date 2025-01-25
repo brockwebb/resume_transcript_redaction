@@ -1,7 +1,7 @@
 file_name: johnathan_doe_corrected
 entities:
 - text: Johnathan A. Doe
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
@@ -9,7 +9,7 @@ entities:
     end_char: 16
   sensitivity: high
 - text: 1234 Elm Street, Apt. 56
-  type: STREET_ADDRESS
+  type: ADDRESS
   should_redact: true
   location:
     page: 1
@@ -41,7 +41,7 @@ entities:
     end_char: 128
   sensitivity: high
 - text: linkedin.com/in/johndoe123
-  type: LINKEDIN
+  type: SOCIAL_MEDIA
   should_redact: true
   location:
     page: 1
@@ -57,7 +57,7 @@ entities:
     end_char: 182
   sensitivity: high
 - text: "June 2018 \u2013 Present"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -65,7 +65,7 @@ entities:
     end_char: 865
   sensitivity: medium
 - text: "May 2017 \u2013 August 2017"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
@@ -73,7 +73,7 @@ entities:
     end_char: 339
   sensitivity: medium
 - text: May 2018
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -81,7 +81,7 @@ entities:
     end_char: 508
   sensitivity: medium
 - text: May 2015
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -105,7 +105,7 @@ entities:
     end_char: 627
   sensitivity: high
 - text: University of Illinois at Urbana-Champaign
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
@@ -121,7 +121,7 @@ entities:
     end_char: 488
   sensitivity: medium
 - text: Illinois State University
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1

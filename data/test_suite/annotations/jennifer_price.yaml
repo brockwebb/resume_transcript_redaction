@@ -1,7 +1,7 @@
-file_name: jennifer_price_corrected
+file_name: jennifer_price
 entities:
-- text: JENNIFER PRICE
-  type: NAME
+- text: "JENNIFER PRICE"
+  type: PERSON
   should_redact: true
   location:
     page: 1
@@ -25,7 +25,7 @@ entities:
     end_char: 77
   sensitivity: high
 - text: 2011 - Present
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -33,7 +33,7 @@ entities:
     end_char: 116
   sensitivity: medium
 - text: 2001 - 2011
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -41,7 +41,7 @@ entities:
     end_char: 701
   sensitivity: medium
 - text: 1999 - 2000
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
@@ -49,7 +49,7 @@ entities:
     end_char: 1240
   sensitivity: medium
 - text: 2000 - 2001
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
@@ -57,7 +57,7 @@ entities:
     end_char: 174
   sensitivity: medium
 - text: 1996 - 1999
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
@@ -89,7 +89,7 @@ entities:
     end_char: 1270
   sensitivity: medium
 - text: Rutgers, The State University of New Jersey
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 2
@@ -105,7 +105,7 @@ entities:
     end_char: 238
   sensitivity: medium
 - text: New York University
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 2

@@ -1,0 +1,248 @@
+{
+  "test_id": "taylor_simms",
+  "matches": {
+    "exact": [],
+    "partial": [
+      {
+        "text": "2011-06",
+        "entity_type": "UNKNOWN",
+        "start_char": 72,
+        "end_char": 111,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      }
+    ],
+    "sensitivity_mismatch": [],
+    "type_mismatch": [],
+    "no_match": [
+      {
+        "text": "taylorsimms@example.com",
+        "entity_type": "UNKNOWN",
+        "start_char": 88,
+        "end_char": 223,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "2012",
+        "entity_type": "UNKNOWN",
+        "start_char": 108,
+        "end_char": 133,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "University",
+        "entity_type": "UNKNOWN",
+        "start_char": 123,
+        "end_char": 176,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "engineering.",
+        "entity_type": "UNKNOWN",
+        "start_char": 347,
+        "end_char": 408,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "2030\"",
+        "entity_type": "UNKNOWN",
+        "start_char": 323,
+        "end_char": 351,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Institute",
+        "entity_type": "UNKNOWN",
+        "start_char": 136,
+        "end_char": 178,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Professional",
+        "entity_type": "UNKNOWN",
+        "start_char": 72,
+        "end_char": 155,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "linkedin.com/in/taylorsimms",
+        "entity_type": "UNKNOWN",
+        "start_char": 88,
+        "end_char": 223,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "repository.",
+        "entity_type": "UNKNOWN",
+        "start_char": 108,
+        "end_char": 158,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Additional",
+        "entity_type": "UNKNOWN",
+        "start_char": 72,
+        "end_char": 142,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      }
+    ],
+    "unmatched_ground_truth": [
+      {
+        "text": "2014-09 \u2013 2021-05",
+        "entity_type": "DATE_TIME",
+        "start_char": 472,
+        "end_char": 489,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "2011-06 \u2013 2013-01",
+        "entity_type": "DATE",
+        "start_char": 1231,
+        "end_char": 1248,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "555-123-4567",
+        "entity_type": "PHONE_NUMBER",
+        "start_char": 72,
+        "end_char": 84,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "high"
+      },
+      {
+        "text": "Taylor Simms",
+        "entity_type": "PERSON",
+        "start_char": 0,
+        "end_char": 12,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "high"
+      },
+      {
+        "text": "2013-01 \u2013 2014-08",
+        "entity_type": "DATE_TIME",
+        "start_char": 892,
+        "end_char": 909,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": "medium"
+      },
+      {
+        "text": "2008 \u2013 2012",
+        "entity_type": "DATE_TIME",
+        "start_char": 371,
+        "end_char": 382,
+        "confidence": 1.0,
+        "page": 2,
+        "sensitivity": "medium"
+      }
+    ],
+    "unmatched_detected": [
+      {
+        "text": "weekly",
+        "entity_type": "UNKNOWN",
+        "start_char": 408,
+        "end_char": 442,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Certification",
+        "entity_type": "UNKNOWN",
+        "start_char": 159,
+        "end_char": 241,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Activities",
+        "entity_type": "UNKNOWN",
+        "start_char": 146,
+        "end_char": 209,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "monthly",
+        "entity_type": "UNKNOWN",
+        "start_char": 171,
+        "end_char": 210,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "Analyzer:",
+        "entity_type": "UNKNOWN",
+        "start_char": 175,
+        "end_char": 224,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "hours",
+        "entity_type": "UNKNOWN",
+        "start_char": 185,
+        "end_char": 213,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      },
+      {
+        "text": "years",
+        "entity_type": "UNKNOWN",
+        "start_char": 259,
+        "end_char": 286,
+        "confidence": 1.0,
+        "page": 1,
+        "sensitivity": null
+      }
+    ]
+  },
+  "match_statistics": {
+    "exact_matches": 0,
+    "partial_matches": 1,
+    "sensitivity_mismatches": 0,
+    "type_mismatches": 0,
+    "unmatched_ground_truth": 6,
+    "unmatched_detected": 7
+  },
+  "metrics": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1_score": 0,
+    "partial_matches": 0,
+    "false_positives": 18,
+    "false_negatives": 9
+  }
+}
