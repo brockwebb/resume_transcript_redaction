@@ -1,0 +1,217 @@
+{
+  "test_id": "jennifer_price",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0.375,
+      "recall": 0.42857142857142855,
+      "f1_score": 0.39999999999999997,
+      "partial_matches": 0,
+      "false_positives": 10,
+      "false_negatives": 8
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 1
+        },
+        "PHONE_NUMBER": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 1
+        },
+        "DATE_TIME": {
+          "precision": 0.5,
+          "recall": 0.4,
+          "f1_score": 0.4444444444444445,
+          "exact_matches": 2,
+          "false_positives": 2,
+          "false_negatives": 3,
+          "partial_matches": 0,
+          "total_detections": 4
+        },
+        "URL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "SOCIAL_MEDIA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "LOCATION": {
+          "precision": 0.25,
+          "recall": 0.5,
+          "f1_score": 0.3333333333333333,
+          "exact_matches": 2,
+          "false_positives": 6,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 8
+        },
+        "GPA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 2,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 2
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPE": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "ensemble_detections": {
+        "LOCATION_FULL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 2,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 2
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [
+        "Entity(text='2001 - 2011', entity_type='DATE_TIME', start_char=690, end_char=701, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='Rocky Mount', entity_type='LOCATION', start_char=28, end_char=39, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='jprice@example.com', entity_type='EMAIL_ADDRESS', start_char=59, end_char=77, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Philadelphia, PA', entity_type='LOCATION', start_char=1254, end_char=1270, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='1999 - 2000', entity_type='DATE_TIME', start_char=1229, end_char=1240, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='(690) 555-0897', entity_type='PHONE_NUMBER', start_char=44, end_char=58, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "partial": [],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [],
+      "no_match": [],
+      "unmatched_ground_truth": [
+        "Entity(text='New York, NY', entity_type='LOCATION', start_char=303, end_char=315, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2000 - 2001', entity_type='DATE_TIME', start_char=163, end_char=174, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2011', entity_type='DATE_TIME', start_char=102, end_char=106, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Rutgers, The State University of New Jersey', entity_type='EDUCATIONAL_INSTITUTION', start_char=175, end_char=218, confidence=1.0, page=2, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='New Brunswick, NJ', entity_type='LOCATION', start_char=221, end_char=238, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='JENNIFER PRICE', entity_type='PERSON', start_char=0, end_char=14, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='1996 - 1999', entity_type='DATE_TIME', start_char=269, end_char=280, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='New York University', entity_type='EDUCATIONAL_INSTITUTION', start_char=281, end_char=300, confidence=1.0, page=2, sensitivity=<SensitivityLevel.HIGH: 'high'>)"
+      ],
+      "unmatched_detected": [
+        "Entity(text='Rocky Mount, NC', entity_type='LOCATION', start_char=711, end_char=726, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Drive Thu', entity_type='LOCATION', start_char=1382, end_char=1391, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='The State University of New Jersey ', entity_type='EDUCATIONAL_INSTITUTION', start_char=1639, end_char=1674, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='New York University', entity_type='EDUCATIONAL_INSTITUTION', start_char=1736, end_char=1755, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='NC', entity_type='LOCATION', start_char=41, end_char=43, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='Rocky Mount, NC', entity_type='LOCATION', start_char=127, end_char=142, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='New Brunswick, NJ', entity_type='LOCATION', start_char=1676, end_char=1693, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='1996 - 1999', entity_type='DATE_TIME', start_char=1724, end_char=1735, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='2000 - 2001', entity_type='DATE_TIME', start_char=1618, end_char=1629, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='New York, NY', entity_type='LOCATION', start_char=1758, end_char=1770, confidence=1.0, page=1, sensitivity=None)"
+      ]
+    },
+    "match_statistics": {
+      "exact_matches": 6,
+      "partial_matches": 0,
+      "sensitivity_mismatches": 0,
+      "type_mismatches": 0,
+      "unmatched_ground_truth": 8,
+      "unmatched_detected": 10
+    }
+  }
+}

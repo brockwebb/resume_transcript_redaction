@@ -38,6 +38,7 @@ routing:
         - "minutes"
         - "seconds"
         - "annual"
+        - "present"
         - "Published in"
         - "Publication date"
       require_format: true
@@ -58,7 +59,7 @@ routing:
     mappings:
       GPE: LOCATION_FULL
     thresholds:
-      PERSON: 0.9
+      PERSON: 0.85
 
   ensemble_required:
     entities:

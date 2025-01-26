@@ -41,7 +41,7 @@ entities:
     end_char: 117
   sensitivity: high
 - text: rileybennettdata.com
-  type: PORTFOLIO
+  type: URL
   should_redact: true
   location:
     page: 1

@@ -1,0 +1,228 @@
+{
+  "test_id": "alexis_rivera",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0,
+      "partial_matches": 0,
+      "false_positives": 17,
+      "false_negatives": 20
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "ADDRESS": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PHONE_NUMBER": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DATE_TIME": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 4,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "URL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "SOCIAL_MEDIA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "LOCATION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 4,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPA": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPE": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "ensemble_detections": {
+        "LOCATION_FULL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [],
+      "partial": [
+        "Entity(text='30%.', entity_type='UNKNOWN', start_char=108, end_char=133, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='women', entity_type='UNKNOWN', start_char=172, end_char=208, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Microsoft', entity_type='UNKNOWN', start_char=108, end_char=152, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='4.0/4.0', entity_type='UNKNOWN', start_char=100, end_char=134, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='AI', entity_type='UNKNOWN', start_char=189, end_char=199, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2018', entity_type='UNKNOWN', start_char=98, end_char=123, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2019', entity_type='UNKNOWN', start_char=153, end_char=178, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Advocate', entity_type='UNKNOWN', start_char=108, end_char=153, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [],
+      "no_match": [
+        "Entity(text='cultural', entity_type='UNKNOWN', start_char=201, end_char=236, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='applications.', entity_type='UNKNOWN', start_char=108, end_char=169, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Developer', entity_type='UNKNOWN', start_char=167, end_char=217, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Certifications', entity_type='UNKNOWN', start_char=72, end_char=164, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "unmatched_ground_truth": [
+        "Entity(text='(305) 234-5678', entity_type='PHONE_NUMBER', start_char=82, end_char=96, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='UnidosUS', entity_type='DEMOGRAPHIC', start_char=1080, end_char=1088, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Florida International University', entity_type='EDUCATIONAL_INSTITUTION', start_char=527, end_char=559, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Miami, FL 33130', entity_type='LOCATION', start_char=59, end_char=74, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='July 2019', entity_type='DATE_TIME', start_char=58, end_char=67, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Miami, FL', entity_type='LOCATION', start_char=561, end_char=570, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='GPA: 4.0/4.0', entity_type='GPA', start_char=591, end_char=603, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='GPA: 3.9/4.0', entity_type='GPA', start_char=701, end_char=713, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Women in Data Science (WiDS) initiative', entity_type='DEMOGRAPHIC', start_char=977, end_char=1016, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='909 Jasmine Street, Apartment 8', entity_type='ADDRESS', start_char=26, end_char=57, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='June 2018', entity_type='DATE_TIME', start_char=507, end_char=516, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Miami, FL', entity_type='LOCATION', start_char=1566, end_char=1575, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='May 2019', entity_type='DATE_TIME', start_char=582, end_char=590, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='University of Puerto Rico', entity_type='EDUCATIONAL_INSTITUTION', start_char=638, end_char=663, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='May 2016', entity_type='DATE_TIME', start_char=692, end_char=700, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='R\u00edo Piedras, PR', entity_type='LOCATION', start_char=665, end_char=680, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Alexis N. Rivera', entity_type='PERSON', start_char=0, end_char=16, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)"
+      ],
+      "unmatched_detected": [
+        "Entity(text='(helped', entity_type='UNKNOWN', start_char=326, end_char=362, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='recommendation', entity_type='UNKNOWN', start_char=244, end_char=326, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='PR', entity_type='UNKNOWN', start_char=262, end_char=277, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='representation', entity_type='UNKNOWN', start_char=265, end_char=335, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='STEM', entity_type='UNKNOWN', start_char=349, end_char=380, confidence=1.0, page=1, sensitivity=None)"
+      ]
+    },
+    "match_statistics": {
+      "exact_matches": 0,
+      "partial_matches": 8,
+      "sensitivity_mismatches": 0,
+      "type_mismatches": 0,
+      "unmatched_ground_truth": 17,
+      "unmatched_detected": 5
+    }
+  }
+}

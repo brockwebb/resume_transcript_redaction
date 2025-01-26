@@ -10,7 +10,8 @@ from redactor.redactor_logic import RedactionProcessor
 from .wrappers import RedactionWrapper
 from .comparison.entity_matcher import EntityMatcher
 from dataclasses import dataclass, asdict
-from evaluation.metrics.entity_metrics import EntityMetrics, Entity, SensitivityLevel
+from evaluation.metrics.entity_metrics import EntityMetrics
+from evaluation.models import Entity, SensitivityLevel
 
 
 
@@ -74,77 +75,80 @@ class TestRunner:
         return test_cases
     
     def run_evaluation(self, redactor, test_cases: Optional[List[TestCase]] = None) -> TestRunResults:
-        """
-        Run evaluation on specified test cases
-        
-        Args:
-            redactor: Instance of redaction system to evaluate
-            test_cases: Optional list of specific test cases to run
-                       If None, all test cases are run
-                       
-        Returns:
-            TestRunResults containing evaluation metrics
-        """
-        if test_cases is None:
-            test_cases = self.load_test_cases()
-            
-        run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-        run_dir = self.results_dir / f"run_{run_id}"
-        run_dir.mkdir(parents=True, exist_ok=True)
-        
-        results = {}
-        all_metrics = []
-        
-        for test_case in test_cases:
-            # Load ground truth annotations
-            ground_truth = self._load_annotations(test_case.annotation_path)
-            
-            # Run redaction system
-            detected_entities = redactor.detect_entities(test_case.original_path)
-            
-            # Compare results
-            matches = self.entity_matcher.find_matches(ground_truth, detected_entities)
-            match_stats = self.entity_matcher.get_matching_statistics(matches)
-            
-            # Calculate metrics
-            metrics = self.entity_metrics.calculate_metrics(ground_truth, detected_entities)
-            all_metrics.append(metrics)
-            
-            # Convert sets to lists for JSON serialization
-            json_test_results = {
-                "test_id": test_case.test_id,
-                "matches": {
-                    k: [entity.to_dict() if hasattr(entity, 'to_dict') else vars(entity) 
-                        for entity in v] if isinstance(v, set) else v
-                    for k, v in matches.items()
-                },
-                "match_statistics": match_stats,
-                "metrics": metrics
+       if test_cases is None:
+           test_cases = self.load_test_cases()
+           
+       run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+       run_dir = self.results_dir / f"run_{run_id}"
+       run_dir.mkdir(parents=True, exist_ok=True)
+       
+       results = {}
+       all_metrics = []
+       
+       for test_case in test_cases:
+           ground_truth = self._load_annotations(test_case.annotation_path)
+           detected_entities = redactor.detect_entities(test_case.original_path)
+           
+           matches = self.entity_matcher.find_matches(ground_truth, detected_entities)
+           match_stats = self.entity_matcher.get_matching_statistics(matches)
+           
+           overall_metrics = self.entity_metrics.calculate_metrics(ground_truth, detected_entities)
+           type_metrics = self.entity_metrics.get_type_based_metrics(matches)
+           
+           all_metrics.append({
+               "overall": overall_metrics,
+               "by_type": type_metrics
+           })
+           
+           json_test_results = {
+               "test_id": test_case.test_id,
+               "summary": {
+                   "overall_metrics": overall_metrics,
+                   "type_metrics": type_metrics
+               },
+               "details": {
+                   "matches": {
+                       k: [e.to_json_dict() if hasattr(e, 'to_json_dict') else str(e)
+                           for e in v] if isinstance(v, set) else v
+                       for k, v in matches.items()
+                   },
+                   "match_statistics": match_stats
+               }
+           }
+           
+           results[test_case.test_id] = json_test_results
+           
+           result_path = run_dir / f"{test_case.test_id}_results.json"
+           with open(result_path, "w") as f:
+               json.dump(json_test_results, f, indent=2)
+    
+               summary_metrics = {
+            "overall_average": self._calculate_summary_metrics([m["overall"] for m in all_metrics]),
+            "by_detector": {
+                "presidio": self.entity_metrics._aggregate_detector_metrics(
+                    [m["by_type"]["presidio_detections"] for m in all_metrics]
+                ),
+                "spacy": self.entity_metrics._aggregate_detector_metrics(
+                    [m["by_type"]["spacy_detections"] for m in all_metrics]
+                ),
+                "ensemble": self.entity_metrics._aggregate_detector_metrics(
+                    [m["by_type"]["ensemble_detections"] for m in all_metrics]
+                )
             }
-            
-            # Save individual test results
-            result_path = run_dir / f"{test_case.test_id}_results.json"
-            with open(result_path, "w") as f:
-                json.dump(json_test_results, f, indent=2)
-
-        
-        # Calculate summary metrics
-        summary_metrics = self._calculate_summary_metrics(all_metrics)
-        
-        # Create run results
-        run_results = TestRunResults(
-            run_id=run_id,
-            timestamp=datetime.now().isoformat(),
-            results=results,
-            summary_metrics=summary_metrics
-        )
-        
-        # Save summary results
-        summary_path = run_dir / "summary.json"
-        with open(summary_path, "w") as f:
-            json.dump(asdict(run_results), f, indent=2)
-            
-        return run_results
+        }
+    
+       run_results = TestRunResults(
+           run_id=run_id,
+           timestamp=datetime.now().isoformat(),
+           results=results,
+           summary_metrics=summary_metrics
+       )
+       
+       summary_path = run_dir / "summary.json"
+       with open(summary_path, "w") as f:
+           json.dump(asdict(run_results), f, indent=2)
+           
+       return run_results
     
     def _load_annotations(self, annotation_path: Path) -> List[Entity]:
         """

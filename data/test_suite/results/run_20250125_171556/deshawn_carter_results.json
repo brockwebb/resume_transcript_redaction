@@ -1,0 +1,221 @@
+{
+  "test_id": "deshawn_carter",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0,
+      "partial_matches": 0,
+      "false_positives": 13,
+      "false_negatives": 17
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PHONE_NUMBER": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DATE_TIME": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 4,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "URL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "SOCIAL_MEDIA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "LOCATION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 3,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPE": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "ensemble_detections": {
+        "LOCATION_FULL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [],
+      "partial": [
+        "Entity(text='2018', entity_type='UNKNOWN', start_char=98, end_char=123, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [],
+      "no_match": [
+        "Entity(text='deshawnaitech.com', entity_type='UNKNOWN', start_char=159, end_char=257, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='accessibility-related', entity_type='UNKNOWN', start_char=72, end_char=167, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Washington,', entity_type='UNKNOWN', start_char=166, end_char=227, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2011', entity_type='UNKNOWN', start_char=153, end_char=177, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Technology,', entity_type='UNKNOWN', start_char=167, end_char=225, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "unmatched_ground_truth": [
+        "Entity(text='June 2018 \u2013 Present', entity_type='DATE_TIME', start_char=828, end_char=847, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Atlanta, GA', entity_type='LOCATION', start_char=816, end_char=827, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Black and Latinx youth', entity_type='DEMOGRAPHIC', start_char=727, end_char=749, confidence=1.0, page=2, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Georgia Institute of Technology', entity_type='EDUCATIONAL_INSTITUTION', start_char=370, end_char=401, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='May 2015', entity_type='DATE_TIME', start_char=426, end_char=434, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Washington, D.C.', entity_type='LOCATION', start_char=500, end_char=516, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Accessibility Needs: Prefers voice-to-text tools due to repetitive strain injury', entity_type='ACCESSIBILITY', start_char=996, end_char=1076, confidence=1.0, page=2, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='(404) 555-7890', entity_type='PHONE_NUMBER', start_char=44, end_char=58, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='San Francisco, CA', entity_type='LOCATION', start_char=43, end_char=60, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Howard University', entity_type='EDUCATIONAL_INSTITUTION', start_char=481, end_char=498, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Pronouns: He/Him', entity_type='PRONOUNS', start_char=903, end_char=919, confidence=1.0, page=2, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='May 2011', entity_type='DATE_TIME', start_char=528, end_char=536, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='September 2015 \u2013 May 2018', entity_type='DATE_TIME', start_char=61, end_char=86, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='DeShawn L. Carter', entity_type='PERSON', start_char=0, end_char=17, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)"
+      ],
+      "unmatched_detected": [
+        "Entity(text='D.C.', entity_type='UNKNOWN', start_char=230, end_char=252, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='provide', entity_type='UNKNOWN', start_char=218, end_char=254, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='SSN)', entity_type='UNKNOWN', start_char=318, end_char=344, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='measuring', entity_type='UNKNOWN', start_char=233, end_char=284, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='for', entity_type='UNKNOWN', start_char=217, end_char=230, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='to', entity_type='UNKNOWN', start_char=205, end_char=214, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='GA', entity_type='UNKNOWN', start_char=230, end_char=246, confidence=1.0, page=1, sensitivity=None)"
+      ]
+    },
+    "match_statistics": {
+      "exact_matches": 0,
+      "partial_matches": 1,
+      "sensitivity_mismatches": 0,
+      "type_mismatches": 0,
+      "unmatched_ground_truth": 14,
+      "unmatched_detected": 7
+    }
+  }
+}

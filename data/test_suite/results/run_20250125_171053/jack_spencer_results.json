@@ -1,0 +1,214 @@
+{
+  "test_id": "jack_spencer",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0,
+      "partial_matches": 0,
+      "false_positives": 11,
+      "false_negatives": 12
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PHONE_NUMBER": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DATE_TIME": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 5,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "URL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "SOCIAL_MEDIA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "LOCATION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 3,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPE": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "ensemble_detections": {
+        "LOCATION_FULL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [],
+      "partial": [],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [],
+      "no_match": [
+        "Entity(text='jspencer@example.com', entity_type='UNKNOWN', start_char=29, end_char=133, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='555-3414', entity_type='UNKNOWN', start_char=56, end_char=94, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "unmatched_ground_truth": [
+        "Entity(text='2014 - 2017', entity_type='DATE_TIME', start_char=898, end_char=909, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Indianapolis, IN', entity_type='LOCATION', start_char=932, end_char=948, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Ashford University', entity_type='EEDUCATIONAL_INSTITUTION', start_char=1503, end_char=1521, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='2017 - Present', entity_type='DATE_TIME', start_char=307, end_char=321, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2009 - 2012', entity_type='DATE_TIME', start_char=1563, end_char=1574, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2013 - 2014', entity_type='DATE_TIME', start_char=1491, end_char=1502, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='San Diego, CA', entity_type='LOCATION', start_char=1191, end_char=1204, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='JACK SPENCER', entity_type='PERSON', start_char=0, end_char=12, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='2012 - 2013', entity_type='DATE_TIME', start_char=1157, end_char=1168, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Jeffersonville, IN', entity_type='LOCATION', start_char=48, end_char=66, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)"
+      ],
+      "unmatched_detected": [
+        "Entity(text='IN', entity_type='UNKNOWN', start_char=394, end_char=401, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2017', entity_type='UNKNOWN', start_char=402, end_char=420, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2012', entity_type='UNKNOWN', start_char=408, end_char=425, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='CA', entity_type='UNKNOWN', start_char=374, end_char=387, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='IN', entity_type='UNKNOWN', start_char=392, end_char=400, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2013', entity_type='UNKNOWN', start_char=368, end_char=386, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2014', entity_type='UNKNOWN', start_char=395, end_char=413, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='CA', entity_type='UNKNOWN', start_char=391, end_char=403, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Present', entity_type='UNKNOWN', start_char=329, end_char=361, confidence=1.0, page=1, sensitivity=None)"
+      ]
+    },
+    "match_statistics": {
+      "exact_matches": 0,
+      "partial_matches": 0,
+      "sensitivity_mismatches": 0,
+      "type_mismatches": 0,
+      "unmatched_ground_truth": 10,
+      "unmatched_detected": 9
+    }
+  }
+}

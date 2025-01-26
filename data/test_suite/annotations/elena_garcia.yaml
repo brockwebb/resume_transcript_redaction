@@ -9,7 +9,7 @@ entities:
     end_char: 19
   sensitivity: high
 - text: (+1) 212-345-6789
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
@@ -17,7 +17,7 @@ entities:
     end_char: 89
   sensitivity: high
 - text: elena.garcia.researcher@biosciences.net
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
@@ -33,7 +33,7 @@ entities:
     end_char: 591
   sensitivity: high
 - text: www.drelena.bio
-  type: WEBSITE
+  type: URL
   should_redact: true
   location:
     page: 1

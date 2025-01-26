@@ -1,6 +1,6 @@
 file_name: noah_spencer
 entities:
-- text: NOAH SPENCER
+- text: "NOAH SPENCER"
   type: PERSON
   should_redact: true
   location:

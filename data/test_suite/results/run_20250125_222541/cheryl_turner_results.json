@@ -1,0 +1,210 @@
+{
+  "test_id": "cheryl_turner",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0.875,
+      "recall": 0.875,
+      "f1_score": 0.875,
+      "partial_matches": 0,
+      "false_positives": 2,
+      "false_negatives": 2
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 1
+        },
+        "PHONE_NUMBER": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 1
+        },
+        "DATE_TIME": {
+          "precision": 1.0,
+          "recall": 0.8,
+          "f1_score": 0.888888888888889,
+          "exact_matches": 4,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 4
+        },
+        "URL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "SOCIAL_MEDIA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "LOCATION": {
+          "precision": 0.8571428571428571,
+          "recall": 1.0,
+          "f1_score": 0.923076923076923,
+          "exact_matches": 6,
+          "false_positives": 1,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 7
+        },
+        "GPA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 2,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 2
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 1
+        },
+        "GPE": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "ensemble_detections": {
+        "LOCATION_FULL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 2,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 2
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [
+        "Entity(text='(870) 555-7748', entity_type='PHONE_NUMBER', start_char=44, end_char=58, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2000 - 2003', entity_type='DATE_TIME', start_char=1653, end_char=1664, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='2010 - 2018', entity_type='DATE_TIME', start_char=494, end_char=505, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='Pittsburgh, PA', entity_type='LOCATION', start_char=1636, end_char=1650, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2003 - 2004', entity_type='DATE_TIME', start_char=1557, end_char=1568, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='Carnegie Mellon University', entity_type='EDUCATIONAL_INSTITUTION', start_char=1607, end_char=1633, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='New York', entity_type='LOCATION', start_char=27, end_char=35, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='New York, NY', entity_type='LOCATION', start_char=872, end_char=884, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='New York, NY', entity_type='LOCATION', start_char=121, end_char=133, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Cheryl Turner', entity_type='PERSON', start_char=0, end_char=13, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='New York, NY', entity_type='LOCATION', start_char=479, end_char=491, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='New Brunswick, NJ', entity_type='LOCATION', start_char=1537, end_char=1554, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='The State University of New Jersey ', entity_type='EDUCATIONAL_INSTITUTION', start_char=1500, end_char=1535, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2004 - 2010', entity_type='DATE_TIME', start_char=887, end_char=898, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='cturner@example.com', entity_type='EMAIL_ADDRESS', start_char=63, end_char=82, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "partial": [],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [],
+      "no_match": [],
+      "unmatched_ground_truth": [
+        "Entity(text='2018', entity_type='DATE_TIME', start_char=136, end_char=140, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)"
+      ],
+      "unmatched_detected": [
+        "Entity(text='NY', entity_type='LOCATION', start_char=37, end_char=39, confidence=0.85, page=1, sensitivity=None)"
+      ]
+    },
+    "match_statistics": {
+      "exact_matches": 15,
+      "partial_matches": 0,
+      "sensitivity_mismatches": 0,
+      "type_mismatches": 0,
+      "unmatched_ground_truth": 1,
+      "unmatched_detected": 1
+    }
+  }
+}

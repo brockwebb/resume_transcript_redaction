@@ -1,0 +1,296 @@
+{
+  "test_id": "alexis_rivera",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0,
+      "partial_matches": 0,
+      "false_positives": 17,
+      "false_negatives": 20
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "ADDRESS": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PHONE_NUMBER": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DATE_TIME": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 4,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "URL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "SOCIAL_MEDIA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "LOCATION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 4,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPA": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPE": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "ensemble_detections": {
+        "LOCATION_FULL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [],
+      "partial": [
+        {
+          "text": "Microsoft",
+          "entity_type": "UNKNOWN",
+          "start_char": 108,
+          "end_char": 152,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": null
+        },
+        {
+          "text": "AI",
+          "entity_type": "UNKNOWN",
+          "start_char": 189,
+          "end_char": 199,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": null
+        },
+        {
+          "text": "4.0/4.0",
+          "entity_type": "UNKNOWN",
+          "start_char": 100,
+          "end_char": 134,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": null
+        },
+        {
+          "text": "30%.",
+          "entity_type": "UNKNOWN",
+          "start_char": 108,
+          "end_char": 133,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": null
+        },
+        {
+          "text": "women",
+          "entity_type": "UNKNOWN",
+          "start_char": 172,
+          "end_char": 208,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": null
+        },
+        {
+          "text": "Advocate",
+          "entity_type": "UNKNOWN",
+          "start_char": 108,
+          "end_char": 153,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": null
+        },
+        {
+          "text": "2019",
+          "entity_type": "UNKNOWN",
+          "start_char": 153,
+          "end_char": 178,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": null
+        },
+        {
+          "text": "2018",
+          "entity_type": "UNKNOWN",
+          "start_char": 98,
+          "end_char": 123,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": null
+        }
+      ],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [],
+      "no_match": [
+        {
+          "text": "applications.",
+          "entity_type": "UNKNOWN",
+          "start_char": 108,
+          "end_char": 169,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": null
+        },
+        {
+          "text": "cultural",
+          "entity_type": "UNKNOWN",
+          "start_char": 201,
+          "end_char": 236,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": null
+        },
+        {
+          "text": "Developer",
+          "entity_type": "UNKNOWN",
+          "start_char": 167,
+          "end_char": 217,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": null
+        },
+        {
+          "text": "Certifications",
+          "entity_type": "UNKNOWN",
+          "start_char": 72,
+          "end_char": 164,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": null
+        }
+      ],
+      "unmatched_ground_truth": [
+        {
+          "text": "Alexis N. Rivera",
+          "entity_type": "PERSON",
+          "start_char": 0,
+          "end_char": 16,
+          "confidence": 1.0,
+          "page": 1,
+          "sensitivity": 

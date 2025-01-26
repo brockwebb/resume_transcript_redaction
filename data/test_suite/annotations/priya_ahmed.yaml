@@ -8,7 +8,7 @@ entities:
     start_char: 0
     end_char: 14
   sensitivity: high
-- text: 45 Lotus Crescent, Unit 3
+- text: "45 Lotus Crescent, Unit 3"
   type: ADDRESS
   should_redact: true
   location:
@@ -65,12 +65,20 @@ entities:
     start_char: 79
     end_char: 87
   sensitivity: medium
-- text: "August 2010 \u2013 May 2015"
+- text: "August 2010"
   type: DATE_TIME
   should_redact: true
   location:
     page: 2
     start_char: 524
+    end_char: 535
+  sensitivity: medium
+- text: "May 2015"
+  type: DATE_TIME
+  should_redact: true
+  location:
+    page: 2
+    start_char: 538
     end_char: 546
   sensitivity: medium
 - text: June 2015
@@ -106,7 +114,7 @@ entities:
     end_char: 613
   sensitivity: medium
 - text: University of California
-  type: EDUCATIONAL_INSTITUTIONN
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1

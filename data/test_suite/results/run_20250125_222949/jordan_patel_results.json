@@ -1,0 +1,222 @@
+{
+  "test_id": "jordan_patel",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0.42857142857142855,
+      "recall": 0.5294117647058824,
+      "f1_score": 0.4736842105263158,
+      "partial_matches": 0,
+      "false_positives": 12,
+      "false_negatives": 8
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "ADDRESS": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 1
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 1
+        },
+        "PHONE_NUMBER": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 1
+        },
+        "DATE_TIME": {
+          "precision": 0.5,
+          "recall": 0.6,
+          "f1_score": 0.5454545454545454,
+          "exact_matches": 3,
+          "false_positives": 3,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 6
+        },
+        "URL": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 1
+        },
+        "SOCIAL_MEDIA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "LOCATION": {
+          "precision": 0.16666666666666666,
+          "recall": 0.3333333333333333,
+          "f1_score": 0.2222222222222222,
+          "exact_matches": 1,
+          "false_positives": 5,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 6
+        },
+        "GPA": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 1
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1_score": 0.5,
+          "exact_matches": 1,
+          "false_positives": 1,
+          "false_negatives": 1,
+          "partial_matches": 1,
+          "total_detections": 2
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1_score": 0.6666666666666666,
+          "exact_matches": 1,
+          "false_positives": 1,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 2
+        },
+        "GPE": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "ensemble_detections": {
+        "LOCATION_FULL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1_score": 0.5,
+          "exact_matches": 1,
+          "false_positives": 1,
+          "false_negatives": 1,
+          "partial_matches": 1,
+          "total_detections": 2
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [
+        "Entity(text='2010-2016', entity_type='DATE_TIME', start_char=217, end_char=226, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='jordan.k.patel@cloudmail.com', entity_type='EMAIL_ADDRESS', start_char=103, end_char=131, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Seattle, WA 98101', entity_type='LOCATION', start_char=54, end_char=71, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='June 2016', entity_type='DATE_TIME', start_char=740, end_char=749, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='June 2018', entity_type='DATE_TIME', start_char=606, end_char=615, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='Information Security \\nUniversity of Washington', entity_type='EDUCATIONAL_INSTITUTION', start_char=534, end_char=580, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='jordanpatel.de', entity_type='URL', start_char=142, end_char=156, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='22 Maplewood Drive, Unit B', entity_type='ADDRESS', start_char=26, end_char=52, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='(206) 555-7890', entity_type='PHONE_NUMBER', start_char=80, end_char=94, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Jordan K. Patel', entity_type='PERSON', start_char=0, end_char=15, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='GPA: 3.8/4.0', entity_type='GPA', start_char=617, end_char=629, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "partial": [
+        "Entity(text='Associate of Applied Science in Network Administration \\nSeattle Community College', entity_type='EDUCATIONAL_INSTITUTION', start_char=633, end_char=714, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [],
+      "no_match": [],
+      "unmatched_ground_truth": [
+        "Entity(text='Seattle Community College', entity_type='EDUCATIONAL_INSTITUTION', start_char=689, end_char=714, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='July 2018 \u2013 Present', entity_type='DATE_TIME', start_char=75, end_char=94, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Seattle, WA', entity_type='LOCATION', start_char=54, end_char=65, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Accessibility Statement: Will require screen magnification tools for extended periods of computer work due to partial visual impairment', entity_type='ACCESSIBILITY', start_char=221, end_char=356, confidence=1.0, page=3, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Seattle, WA 98101', entity_type='LOCATION', start_char=54, end_char=71, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='January 2010 \u2013 January 2016', entity_type='DATE_TIME', start_char=537, end_char=564, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)"
+      ],
+      "unmatched_detected": [
+        "Entity(text='January 2010', entity_type='DATE_TIME', start_char=1612, end_char=1624, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='Seattle, WA', entity_type='LOCATION', start_char=716, end_char=727, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='July 2018', entity_type='DATE_TIME', start_char=1150, end_char=1159, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='Bellevue, WA', entity_type='LOCATION', start_char=1136, end_char=1148, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Associate of Applied Science in Network Administration \\nSeattle Community College', entity_type='EDUCATIONAL_INSTITUTION', start_char=633, end_char=714, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Competitive CTF', entity_type='PERSON', start_char=2496, end_char=2511, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='Terraform', entity_type='LOCATION', start_char=1048, end_char=1057, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='January 2016', entity_type='DATE_TIME', start_char=1627, end_char=1639, confidence=0.85, page=1, sensitivity=None)",
+        "Entity(text='Seattle, WA', entity_type='LOCATION', start_char=582, end_char=593, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='VPNs, SD', entity_type='LOCATION', start_char=995, end_char=1003, confidence=1.0, page=1, sensitivity=None)"
+      ]
+    },
+    "match_statistics": {
+      "exact_matches": 11,
+      "partial_matches": 1,
+      "sensitivity_mismatches": 0,
+      "type_mismatches": 0,
+      "unmatched_ground_truth": 6,
+      "unmatched_detected": 10
+    }
+  }
+}

@@ -1,0 +1,224 @@
+{
+  "test_id": "samira_nguyen",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0,
+      "partial_matches": 0,
+      "false_positives": 14,
+      "false_negatives": 19
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "detection_count": 0
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "detection_count": 0
+        },
+        "PHONE_NUMBER": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "detection_count": 0
+        },
+        "DATE_TIME": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 5,
+          "partial_matches": 0,
+          "detection_count": 0
+        },
+        "URL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "detection_count": 0
+        },
+        "SOCIAL_MEDIA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "detection_count": 0
+        },
+        "LOCATION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "detection_count": 0
+        },
+        "GPA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "detection_count": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 3,
+          "partial_matches": 0,
+          "detection_count": 0
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "detection_count": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "detection_count": 0
+        },
+        "GPE": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "detection_count": 0
+        }
+      },
+      "ensemble_detections": {
+        "LOCATION_FULL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "detection_count": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 3,
+          "partial_matches": 0,
+          "detection_count": 0
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "detection_count": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [],
+      "partial": [
+        "Entity(text='Present', entity_type='UNKNOWN', start_char=150, end_char=188, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [
+        "Entity(text='2013', entity_type='UNKNOWN', start_char=114, end_char=138, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2017', entity_type='UNKNOWN', start_char=114, end_char=138, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "no_match": [
+        "Entity(text='Nguyen', entity_type='UNKNOWN', start_char=166, end_char=235, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Fluent', entity_type='UNKNOWN', start_char=172, end_char=203, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Information', entity_type='UNKNOWN', start_char=146, end_char=226, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2013', entity_type='UNKNOWN', start_char=186, end_char=211, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Experience', entity_type='UNKNOWN', start_char=144, end_char=224, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='London,', entity_type='UNKNOWN', start_char=163, end_char=203, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "unmatched_ground_truth": [
+        "Entity(text='September 2017', entity_type='DATE_TIME', start_char=595, end_char=609, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Imperial College London', entity_type='EDUCATIONAL_INSTITUTION', start_char=645, end_char=668, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Samira H. Nguyen', entity_type='PERSON', start_char=0, end_char=16, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='October 2013 \u2013 September 2017', entity_type='DATE_TIME', start_char=462, end_char=491, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Mentor, Women in Science and Engineering (WISE) UK', entity_type='ACTIVITY', start_char=742, end_char=792, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Travel Restrictions: Requires visa support for non-EU countries', entity_type='RESTRICTIONS', start_char=873, end_char=936, confidence=1.0, page=2, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='University College London (UCL)', entity_type='EDUCATIONAL_INSTITUTION', start_char=540, end_char=571, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='October 2017', entity_type='DATE_TIME', start_char=77, end_char=89, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='May 2011', entity_type='DATE_TIME', start_char=778, end_char=786, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Vietnam', entity_type='LOCATION', start_char=759, end_char=766, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='samira.nguyen.bio@example.org', entity_type='EMAIL_ADDRESS', start_char=75, end_char=104, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='(+44) 20-7946-0958', entity_type='PHONE_NUMBER', start_char=47, end_char=65, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Cambridge, UK', entity_type='LOCATION', start_char=63, end_char=76, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='University of Hanoi', entity_type='EDUCATIONAL_INSTITUTION', start_char=738, end_char=757, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='September 2013', entity_type='DATE_TIME', start_char=692, end_char=706, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)"
+      ],
+      "unmatched_detected": [
+        "Entity(text='passport', entity_type='UNKNOWN', start_char=321, end_char=364, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='on', entity_type='UNKNOWN', start_char=222, end_char=234, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='and', entity_type='UNKNOWN', start_char=242, end_char=260, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='treatments', entity_type='UNKNOWN', start_char=315, end_char=367, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='UK', entity_type='UNKNOWN', start_char=265, end_char=280, confidence=1.0, page=1, sensitivity=None)"
+      ]
+    },
+    "match_statistics": {
+      "exact_matches": 0,
+      "partial_matches": 1,
+      "sensitivity_mismatches": 0,
+      "type_mismatches": 2,
+      "unmatched_ground_truth": 15,
+      "unmatched_detected": 5
+    }
+  }
+}

@@ -1,0 +1,218 @@
+{
+  "test_id": "taylor_simms",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0,
+      "partial_matches": 0,
+      "false_positives": 13,
+      "false_negatives": 14
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PHONE_NUMBER": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DATE_TIME": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 9,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "URL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "SOCIAL_MEDIA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "LOCATION": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPE": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "ensemble_detections": {
+        "LOCATION_FULL": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DEMOGRAPHIC": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [],
+      "partial": [
+        "Entity(text='2011-06', entity_type='UNKNOWN', start_char=72, end_char=111, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [],
+      "no_match": [
+        "Entity(text='repository.', entity_type='UNKNOWN', start_char=108, end_char=158, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='University', entity_type='UNKNOWN', start_char=123, end_char=176, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2030\"', entity_type='UNKNOWN', start_char=323, end_char=351, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='linkedin.com/in/taylorsimms', entity_type='UNKNOWN', start_char=88, end_char=223, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Institute', entity_type='UNKNOWN', start_char=136, end_char=178, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='2012', entity_type='UNKNOWN', start_char=108, end_char=133, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Additional', entity_type='UNKNOWN', start_char=72, end_char=142, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='taylorsimms@example.com', entity_type='UNKNOWN', start_char=88, end_char=223, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Professional', entity_type='UNKNOWN', start_char=72, end_char=155, confidence=1.0, page=1, sensitivity=None)"
+      ],
+      "unmatched_ground_truth": [
+        "Entity(text='2013-01', entity_type='DATE_TIME', start_char=892, end_char=899, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2021-05', entity_type='DATE_TIME', start_char=482, end_char=489, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2008', entity_type='DATE_TIME', start_char=371, end_char=375, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2014-09', entity_type='DATE_TIME', start_char=472, end_char=479, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2012', entity_type='DATE_TIME', start_char=379, end_char=382, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Taylor Simms', entity_type='PERSON', start_char=0, end_char=12, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='2011-06', entity_type='DATE_TIME', start_char=1231, end_char=1238, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2030', entity_type='DATE_TIME', start_char=2347, end_char=2351, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='555-123-4567', entity_type='PHONE_NUMBER', start_char=72, end_char=84, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='2014-08', entity_type='DATE_TIME', start_char=902, end_char=909, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2013-01', entity_type='DATE_TIME', start_char=1245, end_char=1252, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)"
+      ],
+      "unmatched_detected": [
+        "Entity(text='Analyzer:', entity_type='UNKNOWN', start_char=175, end_char=224, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Certification', entity_type='UNKNOWN', start_char=159, end_char=241, confidence=1.0, page=1, sensitivity=None)",
+        "Entity(text='Activities', entity_type='UNKNOWN', start_char=146, end_char=209, confidence=1.0, page=1, sensitivity=None)"
+      ]
+    },
+    "match_statistics": {
+      "exact_matches": 0,
+      "partial_matches": 1,
+      "sensitivity_mismatches": 0,
+      "type_mismatches": 0,
+      "unmatched_ground_truth": 11,
+      "unmatched_detected": 3
+    }
+  }
+}
