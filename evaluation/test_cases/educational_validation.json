@@ -1,0 +1,85 @@
+{
+    "educational_validation_tests": [
+        {
+            "text": "Stanford University",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.1,
+            "description": "Valid university name"
+        },
+        {
+            "text": "stanford",
+            "expected_valid": false,
+            "description": "Single word, no capitalization"
+        },
+        {
+            "text": "University of California Berkeley",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Multi-word with 'of'"
+        },
+        {
+            "text": "Academy of Learning",
+            "expected_valid": false,
+            "description": "Generic education term"
+        },
+        {
+            "text": "MIT",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.1,
+            "description": "Valid acronym institution"
+        },
+        {
+            "text": "The Ohio State University",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Institution with 'The' prefix"
+        },
+        {
+            "text": "Harvard Business School",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "School with department"
+        },
+        {
+            "text": "school",
+            "expected_valid": false,
+            "description": "Single lowercase education term"
+        },
+        {
+            "text": "UNIVERSITY OF MICHIGAN",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.1,
+            "description": "All caps institution"
+        },
+        {
+            "text": "École Polytechnique",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.1,
+            "description": "International institution with accents"
+        },
+        {
+            "text": "Rutgers, The State University of New Jersey",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "State university with comma and prefix"
+        },
+        {
+            "text": "University of North Carolina at Greensboro",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "University with location suffix"
+        },
+        {
+            "text": "University of Illinois Urbana-Champaign",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "University with hyphenated campus"
+        },
+        {
+            "text": "California State University, Long Beach",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "State university with campus after comma"
+        }
+    ]
+}

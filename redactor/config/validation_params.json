@@ -1,0 +1,18 @@
+{
+  "educational": {
+    "core_terms": ["university", "college", "institute", "school"],
+    "known_acronyms": ["UCLA", "MIT", "NYU", "USC", "UCI", "UCSB", "UCB"],
+    "confidence_boosts": {
+      "full_name": 0.3,
+      "known_acronym": 0.4
+    },
+    "confidence_penalties": {
+      "no_core_terms": -1.0,
+      "improper_caps": -0.2,
+      "single_word": -0.3,
+      "generic_term": -1.0
+    },
+    "min_words": 2,
+    "generic_terms": ["academy of learning", "education center", "training facility"]
+  }
+}

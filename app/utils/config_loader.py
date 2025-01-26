@@ -1,6 +1,7 @@
 # app/utils/config_loader.py
 
 import yaml
+import json
 from pathlib import Path
 from typing import Dict, Optional, Any, Union
 from app.utils.logger import RedactionLogger
@@ -64,48 +65,69 @@ class ConfigLoader:
     def load_all_configs(self) -> bool:
         """Load all configuration files and store them in the configs dictionary."""
         self.logger.info("Starting configuration loading process...")
-
+    
         # Load main configuration
         main_config_path = self.config_dir / "config.yaml"
         self.logger.debug(f"Loading main config from: {main_config_path}")
-        
+    
         main_config = self._safe_yaml_load(main_config_path)
         if not main_config:
             self.logger.error("Failed to load main configuration - stopping config load")
             return False
-
+    
         self.configs["main"] = main_config
         self.loaded_paths["main"] = main_config_path
-
+    
         # Define and load additional configurations
         config_files = {
             "detection": main_config.get("redaction_patterns_path"),
             "confidential": main_config.get("confidential_terms_path"),
             "word_filters": main_config.get("word_filters_path"),
             "entity_routing": main_config.get("entity_routing_path"),
-            "core_patterns": main_config.get("core_patterns_path")
+            "core_patterns": main_config.get("core_patterns_path"),
+            "validation_params": "redactor/config/validation_params.json"  # Add the JSON config
         }
-
+    
         self.logger.debug("Config paths from main config:")
         for name, path in config_files.items():
             self.logger.debug(f"  {name}: {path}")
-
+    
         for name, path in config_files.items():
             resolved_path = self._resolve_path(path)
             if not resolved_path:
                 self.logger.error(f"Could not resolve path for {name} config")
                 continue
-            self._load_single_config(name, resolved_path)
-
+    
+            # Load YAML or JSON based on file extension
+            if resolved_path.suffix == ".json":
+                self._load_single_json_config(name, resolved_path)
+            else:
+                self._load_single_config(name, resolved_path)
+    
         # Log final loading status
         loaded_configs = [name for name, config in self.configs.items() if config is not None]
         self.logger.info(f"Configuration loading complete. Loaded configs: {loaded_configs}")
         self.logger.debug("Loaded paths:")
         for name, path in self.loaded_paths.items():
             self.logger.debug(f"  {name}: {path}")
-
+    
         return True
 
+    def _load_single_json_config(self, name: str, filepath: Path) -> None:
+        """Load a single JSON configuration file with enhanced error reporting."""
+        try:
+            self.logger.debug(f"Loading {name} configuration from {filepath}")
+            with open(filepath, "r", encoding="utf-8") as file:
+                config_data = json.load(file)
+            self.configs[name] = config_data
+            self.loaded_paths[name] = filepath
+            self.logger.info(f"Successfully loaded {name} configuration")
+            self.logger.debug(f"Config structure for {name}: {type(config_data)}")
+        except Exception as e:
+            self.logger.error(f"Failed to load {name} configuration from {filepath}: {e}")
+
+
+    
     def _resolve_path(self, path_str: Optional[str]) -> Optional[Path]:
         """Resolve relative or absolute file paths with detailed debugging."""
         if not path_str:

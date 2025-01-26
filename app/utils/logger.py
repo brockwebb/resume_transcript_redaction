@@ -1,4 +1,5 @@
 # app/utils/logger.py
+
 import logging
 import sys
 from datetime import datetime
@@ -41,7 +42,8 @@ class RedactionLogger:
             console_output: Whether to output to console
         """
         self.logger = logging.getLogger(name)
-        self.logger.setLevel(getattr(logging, log_level.upper()))
+        numeric_level = getattr(logging, log_level.upper(), logging.INFO)
+        self.logger.setLevel(numeric_level)
         self.logger.propagate = False  # Prevent duplicate logging
 
         # Clear any existing handlers
@@ -60,12 +62,28 @@ class RedactionLogger:
 
         self.info(f"Logger initialized: {name} at {log_level} level")
 
+    def setLevel(self, level: Union[str, int]):
+        """
+        Handle both string levels (e.g., "DEBUG") or numeric (e.g., 10).
+        Makes RedactionLogger compatible with any code calling logger.setLevel(...).
+        """
+        if isinstance(level, str):
+            numeric_level = getattr(logging, level.upper(), None)
+            if not isinstance(numeric_level, int):
+                raise ValueError(f"Invalid log level string: {level}")
+            self.logger.setLevel(numeric_level)
+        elif isinstance(level, int):
+            self.logger.setLevel(level)
+        else:
+            raise ValueError(f"Invalid log level type: {type(level)}")
+
     def _setup_file_handler(self, log_dir: Path, max_size: int, backup_count: int) -> None:
         """Configure rotating file handler."""
         try:
             log_dir.mkdir(parents=True, exist_ok=True)
             log_file = log_dir / f"redaction_{datetime.now():%Y%m%d}.log"
 
+            # Use RotatingFileHandler
             handler = logging.handlers.RotatingFileHandler(
                 filename=str(log_file),
                 maxBytes=max_size,
@@ -76,6 +94,7 @@ class RedactionLogger:
             self.logger.addHandler(handler)
 
         except Exception as e:
+            # If file logging can't be set, don't crash the whole logger
             print(f"Failed to setup file logging: {e}")
 
     def _setup_console_handler(self) -> None:
@@ -84,26 +103,25 @@ class RedactionLogger:
         handler.setFormatter(self.console_formatter)
         self.logger.addHandler(handler)
 
-    # Basic logging methods
-    def debug(self, msg: str, **kwargs: Any) -> None:
-        """Log debug message with optional context."""
-        self.logger.debug(msg, extra=kwargs)
+    # -------------------------------------------------------------------------
+    # Standard logging methods: each must accept `*args` so it can handle
+    # multiple positional arguments like standard Python logging does.
+    # -------------------------------------------------------------------------
+    def debug(self, msg: str, *args, **kwargs: Any) -> None:
+        self.logger.debug(msg, *args, **kwargs)
 
-    def info(self, msg: str, **kwargs: Any) -> None:
-        """Log info message with optional context."""
-        self.logger.info(msg, extra=kwargs)
+    def info(self, msg: str, *args, **kwargs: Any) -> None:
+        self.logger.info(msg, *args, **kwargs)
 
-    def warning(self, msg: str, **kwargs: Any) -> None:
-        """Log warning message with optional context."""
-        self.logger.warning(msg, extra=kwargs)
+    def warning(self, msg: str, *args, **kwargs: Any) -> None:
+        self.logger.warning(msg, *args, **kwargs)
 
-    def error(self, msg: str, **kwargs: Any) -> None:
-        """Log error message with optional context."""
-        self.logger.error(msg, extra=kwargs)
+    def error(self, msg: str, *args, **kwargs: Any) -> None:
+        self.logger.error(msg, *args, **kwargs)
 
-    def critical(self, msg: str, **kwargs: Any) -> None:
-        """Log critical message with optional context."""
-        self.logger.critical(msg, extra=kwargs)
+    def critical(self, msg: str, *args, **kwargs: Any) -> None:
+        self.logger.critical(msg, *args, **kwargs)
+    # -------------------------------------------------------------------------
 
     # Specialized logging methods for redaction operations
     def log_redaction_start(self, file_path: Union[str, Path], config: Dict[str, Any]) -> None:
@@ -130,16 +148,7 @@ class RedactionLogger:
         score: Optional[float] = None,
         entity_type: Optional[str] = None
     ) -> None:
-        """
-        Log pattern matching results.
-
-        Args:
-            pattern_name: Name of the pattern
-            text: Text being analyzed
-            matched: Whether pattern matched
-            score: Optional confidence score
-            entity_type: Type of entity detected
-        """
+        """Log pattern matching results."""
         result = "matched" if matched else "did not match"
         score_info = f" (score: {score:.2f})" if score is not None else ""
         entity_info = f" [{entity_type}]" if entity_type else ""
@@ -160,17 +169,8 @@ class RedactionLogger:
         entities: list,
         processing_time: Optional[float] = None
     ) -> None:
-        """
-        Log entity detection results.
-
-        Args:
-            detector: Name of detector
-            text: Analyzed text
-            entities: Detected entities
-            processing_time: Optional processing time in seconds
-        """
+        """Log entity detection results."""
         time_info = f" (took {processing_time:.3f}s)" if processing_time else ""
-
         self.debug(
             f"{detector} analysis complete{time_info}: '{text}'",
             detector=detector,
@@ -190,14 +190,7 @@ class RedactionLogger:
         context: Dict[str, Any],
         critical: bool = False
     ) -> None:
-        """
-        Log an error with additional context.
-
-        Args:
-            error: The exception that occurred
-            context: Dictionary of contextual information
-            critical: Whether to log as critical instead of error
-        """
+        """Log an error with additional context."""
         log_method = self.critical if critical else self.error
         log_method(
             f"{type(error).__name__}: {str(error)}",
