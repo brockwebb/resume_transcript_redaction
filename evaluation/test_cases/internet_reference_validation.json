@@ -1,0 +1,82 @@
+{
+    "internet_reference_validation_tests": [
+        {
+            "text": "https://www.example.com",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.8,
+            "description": "Standard HTTPS URL"
+        },
+        {
+            "text": "github.com/username",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.9,
+            "description": "GitHub profile without protocol"
+        },
+        {
+            "text": "linkedin.com/in/john-doe",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.9,
+            "description": "LinkedIn profile"
+        },
+        {
+            "text": "@username",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.8,
+            "description": "Twitter handle"
+        },
+        {
+            "text": "www.company.com/products?id=123",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.7,
+            "description": "URL with query parameters"
+        },
+        {
+            "text": "example.com/path/to/resource.html",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.7,
+            "description": "URL with file path"
+        },
+        {
+            "text": "http://subdomain.example.co.uk",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.8,
+            "description": "URL with country subdomain"
+        },
+        {
+            "text": "github.com/user-name/repo-name",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.9,
+            "description": "GitHub repository URL"
+        },
+        {
+            "text": "just@text",
+            "expected_valid": false,
+            "description": "At symbol but not valid handle or URL"
+        },
+        {
+            "text": "http://",
+            "expected_valid": false,
+            "description": "Protocol only"
+        },
+        {
+            "text": ".com",
+            "expected_valid": false,
+            "description": "TLD only"
+        },
+        {
+            "text": "not a url",
+            "expected_valid": false,
+            "description": "Plain text"
+        },
+        {
+            "text": "@",
+            "expected_valid": false,
+            "description": "At symbol only"
+        },
+        {
+            "text": "website",
+            "expected_valid": false,
+            "description": "Single word without domain"
+        }
+    ]
+}

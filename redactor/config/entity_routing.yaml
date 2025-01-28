@@ -11,8 +11,7 @@ routing:
       - ADDRESS
       - EMAIL_ADDRESS
       - PHONE_NUMBER
-      - URL
-      - SOCIAL_MEDIA
+      - INTERNET_REFERENCE 
       - LOCATION
       - GPA
       - EDUCATIONAL_INSTITUTION
@@ -22,8 +21,7 @@ routing:
       EMAIL_ADDRESS: 0.7
       PHONE_NUMBER: 0.8
       DATE_TIME: 0.8  
-      URL: 0.5
-      SOCIAL_MEDIA: 0.7
+      INTERNET_REFERENCE: 0.7
       LOCATION: 0.8
       GPA: 0.9
       EDUCATIONAL_INSTITUTION: 0.8

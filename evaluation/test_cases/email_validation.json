@@ -1,0 +1,71 @@
+{
+    "email_validation_tests": [
+        {
+            "text": "user@example.com",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.8,
+            "description": "Basic email format"
+        },
+        {
+            "text": "first.last@company.co.uk",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.8,
+            "description": "Email with subdomain"
+        },
+        {
+            "text": "user+label@gmail.com",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.9,
+            "description": "Gmail plus addressing"
+        },
+        {
+            "text": "contact@subdomain.company.org",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.8,
+            "description": "Multiple subdomains"
+        },
+        {
+            "text": "email@mit.edu",
+            "expected_valid": true,
+            "min_confidence_adjustment": 1.0,
+            "description": "Educational domain"
+        },
+        {
+            "text": "very.common@example.com",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.8,
+            "description": "Multiple dots in local part"
+        },
+        {
+            "text": "disposable.style.email.with+symbol@example.com",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.7,
+            "description": "Complex local part"
+        },
+        {
+            "text": "user@",
+            "expected_valid": false,
+            "description": "Missing domain part"
+        },
+        {
+            "text": "@domain.com",
+            "expected_valid": false,
+            "description": "Missing local part"
+        },
+        {
+            "text": "user.@domain.com",
+            "expected_valid": false,
+            "description": "Dot at end of local part"
+        },
+        {
+            "text": "user@domain",
+            "expected_valid": false,
+            "description": "Missing top-level domain"
+        },
+        {
+            "text": "user@.com",
+            "expected_valid": false,
+            "description": "Missing domain part before dot"
+        }
+    ]
+}

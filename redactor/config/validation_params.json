@@ -283,6 +283,88 @@
             "office",
             "fax"
         ]
+    },
+    "email_address": {
+        "validation_rules": {
+            "min_chars": 5,
+            "max_length": 254,  
+            "require_at_symbol": true,
+            "require_domain": true,
+            "allow_idn": true,  
+            "allow_plus_addressing": true  
+        },
+        "confidence_boosts": {
+            "proper_format": 0.2,
+            "known_domain": 0.1,
+            "has_context": 0.1
+        },
+        "confidence_penalties": {
+            "invalid_format": -0.3,
+            "suspicious_pattern": -0.2,
+            "excessive_length": -0.2
+        },
+        "known_domains": [
+            "gmail.com",
+            "yahoo.com",
+            "hotmail.com",
+            "outlook.com",
+            "aol.com",
+            "edu",
+            "gov",
+            "mil"
+        ],
+        "patterns": {
+            "basic": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+            "strict": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+        }
+    },
+    "internet_reference": {
+        "validation_rules": {
+            "min_chars": 4,
+            "max_length": 2048,
+            "allow_fragments": true,
+            "require_valid_format": true,
+            "allow_non_ascii": true
+        },
+        "confidence_boosts": {
+            "has_protocol": 0.1,
+            "known_platform": 0.2,
+            "proper_format": 0.1,
+            "has_context": 0.1
+        },
+        "confidence_penalties": {
+            "invalid_format": -0.3,
+            "suspicious_pattern": -0.2,
+            "excessive_length": -0.2
+        },
+        "known_platforms": {
+            "social": [
+                "twitter.com",
+                "github.com",
+                "linkedin.com",
+                "facebook.com",
+                "instagram.com"
+            ],
+            "common_domains": [
+                "google.com",
+                "microsoft.com",
+                "apple.com",
+                "amazon.com"
+            ]
+        },
+        "validation_types": {
+            "url": {
+                "require_tld": true,
+                "require_scheme": false,
+                "allowed_schemes": ["http", "https"]
+            },
+            "social_handle": {
+                "require_prefix": true,
+                "max_length": 30,
+                "allowed_chars": "A-Za-z0-9_-"
+            }
+        }
     }
 }
+
 

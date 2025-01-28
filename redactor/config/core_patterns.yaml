@@ -54,6 +54,27 @@ phone_patterns:
     score: 0.75
     examples: ["(123) 456-7890 ext 123"]
 
+internet_reference_patterns:
+  - name: "social_handle"
+    regex: '@[A-Za-z0-9_]{1,19}$'
+    score: 0.8
+    examples: ["@username", "@user_name"]
+    
+  - name: "github_reference"
+    regex: "\\b(?:https?://)?(?:www\\.)?github\\.com/[\\w-]+/?\\b"
+    score: 0.9
+    examples: ["github.com/username"]
+
+  - name: "linkedin_reference"
+    regex: "\\b(?:https?://)?(?:www\\.)?linkedin\\.com/(?:in|pub)/[\\w-]+/?\\b"
+    score: 0.9
+    examples: ["linkedin.com/in/username"]
+    
+  - name: "standard_url"
+    regex: "\\b(?:https?://)?(?:www\\.)?[\\w-]+(?:\\.[\\w-]+)+(?:/[\\w-]*)*/?\\b"
+    score: 0.7
+    examples: ["https://example.com", "www.website.org/path"]
+
 educational_institution_patterns:
  - name: "university_name"
    regex: '\b(?:[A-Z][a-z]+(?:\s+(?:of|the|and|&|\w+))*\s+)?(?:University|College|Institute|School)\b|\b(?:[A-Z][a-z]+\s+){1,3}(?:University|College|Institute|School)\b'
@@ -85,23 +106,6 @@ gpa_patterns:
     regex: '\b(?:GPA|Grade[ -]?Point[ -]?Average)[\s:\-–—]*([0-3](?:\.[0-9]{1,2})?|4(?:\.0{1,2})?)[/\s-]*4(?:\.0{1,2})?\b'
     score: 0.75
     examples: ["GPA: 3.9/4.0", "GPA 3.5 - 4.0", "Grade Point Average 4.0 / 4.0"]
-
-
-social_media_patterns:
-  - name: "twitter_handle"
-    regex: '@[A-Za-z0-9_]{1,19}$'
-    score: 0.7
-    examples: ["@username", "@user_name"]
-    
-  - name: "github_profile"
-    regex: "\\b(?:https?://)?(?:www\\.)?github\\.com/[\\w-]+/?\\b"
-    score: 0.9
-    examples: ["github.com/username"]
-
-  - name: "linkedin_profile"
-    regex: "\\b(?:https?://)?(?:www\\.)?linkedin\\.com/(?:in|pub)/[\\w-]+/?\\b"
-    score: 0.9
-    examples: ["linkedin.com/in/username"]
 
 ssn_patterns:
   - name: "us_ssn"
@@ -214,12 +218,22 @@ context_words:
     - "grade point average"
     - "academic performance"
     - "academic standing"
-  social_media:
+context_words:
+  internet_reference:
+    - "website"
+    - "link"
+    - "url"
+    - "profile"
+    - "handle"
     - "twitter"
     - "github"
     - "linkedin"
+    - "social"
+    - "follow"
+    - "connect"
+    - "web"
+    - "visit"
     - "social media"
-    - "profile"
     - "handle"
     - "facebook"
     - "instagram"

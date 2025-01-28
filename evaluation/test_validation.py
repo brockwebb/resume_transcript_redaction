@@ -319,3 +319,140 @@ class TestPhoneValidation(BaseEntityValidationTest):
                     f"Expected at least {round(case['min_confidence_adjustment'], 2)}, got {confidence_change}. "
                     f"Validation reasons: {detector.last_validation_reasons}"
                 )
+
+class TestEmailValidation(BaseEntityValidationTest):
+    """Test validation rules for email addresses"""
+    
+    def _get_detector(self):
+        return PresidioDetector(self.config_loader, self.logger)
+        
+    def test_email_validation(self, setup_detector):
+        """Test email validation with different cases"""
+        detector = setup_detector
+        test_cases = self._load_test_cases("email_validation.json")["email_validation_tests"]
+        
+        for test_case in test_cases:
+            text = test_case['text']
+            entity = Entity(
+                text=text,
+                entity_type="EMAIL_ADDRESS",
+                start=0,
+                end=len(text),
+                confidence=0.7,
+                source="test"
+            )
+
+            is_valid = detector._validate_email_address(entity, text)
+            
+            if test_case['expected_valid']:
+                assert is_valid, f"Failed to validate valid email: {text}"
+                if 'min_confidence_adjustment' in test_case:
+                    assert entity.confidence >= test_case['min_confidence_adjustment'], \
+                        f"Confidence too low for {text}: {entity.confidence}"
+            else:
+                assert not is_valid, f"Failed to reject invalid email: {text}"
+
+    def test_email_context_boost(self, setup_detector):
+        """Test that email validation considers context"""
+        detector = setup_detector
+        text = "Contact: user@example.com"
+        entity = Entity(
+            text="user@example.com",
+            entity_type="EMAIL_ADDRESS",
+            start=9,
+            end=24,
+            confidence=0.7,
+            source="test"
+        )
+
+        initial_confidence = entity.confidence
+        is_valid = detector._validate_email_address(entity, text)
+        assert is_valid
+        assert entity.confidence > initial_confidence, "Context boost not applied"
+
+
+class TestInternetReferenceValidation(BaseEntityValidationTest):
+    """Test validation rules for internet references"""
+    
+    def _get_detector(self):
+        return PresidioDetector(self.config_loader, self.logger)
+        
+    def test_internet_reference_validation(self, setup_detector):
+        """Test internet reference validation with different cases"""
+        detector = setup_detector
+        test_cases = self._load_test_cases("internet_reference_validation.json")["internet_reference_validation_tests"]
+        
+        for test_case in test_cases:
+            text = test_case['text']
+            entity = Entity(
+                text=text,
+                entity_type="INTERNET_REFERENCE",
+                start=0,
+                end=len(text),
+                confidence=0.7,
+                source="test"
+            )
+
+            is_valid = detector._validate_internet_reference(entity, text)
+            
+            if test_case['expected_valid']:
+                assert is_valid, f"Failed to validate valid reference: {text}"
+                if 'min_confidence_adjustment' in test_case:
+                    assert round(entity.confidence, 2) >= test_case['min_confidence_adjustment'], \
+                        f"Confidence too low for {text}: {round(entity.confidence, 2)}"
+            else:
+                assert not is_valid, f"Failed to reject invalid reference: {text}"
+
+    def test_social_handle_context(self, setup_detector):
+        """Test that social handle validation considers context"""
+        detector = setup_detector
+        text = "Follow me on Twitter: @username"
+        entity = Entity(
+            text="@username",
+            entity_type="INTERNET_REFERENCE",
+            start=20,
+            end=29,
+            confidence=0.7,
+            source="test"
+        )
+
+        initial_confidence = entity.confidence
+        is_valid = detector._validate_internet_reference(entity, text)
+        assert is_valid
+        assert entity.confidence > initial_confidence, "Context boost not applied"
+
+    def test_url_context(self, setup_detector):
+        """Test that URL validation considers context"""
+        detector = setup_detector
+        text = "Visit our website: https://example.com"
+        entity = Entity(
+            text="https://example.com",
+            entity_type="INTERNET_REFERENCE",
+            start=17,
+            end=35,
+            confidence=0.7,
+            source="test"
+        )
+
+        initial_confidence = entity.confidence
+        is_valid = detector._validate_internet_reference(entity, text)
+        assert is_valid
+        assert entity.confidence > initial_confidence, "Context boost not applied"
+
+    def test_known_platform_boost(self, setup_detector):
+        """Test confidence boost for known platforms"""
+        detector = setup_detector
+        text = "github.com/username"
+        entity = Entity(
+            text=text,
+            entity_type="INTERNET_REFERENCE",
+            start=0,
+            end=len(text),
+            confidence=0.7,
+            source="test"
+        )
+
+        initial_confidence = entity.confidence
+        is_valid = detector._validate_internet_reference(entity, text)
+        assert is_valid
+        assert entity.confidence > initial_confidence, "Known platform boost not applied"

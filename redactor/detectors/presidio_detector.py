@@ -8,7 +8,6 @@ from .custom_recognizers import (
     ConfigDrivenEducationalInstitutionRecognizer,
     ConfigDrivenGpaRecognizer,
     ConfigDrivenLocationRecognizer,
-    ConfigDrivenSocialMediaRecognizer
 )
 import re
 from redactor.validation.validation_rules import EntityValidationRules 
@@ -23,8 +22,6 @@ class PresidioDetector(BaseDetector):
         self.entity_types = {}
         self.ignore_date_words = []
         self.ignore_phrases = []
-        self.social_media_patterns = []
-        self.social_context_words = []
         
         # Initialize base class
         super().__init__(config_loader, logger)
@@ -61,8 +58,6 @@ class PresidioDetector(BaseDetector):
             
             self.logger.debug(f"Loaded ignore phrases: {self.ignore_phrases}")
             self.logger.debug(f"Loaded date ignore words: {self.ignore_date_words}")
-            self.logger.debug(f"Loaded social media patterns: {self.social_media_patterns}")
-            self.logger.debug(f"Loaded social media context words: {self.social_context_words}")
         except Exception as e:
             self.logger.error(f"Failed to load configurations: {str(e)}")
 
@@ -82,7 +77,7 @@ class PresidioDetector(BaseDetector):
             self.analyzer.registry.add_recognizer(ConfigDrivenPhoneRecognizer(self.config_loader, self.logger))
             self.analyzer.registry.add_recognizer(ConfigDrivenEducationalInstitutionRecognizer(self.config_loader, self.logger))
             self.analyzer.registry.add_recognizer(ConfigDrivenGpaRecognizer(self.config_loader, self.logger))
-            self.analyzer.registry.add_recognizer(ConfigDrivenSocialMediaRecognizer(self.config_loader, self.logger))
+            
             self.analyzer.registry.add_recognizer(ConfigDrivenSsnRecognizer(self.config_loader, self.logger))
 
             recognizers = self.analyzer.get_recognizers()
@@ -218,17 +213,8 @@ class PresidioDetector(BaseDetector):
                         entity.metadata["weighted_confidence"] = entity.confidence
                         self.logger.debug(
                             f"Adjusted date confidence with weight {presidio_weight}: {entity.confidence}"
-                        )
-                
-                
-                # Reclassify URL as SOCIAL_MEDIA if applicable
-                if entity.entity_type == "URL":
-                    reclassified_type = self._reclassify_url_as_social_media(entity.text, text)
-                    if reclassified_type:
-                        self.logger.debug(
-                            f"Entity '{entity.text}' reclassified from 'URL' to '{reclassified_type}'."
-                        )
-                        entity.entity_type = reclassified_type
+                        )            
+               
 
                 # Validate detection
                 if self.validate_detection(entity, text):
@@ -338,7 +324,33 @@ class PresidioDetector(BaseDetector):
                     f"Phone validation passed. Confidence adjusted from {initial_confidence} "
                     f"to {entity.confidence}"
                 )
-    
+
+            # Email address validation
+            elif entity.entity_type == "EMAIL_ADDRESS":
+                initial_confidence = entity.confidence
+                self.logger.debug(f"Applying email validation rules to: {entity.text}")
+                is_valid = self._validate_email_address(entity, full_text)
+                if not is_valid:
+                    self.logger.debug(f"Email validation failed: {'; '.join(self.last_validation_reasons)}")
+                    return False
+                self.logger.debug(
+                    f"Email validation passed. Confidence adjusted from {initial_confidence} "
+                    f"to {entity.confidence}"
+                )
+
+            # Internet reference validation
+            elif entity.entity_type == "INTERNET_REFERENCE":
+                initial_confidence = entity.confidence
+                self.logger.debug(f"Applying internet reference validation rules to: {entity.text}")
+                is_valid = self._validate_internet_reference(entity, full_text)
+                if not is_valid:
+                    self.logger.debug(f"Internet reference validation failed: {'; '.join(self.last_validation_reasons)}")
+                    return False
+                self.logger.debug(
+                    f"Internet reference validation passed. Confidence adjusted from {initial_confidence} "
+                    f"to {entity.confidence}"
+                )
+            
             # All validations passed
             return True
     
@@ -766,50 +778,6 @@ class PresidioDetector(BaseDetector):
 
         return False
 
-    def _reclassify_url_as_social_media(self, url: str, full_text: str) -> Optional[str]:
-        """Reclassify a URL as SOCIAL_MEDIA if it matches patterns or context."""
-        try:
-            # First check if URL matches any social media patterns
-            for pattern in self.social_media_patterns:
-                if not pattern.get("regex"):
-                    continue
-                    
-                try:
-                    if re.search(pattern["regex"], url, re.IGNORECASE):
-                        self.logger.debug(
-                            f"URL '{url}' matches social media pattern: {pattern.get('name', 'Unnamed')}"
-                        )
-                        return "SOCIAL_MEDIA"
-                except re.error as e:
-                    self.logger.error(f"Invalid regex pattern {pattern['regex']}: {str(e)}")
-                    continue
-    
-            # Then check context words in surrounding text
-            text_lower = full_text.lower()
-            for word in self.social_context_words:
-                word_lower = word.lower()
-                # Look for word boundaries to avoid partial matches
-                pattern = r'\b' + re.escape(word_lower) + r'\b'
-                if re.search(pattern, text_lower):
-                    # Check if context word is near the URL (within 100 characters)
-                    url_pos = text_lower.find(url.lower())
-                    if url_pos != -1:
-                        # Get surrounding text window
-                        start = max(0, url_pos - 100)
-                        end = min(len(text_lower), url_pos + len(url) + 100)
-                        window = text_lower[start:end]
-                        
-                        if re.search(pattern, window):
-                            self.logger.debug(
-                                f"URL '{url}' reclassified as SOCIAL_MEDIA due to nearby context word: '{word}'"
-                            )
-                            return "SOCIAL_MEDIA"
-    
-            return None
-    
-        except Exception as e:
-            self.logger.error(f"Error reclassifying URL '{url}': {str(e)}")
-            return None
 
     def _get_date_confidence_boost(self, entity: Entity) -> float:
         """Calculate confidence boost for date entities based on recognition metadata."""
@@ -871,3 +839,216 @@ class PresidioDetector(BaseDetector):
         except Exception as e:
             self.logger.error(f"Error in date format validation: {e}")
             return False
+
+    def _validate_email_address(self, entity: Entity, text: str) -> bool:
+        """
+        Validate email address entities using configuration-based rules.
+        Must be called from validate_detection method.
+        """
+        if not entity.text:
+            return False
+    
+        email_config = self.config_loader.get_config("validation_params").get("email_address", {})
+        if not email_config:
+            self.logger.error("Missing email validation configuration")
+            return False
+    
+        text_lower = entity.text.lower()
+        reasons = []
+        
+        # Get configs
+        validation_rules = email_config.get("validation_rules", {})
+        confidence_boosts = email_config.get("confidence_boosts", {})
+        confidence_penalties = email_config.get("confidence_penalties", {})
+        known_domains = set(d.lower() for d in email_config.get("known_domains", []))
+        patterns = email_config.get("patterns", {})
+    
+        # Basic length validation
+        if len(entity.text) < validation_rules.get("min_chars", 5):
+            reasons.append("Email too short")
+            self.last_validation_reasons = reasons
+            return False
+    
+        if len(entity.text) > validation_rules.get("max_length", 254):
+            penalty = confidence_penalties.get("excessive_length", -0.2)
+            entity.confidence += penalty
+            reasons.append(f"Email too long: {penalty}")
+            self.last_validation_reasons = reasons
+            return False
+    
+        # Must have exactly one @
+        if text_lower.count('@') != 1:
+            reasons.append("Invalid @ symbol count")
+            self.last_validation_reasons = reasons
+            return False
+    
+        # Split into local and domain parts
+        try:
+            local_part, domain_part = text_lower.split('@')
+        except ValueError:
+            reasons.append("Invalid email format")
+            self.last_validation_reasons = reasons
+            return False
+    
+        # Validate local part
+        if not local_part or local_part.startswith('.') or local_part.endswith('.'):
+            reasons.append("Invalid local part")
+            self.last_validation_reasons = reasons
+            return False
+    
+        # Allow plus addressing if configured
+        if '+' in local_part and not validation_rules.get("allow_plus_addressing", True):
+            reasons.append("Plus addressing not allowed")
+            self.last_validation_reasons = reasons
+            return False
+    
+        # Validate domain part
+        if not domain_part or '.' not in domain_part:
+            reasons.append("Invalid domain part")
+            self.last_validation_reasons = reasons
+            return False
+    
+        # Check against basic pattern first
+        import re
+        basic_pattern = patterns.get("basic", "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+        if not re.match(basic_pattern, entity.text):
+            reasons.append("Does not match basic email pattern")
+            self.last_validation_reasons = reasons
+            return False
+    
+        # Apply confidence adjustments
+        # Check for proper format
+        strict_pattern = patterns.get("strict")
+        if strict_pattern and re.match(strict_pattern, entity.text):
+            boost = confidence_boosts.get("proper_format", 0.2)
+            entity.confidence += boost
+            reasons.append(f"Matches strict format: +{boost}")
+    
+        # Known domain boost
+        domain_parts = domain_part.split('.')
+        if any(part in known_domains for part in domain_parts):
+            boost = confidence_boosts.get("known_domain", 0.1)
+            entity.confidence += boost
+            reasons.append(f"Known domain: +{boost}")
+    
+        # Context boost
+        context_words = {"email", "contact", "mail", "e-mail", "@"}
+        text_lower = text.lower()
+        if any(word in text_lower for word in context_words):
+            boost = confidence_boosts.get("has_context", 0.1)
+            entity.confidence += boost
+            reasons.append(f"Found email context: +{boost}")
+    
+        self.last_validation_reasons = reasons
+        return True
+
+    def _validate_internet_reference(self, entity: Entity, text: str) -> bool:
+        """
+        Validate internet reference entities (URLs and social media) using configuration-based rules.
+        Must be called from validate_detection method.
+        """
+        if not entity.text:
+            return False
+    
+        config = self.config_loader.get_config("validation_params").get("internet_reference", {})
+        if not config:
+            self.logger.error("Missing internet reference validation configuration")
+            return False
+    
+        text_lower = entity.text.lower()
+        reasons = []
+    
+        # Get configs
+        validation_rules = config.get("validation_rules", {})
+        confidence_boosts = config.get("confidence_boosts", {})
+        confidence_penalties = config.get("confidence_penalties", {})
+        known_platforms = config.get("known_platforms", {})
+        validation_types = config.get("validation_types", {})
+    
+        # Basic length validation
+        if len(entity.text) < validation_rules.get("min_chars", 4):
+            reasons.append("Reference too short")
+            self.last_validation_reasons = reasons
+            return False
+    
+        if len(entity.text) > validation_rules.get("max_length", 2048):
+            penalty = confidence_penalties.get("excessive_length", -0.2)
+            entity.confidence += penalty
+            reasons.append(f"Reference too long: {penalty}")
+            self.last_validation_reasons = reasons
+            return False
+    
+        import re
+    
+        # Check if it's a social media handle
+        if text_lower.startswith('@'):
+            # Validate handle format
+            handle_rules = validation_types.get("social_handle", {})
+            handle_pattern = f"^@[{handle_rules.get('allowed_chars', 'A-Za-z0-9_-')}]+$"
+            max_length = handle_rules.get("max_length", 30)
+    
+            if not re.match(handle_pattern, entity.text):
+                reasons.append("Invalid handle format")
+                self.last_validation_reasons = reasons
+                return False
+    
+            if len(entity.text) > max_length:
+                penalty = confidence_penalties.get("excessive_length", -0.2)
+                entity.confidence += penalty
+                reasons.append(f"Handle too long: {penalty}")
+                self.last_validation_reasons = reasons
+                return False
+    
+            # Handle format boost
+            boost = confidence_boosts.get("proper_format", 0.1)
+            entity.confidence += boost
+            reasons.append(f"Valid handle format: +{boost}")
+    
+        else:
+            # Validate as URL
+            url_rules = validation_types.get("url", {})
+            
+            # Basic URL pattern
+            url_pattern = (
+                r'^(?:https?:\/\/)?'  # Optional protocol
+                r'(?:[\w-]+\.)+[a-zA-Z]{2,}'  # Domain
+                r'(?:\/[^\s]*)?$'  # Optional path
+            )
+    
+            if not re.match(url_pattern, text_lower):
+                reasons.append("Invalid URL format")
+                self.last_validation_reasons = reasons
+                return False
+    
+            # Protocol boost
+            if text_lower.startswith(('http://', 'https://')):
+                boost = confidence_boosts.get("has_protocol", 0.1)
+                entity.confidence += boost
+                reasons.append(f"Has protocol: +{boost}")
+    
+        # Check for known platforms
+        social_platforms = set(p.lower() for p in known_platforms.get("social", []))
+        common_domains = set(d.lower() for d in known_platforms.get("common_domains", []))
+        
+        if any(platform in text_lower for platform in social_platforms):
+            boost = confidence_boosts.get("known_platform", 0.2)
+            entity.confidence += boost
+            reasons.append(f"Known social platform: +{boost}")
+        elif any(domain in text_lower for domain in common_domains):
+            boost = confidence_boosts.get("known_platform", 0.1)
+            entity.confidence += boost
+            reasons.append(f"Known domain: +{boost}")
+    
+        # Context boost
+        context_words = {
+            "website", "link", "url", "profile", "handle", "twitter", "github",
+            "linkedin", "social", "follow", "connect", "web", "visit"
+        }
+        text_lower = text.lower()
+        if any(word in text_lower for word in context_words):
+            boost = confidence_boosts.get("has_context", 0.1)
+            entity.confidence += boost
+            reasons.append(f"Found web context: +{boost}")
+    
+        self.last_validation_reasons = reasons
+        return True
