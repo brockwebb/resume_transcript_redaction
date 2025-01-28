@@ -1,0 +1,115 @@
+{
+    "protected_class_validation_tests": [
+        {
+            "text": "Women in Science",
+            "context": "Member of Women in Science",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Gender-specific professional organization"
+        },
+        {
+            "text": "Women's Leadership Network",
+            "context": "Chair of Women's Leadership Network",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Gender-specific leadership group"
+        },
+        {
+            "text": "Trans in Tech",
+            "context": "Founded Trans in Tech group",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Gender identity organization"
+        },
+        {
+            "text": "Pronouns: (she/her)",
+            "context": "",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Pronoun with explicit label"
+        },
+        {
+            "text": "transgender",
+            "context": "Identifies as transgender",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Gender identity with context"
+        },
+        {
+            "text": "Muslim",
+            "context": "Practicing Muslim faith",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Religious identity with context"
+        },
+        {
+            "text": "Asian",
+            "context": "Asian descent",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Racial identity with context"
+        },
+        {
+            "text": "LGBTQIA+",
+            "context": "Active in LGBTQIA+ advocacy",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Orientation with advocacy context"
+        },
+        {
+            "text": "Hispanic",
+            "context": "food",
+            "expected_valid": false,
+            "description": "Race term without identity context"
+        },
+        {
+            "text": "(they/them)",
+            "context": "Bio",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Basic parenthetical pronouns"
+        },
+        {
+            "text": "Pronouns (she/her)",
+            "context": "",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Word plus parenthetical"
+        },
+        {
+            "text": "(he/him/his)",
+            "context": "",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Parenthetical pronouns"
+        },
+        {
+            "text": "My pronouns: xe/xem",
+            "context": "",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Full pronoun disclosure"
+        },
+        {
+            "text": "Muslim Student Association",
+            "context": "President of Muslim Student Association",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Religious organization membership"
+        },
+        {
+            "text": "Jewish Law Students",
+            "context": "Member of Jewish Law Students",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Religious professional group"
+        },
+        {
+            "text": "Christian Fellowship",
+            "context": "Leading Christian Fellowship meetings",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Religious group leadership"
+        }
+    ]
+}

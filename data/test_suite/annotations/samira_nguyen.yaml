@@ -25,7 +25,7 @@ entities:
     end_char: 104
   sensitivity: high
 - text: github.com/samira-nguyen
-  type: SOCIAL_MEDIA
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
@@ -49,7 +49,7 @@ entities:
     end_char: 186
   sensitivity: medium
 - text: 987654321UK
-  type: PASSPORT_NUMBER
+  type: OTHER_ID
   should_redact: true
   location:
     page: 1
@@ -153,7 +153,7 @@ entities:
     end_char: 76
   sensitivity: medium
 - text: Mentor, Women in Science and Engineering (WISE) UK
-  type: ACTIVITY
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
@@ -161,7 +161,7 @@ entities:
     end_char: 792
   sensitivity: medium
 - text: 'Travel Restrictions: Requires visa support for non-EU countries'
-  type: RESTRICTIONS
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2

@@ -336,3 +336,106 @@ class EnsembleCoordinator:
     def _get_span_key(entity: Entity) -> Tuple[int, int]:
         """Get a unique key for an entity span."""
         return (entity.start, entity.end)
+
+    def _combine_protected_phi_entities(self, presidio_ent: Entity, spacy_ent: Entity) -> Optional[Entity]:
+        """Combine protected class or PHI detections."""
+        try:
+            config = self.entity_configs.get(presidio_ent.entity_type, {})
+            weights = config.get('weights', {'presidio': 0.4, 'spacy': 0.6})
+            
+            combined_confidence = (
+                presidio_ent.confidence * weights['presidio'] +
+                spacy_ent.confidence * weights['spacy']
+            ) * 1.2  # Apply boost for multiple detectors
+            
+            min_combined = config.get('minimum_combined', 0.8)
+            if combined_confidence < min_combined:
+                if self.logger:
+                    self.logger.debug(f"Combined confidence {combined_confidence} below threshold {min_combined}")
+                return None
+                    
+            base_ent = (
+                presidio_ent 
+                if (presidio_ent.end - presidio_ent.start) >= (spacy_ent.end - spacy_ent.start)
+                else spacy_ent
+            )
+            
+            return Entity(
+                text=base_ent.text,
+                entity_type=base_ent.entity_type,
+                confidence=combined_confidence,
+                start=base_ent.start,
+                end=base_ent.end,
+                source="ensemble",
+                metadata={
+                    "presidio_confidence": presidio_ent.confidence,
+                    "spacy_confidence": spacy_ent.confidence,
+                    "weights_used": weights
+                }
+            )
+                
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error combining entities: {str(e)}")
+            return None
+
+    def _process_ensemble_entities(
+        self,
+        presidio_entities: List[Entity],
+        spacy_entities: List[Entity]
+    ) -> List[Entity]:
+        """Process entities requiring ensemble validation."""
+        ensemble_results = []
+        processed_spans = set()
+        
+        try:
+            # Get ensemble candidates
+            presidio_candidates = {
+                self._get_span_key(e): e 
+                for e in presidio_entities 
+                if e.entity_type in self.ensemble_entities
+            }
+            spacy_candidates = {
+                self._get_span_key(e): e 
+                for e in spacy_entities 
+                if e.entity_type in self.ensemble_entities
+            }
+            
+            # Process overlapping detections
+            for span_key, presidio_ent in presidio_candidates.items():
+                if span_key in spacy_candidates:
+                    spacy_ent = spacy_candidates[span_key]
+                    
+                    # Special handling for protected class and PHI
+                    if presidio_ent.entity_type in ['PROTECTED_CLASS', 'PHI']:
+                        combined = self._combine_protected_phi_entities(
+                            presidio_ent, spacy_ent
+                        )
+                    else:
+                        combined = self._combine_entities(presidio_ent, spacy_ent)
+                        
+                    if combined:
+                        ensemble_results.append(combined)
+                        processed_spans.add(span_key)
+            
+            # Add high-confidence individual detections
+            for source, candidates in [('presidio', presidio_candidates), ('spacy', spacy_candidates)]:
+                for span_key, entity in candidates.items():
+                    if span_key not in processed_spans:
+                        config = self.entity_configs.get(entity.entity_type, {})
+                        min_confidence = config.get('minimum_individual', self.min_individual_confidence)
+                        
+                        # Higher confidence threshold for protected/PHI standalone detections
+                        if entity.entity_type in ['PROTECTED_CLASS', 'PHI']:
+                            min_confidence = max(min_confidence, 0.85)
+                            
+                        if entity.confidence >= min_confidence:
+                            ensemble_results.append(entity)
+                            processed_spans.add(span_key)
+            
+            return ensemble_results
+            
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error processing ensemble entities: {str(e)}")
+            return []

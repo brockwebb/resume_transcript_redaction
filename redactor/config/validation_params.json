@@ -364,7 +364,139 @@
                 "allowed_chars": "A-Za-z0-9_-"
             }
         }
+    },
+    "protected_class": {
+        "validation_rules": {
+            "min_chars": 3,
+            "min_words": 1,
+            "require_context": true,
+            "min_context_words": 2,
+            "allow_acronyms": true
+        },
+        "confidence_boosts": {
+            "has_context": 0.2,
+            "gender_context_match": 0.3,
+            "proper_format": 0.1,
+            "multiple_words": 0.1
+        },
+        "confidence_penalties": {
+            "no_context": -0.4,
+            "ambiguous_term": -0.2,
+            "generic_term": -0.3
+        },
+        "categories": {
+            "gender_patterns": {
+                "org_membership": "\\b(?:(?:Women|Men|Gender|Trans)\\s+(?:in|for|of)\\s+[A-Z][a-zA-Z\\s]+)\\b",
+                "gender_terms": ["women", "men", "female", "male", "transgender", "trans", "nonbinary", "gender"],
+                "org_context": ["member", "chair", "president", "founder", "leader", "representative", "coordinator"]
+            },
+            "orientation": [
+                "lgbtqia+", "gay", "lesbian", "bisexual", "queer", "asexual"
+            ],
+            "race_ethnicity": [
+                "african american", "asian", "hispanic", "latino",
+                "pacific islander", "white", "caucasian", "black", "indigenous"
+            ],
+            "religion": [
+                "christian", "muslim", "jewish", "buddhist", "hindu", "sikh", "atheist"
+            ],
+            "pronoun_indicators": [
+                "pronouns:", "pronoun:", "preferred pronouns:", "my pronouns:", "(", "["
+            ],
+            "pronoun_patterns": {
+                "full_disclosure": "\\b(?:pronouns?:?\\s*(?:\\(|\\[)?)[\\w/]+(?:\\)|\\])?\\b",
+                "parenthetical": "(?:\\(|\\[)[\\w/]+(?:\\)|\\])",
+                "colon_format": "\\b(?:pronouns?:?\\s*)[\\w/]+"
+            }
+        },
+        "religious_patterns": {
+            "org_membership": {
+                "regex": "\\b(?:(?:Muslim|Jewish|Christian|Buddhist|Hindu|Sikh)\\s+(?:Student|Law|Medical|Business|Professional|Fellowship|Association|Society|Group))\\b",
+                "boost": 0.2
+            },
+            "religious_terms": [
+                "worship", "prayer", "faith", "religious", "spiritual",
+                "congregation", "temple", "mosque", "synagogue", "church"
+            ],
+            "leadership_roles": [
+                "leader", "president", "chair", "coordinator",
+                "representative", "founder", "organizer"
+            ],
+            "practice_context": [
+                "practicing", "observant", "devout", "active",
+                "member", "participate", "attend"
+            ]
+        }
+    },
+    "phi": {
+        "validation_rules": {
+            "min_chars": 3,
+            "min_words": 1,
+            "require_context": true,
+            "min_context_words": 2,
+            "allow_acronyms": true
+        },
+        "confidence_boosts": {
+            "has_medical_context": 0.3,
+            "condition_specific_match": 0.4,
+            "explicit_condition_disclosure": 0.2
+        },
+        "confidence_penalties": {
+            "no_context": -0.4,
+            "ambiguous_term": -0.3,
+            "generic_medical_term": -0.2
+        },
+        "categories": {
+            "medical_conditions": [
+                "diabetes", "hypertension", "asthma", "adhd", "anxiety disorder",
+                "depression", "bipolar disorder", "arthritis", "cancer",
+                "epilepsy", "autism", "schizophrenia", "stroke", "dementia"
+            ],
+            "treatments": [
+                "insulin pump", "medication", "therapy", "surgery", "treatment",
+                "rehabilitation", "prescription", "antibiotics", "chemotherapy",
+                "radiation", "antidepressants"
+            ],
+            "disabilities": [
+                "wheelchair", "hearing aid", "prosthetic", "service animal",
+                "visual impairment", "mobility issues", "disability",
+                "reasonable accommodation", "assistive device"
+            ],
+            "medical_procedures": [
+                "blood test", "x-ray", "MRI", "CT scan", "vaccination", "surgery",
+                "biopsy", "ultrasound", "diagnosis", "screening"
+            ]
+        },
+        "patterns": {
+            "specific_conditions": {
+                "regex": "\\b(?:Type\\s*1|Type\\s*2)\\s+diabetes\\b",
+                "boost": 0.3
+            },
+            "medication_patterns": {
+                "regex": "\\b(?:taking|prescribed)\\s+medication\\b",
+                "boost": 0.2
+            },
+            "procedure_context": {
+                "regex": "\\b(?:undergoing|scheduled\\s+for|recent)\\s+(?:procedure|treatment)\\b",
+                "boost": 0.2
+            },
+            "treatment_keywords": {
+            "regex": "\\b(?:therapy|treatment|medication|diagnosed\\s+with)\\b",
+            "boost": 0.2
+            }
+        },
+        "context_words": [
+            "medical", "diagnosed", "treatment", "condition", "disability", "prescription",
+            "illness", "therapy", "healthcare", "health", "clinical", "diagnosis"
+        ],
+        "confidence_adjustments": {
+            "has_diagnosis_context": 0.2,
+            "explicit_condition_disclosure": 0.3,
+            "false_positive_context": -0.4
+        }
     }
 }
+
+
 
 

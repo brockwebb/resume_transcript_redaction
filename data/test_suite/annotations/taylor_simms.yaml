@@ -1,4 +1,4 @@
-file_name: taylor_simms_corrected
+file_name: taylor_simms
 entities:
 - text: Taylor Simms
   type: PERSON
@@ -25,7 +25,7 @@ entities:
     end_char: 142
   sensitivity: high
 - text: linkedin.com/in/taylorsimms
-  type: SOCIAL_MEDIA
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1

@@ -41,7 +41,7 @@ entities:
     end_char: 134
   sensitivity: high
 - text: linkedin.com/in/alexisrivera-tech
-  type: URL
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
@@ -49,7 +49,7 @@ entities:
     end_char: 178
   sensitivity: medium
 - text: "@alexis_rivera_dev"
-  type: SOCIAL_MEDIA
+  type: INTERNET_REFERENCEA
   should_redact: true
   location:
     page: 1
@@ -143,7 +143,7 @@ entities:
     end_char: 680
   sensitivity: medium
 - text: Women in Data Science (WiDS) initiative
-  type: DEMOGRAPHIC
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
@@ -151,7 +151,7 @@ entities:
     end_char: 1016
   sensitivity: medium
 - text: UnidosUS
-  type: DEMOGRAPHIC
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2

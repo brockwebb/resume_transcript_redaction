@@ -1,0 +1,107 @@
+{
+    "phi_validation_tests": [
+        {
+            "text": "insulin pump",
+            "context": "Type 1 diabetes requiring insulin pump",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Medical device and condition disclosure"
+        },
+        {
+            "text": "Type 1 diabetes",
+            "context": "Managing Type 1 diabetes with insulin",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Specific medical condition"
+        },
+        {
+            "text": "70% disabled veteran",
+            "context": "Status: 70% disabled veteran",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Disability percentage and veteran status"
+        },
+        {
+            "text": "30% service connected disability",
+            "context": "VA rating: 30% service connected disability",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "VA disability percentage"
+        },
+        {
+            "text": "100% P&T",
+            "context": "Veteran status: 100% P&T",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Total permanent disability rating"
+        },
+        {
+            "text": "Disabled Vet",
+            "context": "Service connected disabled vet",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Veteran disability status"
+        },
+        {
+            "text": "reasonable accommodation",
+            "context": "Requesting reasonable accommodation for my disability",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Explicit accommodation request"
+        },
+        {
+            "text": "ADHD",
+            "context": "Diagnosed with ADHD",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Medical condition with diagnosis context"
+        },
+        {
+            "text": "anxiety disorder",
+            "context": "Treatment for anxiety disorder",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Mental health condition with treatment context"
+        },
+        {
+            "text": "medical leave",
+            "context": "Requesting medical leave",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Medical leave request"
+        },
+        {
+            "text": "accommodation needed",
+            "context": "Accommodation needed for disability",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Accommodation need statement"
+        },
+        {
+            "text": "medication",
+            "context": "Taking medication",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Medical treatment disclosure"
+        },
+        {
+            "text": "ADA request",
+            "context": "Submitting ADA request",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "ADA-specific request"
+        },
+        {
+            "text": "health",
+            "context": "health food",
+            "expected_valid": false,
+            "description": "Medical term without health context"
+        },
+        {
+            "text": "condition",
+            "context": "",
+            "expected_valid": false,
+            "description": "Generic medical term without context"
+        }
+    ]
+}

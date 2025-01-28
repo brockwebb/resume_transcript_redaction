@@ -15,7 +15,7 @@ routing:
       - LOCATION
       - GPA
       - EDUCATIONAL_INSTITUTION
-      - DEMOGRAPHIC
+      - OTHER_ID
     thresholds:
       ADDRESS: 0.8
       EMAIL_ADDRESS: 0.7
@@ -51,32 +51,29 @@ routing:
   spacy_primary:
     entities:
       - PERSON
-      - GPE
-    mappings:
-      GPE: LOCATION_FULL
     thresholds:
       PERSON: 0.6
 
   ensemble_required:
     entities:
-      - LOCATION_FULL
-      - EDUCATIONAL_INSTITUTION
-      - DEMOGRAPHIC
       - DATE_TIME
+      - EDUCATIONAL_INSTITUTION
+      - PHI
+      - PROTECTED_CLASS
     confidence_thresholds:
       DATE_TIME:     
         minimum_combined: 0.7
         presidio_weight: 0.65
         spacy_weight: 0.35
-      DEMOGRAPHIC:
-        minimum_combined: 0.7
-        presidio_weight: 0.5
-        spacy_weight: 0.5
       EDUCATIONAL_INSTITUTION:
         minimum_combined: 0.75
         presidio_weight: 0.5
         spacy_weight: 0.5
-      LOCATION_FULL:
+      PROTECTED_CLASS:
         minimum_combined: 0.7
-        presidio_weight: 0.6
-        spacy_weight: 0.4
+        presidio_weight: 0.4
+        spacy_weight: 0.6
+      PHI:
+        minimum_combined: 0.7
+        presidio_weight: 0.5
+        spacy_weight: 0.5

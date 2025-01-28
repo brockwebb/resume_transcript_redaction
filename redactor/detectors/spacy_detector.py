@@ -55,108 +55,108 @@ class SpacyDetector(BaseDetector):
             if not routing_config or "routing" not in routing_config:
                 self.logger.error("Missing routing configuration for SpacyDetector")
                 return False
-
+    
             spacy_config = routing_config["routing"].get("spacy_primary", {})
+            ensemble_config = routing_config["routing"].get("ensemble_required", {})
+            
+            # Basic entities from spacy_primary
             self.entity_types = set(spacy_config.get("entities", []))
             self.entity_mappings = spacy_config.get("mappings", {})
-
-            # Get entity-specific thresholds from config
+            
+            # Get thresholds from configs
+            base_thresholds = spacy_config.get("thresholds", {})
+            ensemble_thresholds = ensemble_config.get("confidence_thresholds", {})
+            
+            # Initialize thresholds
             self.confidence_thresholds = {}
-            thresholds = spacy_config.get("thresholds", {})
-            for entity in self.entity_types:
-                # Map the entity if needed
-                mapped_entity = self.entity_mappings.get(entity, entity)
-                # Get threshold or use a default
-                threshold = thresholds.get(mapped_entity, 0.6)
-                self.confidence_thresholds[mapped_entity] = threshold
-
+            
+            # Add base thresholds
+            for entity, threshold in base_thresholds.items():
+                self.confidence_thresholds[entity] = threshold
+                
+            # Add ensemble thresholds - lower for contextual detection
+            for entity, config in ensemble_thresholds.items():
+                self.confidence_thresholds[entity] = 0.6  # Base confidence for contextual
+    
             self.logger.debug(f"Loaded spaCy entity types: {self.entity_types}")
             self.logger.debug(f"Entity mappings: {self.entity_mappings}")
             self.logger.debug(f"Confidence thresholds: {self.confidence_thresholds}")
-
+    
             return True
-
+    
         except Exception as e:
             self.logger.error(f"Error validating spaCy config: {str(e)}")
             return False
 
     def validate_detection(self, entity: Entity, text: str = "") -> bool:
-        """Validate entity detections with comprehensive checks."""
-        # Skip validation for empty/invalid entities
         if not entity or not entity.text or len(entity.text.strip()) == 0:
             self.logger.debug(f"Empty or invalid entity text")
             return False
-
-        # Initialize reasons tracker
+    
         self.last_validation_reasons = []
-
-        # Check confidence threshold
         threshold = self.confidence_thresholds.get(entity.entity_type, 0.75)
+        
         if entity.confidence < threshold:
             reason = f"Entity '{entity.text}' confidence below threshold: {entity.confidence} < {threshold}"
             self.logger.debug(reason)
             self.last_validation_reasons.append(reason)
             return False
-
-
-        # Entity-specific validation
+    
         is_valid = False
         if entity.entity_type == "PERSON":
             is_valid = self._validate_person(entity, text)
             if not is_valid:
-                return False  # Return immediately if person validation fails
-
+                return False
+                
         elif entity.entity_type == "EDUCATIONAL_INSTITUTION":
-            # Try new validation first if available
             if hasattr(self, 'validation_rules') and self.validation_rules:
                 try:
                     result = self.validation_rules.validate_educational_institution(entity, text)
                     if result.is_valid:
-                        confidence_adj = result.confidence_adjustment
-                        entity.confidence += confidence_adj
+                        entity.confidence += result.confidence_adjustment
                         self.last_validation_reasons.append(
-                            f"Validation passed with confidence adjustment: {confidence_adj}"
-                        )
-                        self.logger.debug(
-                            f"Validation passed for '{entity.text}'. Confidence adjusted by {confidence_adj} to {entity.confidence}."
+                            f"Validation passed with confidence adjustment: {result.confidence_adjustment}"
                         )
                         return True
                     else:
-                        reason = result.reason
-                        self.logger.debug(f"New education validation failed: {reason}")
-                        self.last_validation_reasons.append(reason)
+                        self.last_validation_reasons.append(result.reason)
                         return False
                 except Exception as e:
                     self.logger.warning(f"New validation failed, using fallback: {e}")
-
-            # Fall back to existing validation
+    
             is_valid = self._validate_educational_institution(entity, text)
             if not is_valid:
                 self.last_validation_reasons.append("Fallback validation failed")
             return is_valid
-
-
+            
         elif entity.entity_type == "LOCATION":
             is_valid = self._validate_location(entity, text)
             if not is_valid:
                 return False
-
+                
+        elif entity.entity_type == "PROTECTED_CLASS":
+            is_valid = self._validate_protected_class(entity, text)
+            if not is_valid:
+                return False
+                
+        elif entity.entity_type == "PHI":
+            is_valid = self._validate_phi(entity, text)
+            if not is_valid:
+                return False
+                
         elif entity.entity_type == "GPA":
-            # Validate GPA format and range
             gpa_match = re.search(r'\d+\.\d+', entity.text)
             if gpa_match:
                 gpa_value = float(gpa_match.group())
                 if gpa_value < 0 or gpa_value > 4.0:
                     self.last_validation_reasons.append("GPA out of valid range")
                     return False
-
-        # Reject single-word entities for certain types
+    
         if entity.entity_type in {"EDUCATIONAL_INSTITUTION", "ORGANIZATION"}:
             if len(entity.text.split()) < 2:
                 self.last_validation_reasons.append(f"Rejected single-word entity: {entity.text}")
                 return False
-
-        # All validations passed
+    
         return True
 
     def _validate_person(self, entity: Entity, text: str) -> bool:
@@ -509,3 +509,148 @@ class SpacyDetector(BaseDetector):
                         for indicator in address_indicators)
 
         return has_number or has_street
+
+
+    def _validate_protected_class(self, entity: Entity, text: str) -> bool:
+        """
+        Validate protected class entities using contextual signals and configuration.
+        """
+        if not entity or not entity.text:
+            return False
+    
+        protected_config = self.config_loader.get_config("validation_params").get("protected_class", {})
+        if not protected_config:
+            return False
+    
+        text_lower = entity.text.lower()
+        context_lower = text.strip().lower() if text else ""
+        reasons = []
+    
+        # Basic validation
+        validation_rules = protected_config.get("validation_rules", {})
+        confidence_boosts = protected_config.get("confidence_boosts", {})
+        confidence_penalties = protected_config.get("confidence_penalties", {})
+        categories = protected_config.get("categories", {})
+    
+        if len(entity.text) < validation_rules.get("min_chars", 3):
+            reasons.append("Text too short")
+            self.last_validation_reasons = reasons
+            return False
+    
+        # Handle pronouns - no context needed
+        pronoun_patterns = categories.get("pronoun_patterns", {})
+        for pattern_name, pattern in pronoun_patterns.items():
+            if re.search(pattern, entity.text, re.IGNORECASE):
+                boost = confidence_boosts.get("proper_format", 0.1)
+                entity.confidence += boost
+                reasons.append(f"Matches pronoun pattern {pattern_name}: +{boost}")
+                self.last_validation_reasons = reasons
+                return True
+    
+        # Organization validation
+        gender_patterns = categories.get("gender_patterns", {})
+        org_regex = gender_patterns.get("org_membership", "")
+        if org_regex and re.search(org_regex, entity.text, re.IGNORECASE):
+            org_context = gender_patterns.get("org_context", [])
+            if any(role in context_lower for role in org_context):
+                boost = confidence_boosts.get("gender_context_match", 0.3)
+                entity.confidence += boost
+                reasons.append(f"Gender organization with leadership: +{boost}")
+                self.last_validation_reasons = reasons
+                return True
+    
+        # Religious organization handling
+        religious_patterns = protected_config.get("religious_patterns", {})
+        org_membership = religious_patterns.get("org_membership", {}).get("regex", "")
+        if org_membership and re.search(org_membership, entity.text, re.IGNORECASE):
+            if any(term in context_lower for term in religious_patterns.get("leadership_roles", [])):
+                boost = religious_patterns.get("org_membership", {}).get("boost", 0.2)
+                entity.confidence += boost
+                reasons.append(f"Religious organization with leadership: +{boost}")
+                self.last_validation_reasons = reasons
+                return True
+    
+        # Identity context check
+        context_patterns = categories.get("context_patterns", {})
+        for pattern_type, pattern_info in context_patterns.items():
+            if re.search(pattern_info["regex"], context_lower):
+                boost = pattern_info.get("boost", 0.2)
+                entity.confidence += boost
+                reasons.append(f"Found {pattern_type} context: +{boost}")
+                self.last_validation_reasons = reasons
+                return True
+    
+        # Race/ethnicity validation
+        race_terms = categories.get("race_ethnicity", [])
+        if any(term in text_lower for term in race_terms):
+            identity_context = ["descent", "identifies as", "identity", "background"]
+            if any(term in context_lower for term in identity_context):
+                boost = confidence_boosts.get("has_context", 0.2)
+                entity.confidence += boost
+                reasons.append(f"Race/ethnicity with identity context: +{boost}")
+                self.last_validation_reasons = reasons
+                return True
+    
+        # If we reach here without returning True, apply penalty
+        penalty = confidence_penalties.get("no_context", -0.4)
+        entity.confidence += penalty
+        reasons.append(f"No protected class context: {penalty}")
+        self.last_validation_reasons = reasons
+        return False
+
+    def _validate_phi(self, entity: Entity, text: str) -> bool:
+        if not entity or not entity.text:
+            return False
+    
+        phi_config = self.config_loader.get_config("validation_params").get("phi", {})
+        if not phi_config:
+            return False
+    
+        context_str = text.strip() if text else ""
+        if not context_str:
+            self.last_validation_reasons.append("No context provided")
+            return False
+    
+        text_lower = entity.text.lower()
+        context_lower = context_str.lower()
+        reasons = []
+    
+        # Specific condition pattern check
+        condition_pattern = phi_config.get("patterns", {}).get("specific_conditions", {})
+        if condition_pattern and re.search(condition_pattern["regex"], text_lower):
+            boost = condition_pattern.get("boost", 0.3)
+            entity.confidence += boost
+            reasons.append(f"Matched specific condition: +{boost}")
+            self.last_validation_reasons = reasons
+            return True
+    
+        # Check if text is a medical condition and context has treatment
+        conditions = phi_config.get("categories", {}).get("medical_conditions", [])
+        treatments = phi_config.get("categories", {}).get("treatments", [])
+    
+        is_condition = any(c in text_lower for c in conditions)
+        has_treatment = any(t in context_lower for t in treatments)
+        
+        if is_condition and has_treatment:
+            boost = phi_config.get("confidence_boosts", {}).get("condition_specific_match", 0.4)
+            entity.confidence += boost
+            reasons.append(f"Condition with treatment context: +{boost}")
+            self.last_validation_reasons = reasons
+            return True
+    
+        # Check if text is treatment and context has condition
+        is_treatment = any(t in text_lower for t in treatments)
+        has_condition = any(c in context_lower for c in conditions)
+        
+        if is_treatment and has_condition:
+            boost = phi_config.get("confidence_boosts", {}).get("condition_specific_match", 0.4)
+            entity.confidence += boost
+            reasons.append(f"Treatment with condition context: +{boost}")
+            self.last_validation_reasons = reasons
+            return True
+    
+        penalty = phi_config.get("confidence_penalties", {}).get("no_context", -0.4)
+        entity.confidence += penalty
+        reasons.append(f"No medical context: {penalty}")
+        self.last_validation_reasons = reasons
+        return False

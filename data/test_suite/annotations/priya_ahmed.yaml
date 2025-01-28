@@ -41,7 +41,7 @@ entities:
     end_char: 135
   sensitivity: high
 - text: linkedin.com/in/priya-ahmed-phd
-  type: SOCIAL_MEDIA
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
@@ -50,7 +50,7 @@ entities:
   sensitivity: medium
 - text: 'Medical Disclosure: Type 1 diabetic, requires accommodations for insulin
     pump usage during work hours'
-  type: MEDICAL_DISCLOSURE
+  type: PHI
   should_redact: true
   location:
     page: 1
@@ -146,7 +146,7 @@ entities:
     end_char: 599
   sensitivity: high
 - text: Muslim Women in STEM
-  type: DEMOGRAPHIC
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
@@ -154,7 +154,7 @@ entities:
     end_char: 1139
   sensitivity: high
 - text: Islamic
-  type: DEMOGRAPHIC
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2

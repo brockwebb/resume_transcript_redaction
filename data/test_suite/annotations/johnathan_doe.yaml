@@ -25,7 +25,7 @@ entities:
     end_char: 73
   sensitivity: medium
 - text: (555) 123-4567
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
@@ -33,7 +33,7 @@ entities:
     end_char: 95
   sensitivity: high
 - text: johnathan.doe@example.com
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
@@ -41,7 +41,7 @@ entities:
     end_char: 128
   sensitivity: high
 - text: linkedin.com/in/johndoe123
-  type: SOCIAL_MEDIA
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1

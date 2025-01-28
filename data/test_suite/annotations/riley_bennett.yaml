@@ -9,7 +9,7 @@ entities:
     end_char: 16
   sensitivity: high
 - text: (they/them)
-  type: PRONOUNS
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 1
@@ -17,7 +17,7 @@ entities:
     end_char: 28
   sensitivity: high
 - text: 'Pronouns: They/Them'
-  type: PRONOUNS
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
@@ -41,7 +41,7 @@ entities:
     end_char: 117
   sensitivity: high
 - text: rileybennettdata.com
-  type: URL
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
@@ -121,7 +121,7 @@ entities:
     end_char: 408
   sensitivity: medium
 - text: LGBTQIA+
-  type: DEMOGRAPHIC
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 1
@@ -129,7 +129,7 @@ entities:
     end_char: 351
   sensitivity: high
 - text: Queer
-  type: DEMOGRAPHIC
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 1
@@ -137,7 +137,7 @@ entities:
     end_char: 1118
   sensitivity: high
 - text: LGBTQIA+
-  type: DEMOGRAPHIC
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 1
@@ -145,7 +145,7 @@ entities:
     end_char: 351
   sensitivity: high
 - text: 'Accessibility: Uses blue light glasses for prolonged screen time'
-  type: ACCESSIBILITY
+  type: PHI
   should_redact: true
   location:
     page: 2
@@ -153,7 +153,7 @@ entities:
     end_char: 825
   sensitivity: high
 - text: Queer-Friendly
-  type: DEMOGRAPHIC
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 1

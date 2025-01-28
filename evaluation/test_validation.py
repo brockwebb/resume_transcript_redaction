@@ -2,7 +2,8 @@
 from pathlib import Path
 import pytest
 from redactor.detectors.spacy_detector import SpacyDetector
-from redactor.detectors.presidio_detector import PresidioDetector
+from redactor.detectors.presidio_detector import PresidioDetector 
+from redactor.detectors.ensemble_coordinator import EnsembleCoordinator 
 from redactor.detectors.base_detector import Entity
 from app.utils.config_loader import ConfigLoader
 from app.utils.logger import RedactionLogger
@@ -456,3 +457,216 @@ class TestInternetReferenceValidation(BaseEntityValidationTest):
         is_valid = detector._validate_internet_reference(entity, text)
         assert is_valid
         assert entity.confidence > initial_confidence, "Known platform boost not applied"
+
+
+class TestProtectedClassValidation(BaseEntityValidationTest):
+    """Test validation rules for protected class entities"""
+    
+    def _get_detector(self):
+        return PresidioDetector(self.config_loader, self.logger)
+        
+    def test_protected_class_validation(self, setup_detector):
+        """Test protected class validation with different cases"""
+        detector = setup_detector
+        test_cases = self._load_test_cases("protected_class_validation.json")["protected_class_validation_tests"]
+        
+        for case in test_cases:
+            entity = Entity(
+                text=case["text"],
+                entity_type="PROTECTED_CLASS",
+                confidence=0.8,
+                start=0,
+                end=len(case["text"]),
+                source="presidio",
+                metadata={
+                    "recognition_metadata": {
+                        "pattern_name": "protected_class_pattern"
+                    }
+                }
+            )
+
+            initial_confidence = entity.confidence
+            is_valid = detector.validate_detection(entity, case.get("context", ""))
+            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
+
+            assert is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
+                f"Validation reasons: {detector.last_validation_reasons}"
+            )
+            
+            if is_valid and "min_confidence_adjustment" in case:
+                assert confidence_change >= round(case["min_confidence_adjustment"], 2), (
+                    f"Insufficient confidence adjustment for: {case['description']}. "
+                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, got {confidence_change}. "
+                    f"Validation reasons: {detector.last_validation_reasons}"
+                )
+
+class TestPHIValidation(BaseEntityValidationTest):
+    """Test validation rules for PHI entities"""
+    
+    def _get_detector(self):
+        return PresidioDetector(self.config_loader, self.logger)
+        
+    def test_phi_validation(self, setup_detector):
+        """Test PHI validation with different cases"""
+        detector = setup_detector
+        test_cases = self._load_test_cases("phi_validation.json")["phi_validation_tests"]
+        
+        for case in test_cases:
+            entity = Entity(
+                text=case["text"],
+                entity_type="PHI",
+                confidence=0.8,
+                start=0,
+                end=len(case["text"]),
+                source="presidio",
+                metadata={
+                    "recognition_metadata": {
+                        "pattern_name": "phi_pattern"
+                    }
+                }
+            )
+
+            initial_confidence = entity.confidence
+            is_valid = detector.validate_detection(entity, case.get("context", ""))
+            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
+
+            assert is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
+                f"Validation reasons: {detector.last_validation_reasons}"
+            )
+            
+            if is_valid and "min_confidence_adjustment" in case:
+                assert confidence_change >= round(case["min_confidence_adjustment"], 2), (
+                    f"Insufficient confidence adjustment for: {case['description']}. "
+                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, got {confidence_change}. "
+                    f"Validation reasons: {detector.last_validation_reasons}"
+                )
+
+
+class TestSpacyProtectedClassValidation(BaseEntityValidationTest):
+    """Test spaCy validation for protected class entities"""
+    
+    def _get_detector(self):
+        return SpacyDetector(self.config_loader, self.logger)
+        
+    def test_spacy_protected_class_validation(self, setup_detector):
+        """Test protected class validation with spaCy context detection"""
+        detector = setup_detector
+        test_cases = self._load_test_cases("protected_class_validation.json")["protected_class_validation_tests"]
+        
+        for case in test_cases:
+            entity = Entity(
+                text=case["text"],
+                entity_type="PROTECTED_CLASS",
+                confidence=0.7,
+                start=0,
+                end=len(case["text"]),
+                source="spacy"
+            )
+
+            initial_confidence = entity.confidence
+            is_valid = detector.validate_detection(entity, case.get("context", ""))
+            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
+
+            assert is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
+                f"Validation reasons: {detector.last_validation_reasons}"
+            )
+
+class TestSpacyPHIValidation(BaseEntityValidationTest):
+    """Test spaCy validation for PHI entities"""
+    
+    def _get_detector(self):
+        return SpacyDetector(self.config_loader, self.logger)
+        
+    def test_spacy_phi_validation(self, setup_detector):
+        """Test PHI validation with spaCy context detection"""
+        detector = setup_detector
+        test_cases = self._load_test_cases("phi_validation.json")["phi_validation_tests"]
+        
+        for case in test_cases:
+            entity = Entity(
+                text=case["text"],
+                entity_type="PHI",
+                confidence=0.7,
+                start=0,
+                end=len(case["text"]),
+                source="spacy"
+            )
+
+            initial_confidence = entity.confidence
+            is_valid = detector.validate_detection(entity, case.get("context", ""))
+            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
+
+            assert is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
+                f"Validation reasons: {detector.last_validation_reasons}"
+            )
+
+class TestEnsembleProtectedPHI(BaseEntityValidationTest):
+    """Test ensemble validation for protected class and PHI entities"""
+    
+    def _get_detector(self):
+        return EnsembleCoordinator(self.config_loader, self.logger)
+        
+    def test_ensemble_validation(self, setup_detector):
+        """Test ensemble validation combining Presidio and spaCy results"""
+        detector = setup_detector
+        
+        # Test protected class ensemble
+        protected_cases = self._load_test_cases("protected_class_validation.json")["protected_class_validation_tests"]
+        for case in protected_cases:
+            if case["expected_valid"]:
+                # Create matching detections from both sources
+                presidio_ent = Entity(
+                    text=case["text"],
+                    entity_type="PROTECTED_CLASS",
+                    confidence=0.75,
+                    start=0,
+                    end=len(case["text"]),
+                    source="presidio"
+                )
+                spacy_ent = Entity(
+                    text=case["text"],
+                    entity_type="PROTECTED_CLASS",
+                    confidence=0.8,
+                    start=0,
+                    end=len(case["text"]),
+                    source="spacy"
+                )
+                
+                combined = detector._combine_protected_phi_entities(presidio_ent, spacy_ent)
+                assert combined is not None, f"Failed to combine entities for: {case['description']}"
+                assert combined.confidence >= max(presidio_ent.confidence, spacy_ent.confidence), \
+                    f"Combined confidence not higher than individual for: {case['description']}"
+        
+        # Test PHI ensemble
+        phi_cases = self._load_test_cases("phi_validation.json")["phi_validation_tests"]
+        for case in phi_cases:
+            if case["expected_valid"]:
+                presidio_ent = Entity(
+                    text=case["text"],
+                    entity_type="PHI",
+                    confidence=0.75,
+                    start=0,
+                    end=len(case["text"]),
+                    source="presidio"
+                )
+                spacy_ent = Entity(
+                    text=case["text"],
+                    entity_type="PHI",
+                    confidence=0.8,
+                    start=0,
+                    end=len(case["text"]),
+                    source="spacy"
+                )
+                
+                combined = detector._combine_protected_phi_entities(presidio_ent, spacy_ent)
+                assert combined is not None, f"Failed to combine entities for: {case['description']}"
+                assert combined.confidence >= max(presidio_ent.confidence, spacy_ent.confidence), \
+                    f"Combined confidence not higher than individual for: {case['description']}"

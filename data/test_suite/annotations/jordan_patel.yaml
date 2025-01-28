@@ -41,7 +41,7 @@ entities:
     end_char: 131
   sensitivity: high
 - text: jordanpatel.dev
-  type: URL
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
@@ -138,7 +138,7 @@ entities:
   sensitivity: medium
 - text: 'Accessibility Statement: Will require screen magnification tools for extended
     periods of computer work due to partial visual impairment'
-  type: ACCESSIBILITY
+  type: PHI
   should_redact: true
   location:
     page: 3

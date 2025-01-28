@@ -41,7 +41,7 @@ entities:
     end_char: 137
   sensitivity: high
 - text: linkedin.com/in/taylormsmith
-  type: SOCIAL_MEDIA
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
@@ -130,7 +130,7 @@ entities:
     end_char: 67
   sensitivity: medium
 - text: Mentor, Women in Leadership Initiative
-  type: DEMOGRAPHICS
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
