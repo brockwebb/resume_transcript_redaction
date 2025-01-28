@@ -1,0 +1,61 @@
+{
+    "date_validation_tests": [
+        {
+            "text": "2023",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.7,
+            "description": "Single year"
+        },
+        {
+            "text": "June 2023",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.9,
+            "description": "Month year format"
+        },
+        {
+            "text": "2020 - Present",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.85,
+            "description": "Year range with present"
+        },
+        {
+            "text": "Class of 2024",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.9,
+            "description": "Education year with marker"
+        },
+        {
+            "text": "2020-2023",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.85,
+            "description": "Simple year range"
+        },
+        {
+            "text": "06/2023",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.8,
+            "description": "Numeric month/year"
+        },
+        {
+            "text": "Expected May 2024",
+            "expected_valid": true,
+            "min_confidence_adjustment": 1.0,
+            "description": "Education date with marker and month"
+        },
+        {
+            "text": "2.0 GPA",
+            "expected_valid": false,
+            "description": "Number in GPA context"
+        },
+        {
+            "text": "40 hours per week",
+            "expected_valid": false,
+            "description": "Hours context"
+        },
+        {
+            "text": "CS 2023",
+            "expected_valid": false,
+            "description": "Course number"
+        }
+    ]
+}

@@ -1,0 +1,61 @@
+{
+    "phone_validation_tests": [
+        {
+            "description": "Standard US format with parentheses",
+            "text": "(123) 456-7890",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.3
+        },
+        {
+            "description": "US format with dashes",
+            "text": "123-456-7890",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.3
+        },
+        {
+            "description": "International format with country code",
+            "text": "+1-555-123-4567",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.3
+        },
+        {
+            "description": "Dot format",
+            "text": "1.555.123.4567",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.3
+        },
+        {
+            "description": "Number with extension",
+            "text": "(123) 456-7890 ext 123",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.4
+        },
+        {
+            "description": "Invalid format - too few digits",
+            "text": "123-456",
+            "expected_valid": false
+        },
+        {
+            "description": "Invalid format - letters mixed in",
+            "text": "123-ABC-7890",
+            "expected_valid": false
+        },
+        {
+            "description": "Invalid format - too many digits",
+            "text": "123-456-78901",
+            "expected_valid": false
+        },
+        {
+            "description": "Number with phone context",
+            "text": "Phone: (123) 456-7890",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.4
+        },
+        {
+            "description": "UK format phone number",
+            "text": "+44 20 7123 4567",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.3
+        }
+    ]
+}

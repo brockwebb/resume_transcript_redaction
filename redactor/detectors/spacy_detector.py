@@ -98,16 +98,19 @@ class SpacyDetector(BaseDetector):
             self.last_validation_reasons.append(reason)
             return False
 
+
         # Entity-specific validation
         is_valid = False
         if entity.entity_type == "PERSON":
             is_valid = self._validate_person(entity, text)
+            if not is_valid:
+                return False  # Return immediately if person validation fails
 
         elif entity.entity_type == "EDUCATIONAL_INSTITUTION":
             # Try new validation first if available
             if hasattr(self, 'validation_rules') and self.validation_rules:
                 try:
-                    result = self.validation_rules.validate_educational_institution(entity.text, text)
+                    result = self.validation_rules.validate_educational_institution(entity, text)
                     if result.is_valid:
                         confidence_adj = result.confidence_adjustment
                         entity.confidence += confidence_adj
@@ -132,23 +135,11 @@ class SpacyDetector(BaseDetector):
                 self.last_validation_reasons.append("Fallback validation failed")
             return is_valid
 
-        elif entity.entity_type == "LOCATION":
-            # Require at least one word character
-            if not any(c.isalpha() for c in entity.text):
-                self.last_validation_reasons.append("No alphabetic characters in location")
-                return False
-            # Require proper capitalization for location names
-            if not entity.text[0].isupper():
-                self.last_validation_reasons.append("Location not properly capitalized")
-                return False
 
-        elif entity.entity_type == "SOCIAL_MEDIA":
-            # Validate social media handles
-            if entity.text.startswith('@'):
-                # Twitter handle validation
-                if not re.match(r'@[\w_]{1,15}$', entity.text):
-                    self.last_validation_reasons.append("Invalid Twitter handle format")
-                    return False
+        elif entity.entity_type == "LOCATION":
+            is_valid = self._validate_location(entity, text)
+            if not is_valid:
+                return False
 
         elif entity.entity_type == "GPA":
             # Validate GPA format and range
@@ -169,27 +160,191 @@ class SpacyDetector(BaseDetector):
         return True
 
     def _validate_person(self, entity: Entity, text: str) -> bool:
-        """Validate PERSON entities with additional checks."""
-        name_parts = entity.text.split()
-
-        # Exclude single-word entities unless they are proper nouns
-        if len(name_parts) == 1:
-            if not name_parts[0][0].isupper():
+            """Validate PERSON entities using configuration-based rules."""
+            if not entity.text:
                 return False
-            # Further context validation
-            start = max(0, entity.start - 20)
-            end = min(len(text), entity.end + 20)
-            context = text[start:end].lower()
-            name_indicators = {'mr', 'mrs', 'ms', 'dr', 'prof', 'professor'}
-            if not any(indicator in context for indicator in name_indicators):
+    
+            person_config = self.config_loader.get_config("validation_params").get("person", {})
+            title_markers = set(person_config.get("title_markers", []))
+            confidence_boosts = person_config.get("confidence_boosts", {})
+            confidence_penalties = person_config.get("confidence_penalties", {})
+            validation_rules = person_config.get("validation_rules", {})
+            
+            name_parts = entity.text.split()
+            text_lower = entity.text.lower()
+            reasons = []
+    
+            # Length validation
+            if len(entity.text) < validation_rules.get("min_chars", 2):
+                reasons.append(f"Name too short: {len(entity.text)} chars")
+                self.last_validation_reasons = reasons
                 return False
-
-        # Validate multi-word names
-        if len(name_parts) >= 2 and all(part[0].isupper() for part in name_parts):
+    
+            if len(name_parts) < validation_rules.get("min_words", 1):
+                reasons.append("Insufficient word count")
+                self.last_validation_reasons = reasons
+                return False
+    
+            # Single word validation - must be capitalized or have title
+            if len(name_parts) == 1:
+                if not name_parts[0][0].isupper() and not any(marker in text_lower for marker in title_markers):
+                    reasons.append("Single word must be capitalized or have title")
+                    self.last_validation_reasons = reasons
+                    return False
+    
+            # Check for title markers
+            has_title = any(marker in text_lower for marker in title_markers)
+            if has_title:
+                boost = confidence_boosts.get("has_title", 0.2)
+                entity.confidence += boost
+                reasons.append(f"Title marker found: +{boost}")
+    
+            # Handle ALL CAPS names
+            is_all_caps = entity.text.isupper()
+            if is_all_caps and validation_rules.get("allow_all_caps", True):
+                # ALL CAPS is allowed, check if it's a valid name format
+                if len(name_parts) >= 2 or has_title:
+                    boost = confidence_boosts.get("multiple_words", 0.1)
+                    entity.confidence += boost
+                    reasons.append(f"Valid ALL CAPS name: +{boost}")
+                else:
+                    # Single word ALL CAPS without title
+                    reasons.append("Single word ALL CAPS without title")
+                    self.last_validation_reasons = reasons
+                    return False
+            else:
+                # Regular capitalization check
+                if not all(part[0].isupper() for part in name_parts):
+                    reasons.append("Name parts must be properly capitalized")
+                    self.last_validation_reasons = reasons
+                    return False
+                boost = confidence_boosts.get("proper_case", 0.1)
+                entity.confidence += boost
+                reasons.append(f"Proper capitalization: +{boost}")
+    
+            if len(name_parts) >= 2:
+                boost = confidence_boosts.get("multiple_words", 0.1)
+                entity.confidence += boost
+                reasons.append(f"Multiple words: +{boost}")
+    
+            self.last_validation_reasons = reasons
             return True
 
-        return False
-
+    def _validate_location(self, entity: Entity, text: str) -> bool:
+            """Validate location entities using configuration-based rules."""
+            if not entity.text:
+                return False
+    
+            location_config = self.config_loader.get_config("validation_params").get("location", {})
+            us_states = location_config.get("us_states", {})
+            confidence_boosts = location_config.get("confidence_boosts", {})
+            confidence_penalties = location_config.get("confidence_penalties", {})
+            validation_rules = location_config.get("validation_rules", {})
+            format_patterns = location_config.get("format_patterns", {})
+            
+            text_lower = entity.text.lower()
+            words = entity.text.split()
+            reasons = []
+            
+            # 1. Basic validation rules
+            if len(entity.text) < validation_rules.get("min_chars", 2):
+                reasons.append("Location too short")
+                self.last_validation_reasons = reasons
+                return False
+                
+            # 2. Check capitalization requirements
+            if validation_rules.get("require_capitalization", True):
+                # Modified to handle non-ASCII uppercase characters
+                first_char = entity.text[0]
+                if not (first_char.isupper() or first_char != first_char.lower()):
+                    reasons.append("Location not properly capitalized")
+                    self.last_validation_reasons = reasons
+                    return False
+    
+            # Track matched formats for proper confidence adjustment
+            formats_matched = []
+                    
+            # 3. Apply format-based confidence adjustments
+            import re
+            
+            # Check US city-state format
+            us_pattern = format_patterns.get("us_city_state", {}).get("regex", "")
+            if us_pattern and re.match(us_pattern, entity.text):
+                formats_matched.append("us_city_state")
+                base_boost = confidence_boosts.get("known_format", 0.1)
+                state_boost = confidence_boosts.get("has_state", 0.2)
+                total_boost = base_boost + state_boost
+                entity.confidence += total_boost
+                reasons.append(f"Matches US city-state format: +{total_boost}")
+                
+                # Extra boost for having ZIP code
+                if re.search(r'\d{5}(?:-\d{4})?$', entity.text):
+                    zip_boost = confidence_boosts.get("has_zip", 0.1)
+                    entity.confidence += zip_boost
+                    reasons.append(f"Includes ZIP code: +{zip_boost}")
+                    formats_matched.append("zip_code")
+                    
+            # Check international format
+            intl_pattern = format_patterns.get("international", {}).get("regex", "")
+            if intl_pattern and not formats_matched:
+                # Modified international check to handle single words and diacritics
+                if re.match(r'^[A-ZÀ-ÿ][A-Za-zÀ-ÿ\s-]*$', entity.text):
+                    formats_matched.append("international")
+                    boost = confidence_boosts.get("known_format", 0.1)
+                    entity.confidence += boost
+                    reasons.append(f"Matches international format: +{boost}")
+                
+            # Check metropolitan area format if no other format matched
+            if not formats_matched:
+                metro_pattern = format_patterns.get("metro_area", {}).get("regex", "")
+                if metro_pattern and re.match(metro_pattern, entity.text):
+                    formats_matched.append("metro_area")
+                    boost = confidence_boosts.get("known_format", 0.1)
+                    entity.confidence += boost
+                    reasons.append(f"Matches metropolitan area format: +{boost}")
+                
+            # 4. Handle single-word locations
+            if len(words) == 1:
+                if not validation_rules.get("allow_single_word", True):
+                    reasons.append("Single word locations not allowed")
+                    self.last_validation_reasons = reasons
+                    return False
+                    
+                # Modified to better handle international cities
+                if entity.text.isupper() and validation_rules.get("allow_all_caps", True):
+                    boost = confidence_boosts.get("proper_case", 0.1)
+                    entity.confidence += boost
+                    reasons.append(f"Valid ALL CAPS location: +{boost}")
+                elif not formats_matched:
+                    # Only apply single word penalty if no other format was matched
+                    penalty = confidence_penalties.get("single_word", -0.2)
+                    entity.confidence += penalty
+                    reasons.append(f"Single word penalty: {penalty}")
+                    
+            # 5. Multi-word boost (if not already counted in format matching)
+            elif not formats_matched:
+                boost = confidence_boosts.get("multi_word", 0.1)
+                entity.confidence += boost
+                reasons.append(f"Multi-word location: +{boost}")
+                
+            # 6. Check for US state presence (if not already counted)
+            if "us_city_state" not in formats_matched:
+                state_lists = [
+                    s.lower() for s in us_states.get("full", []) + us_states.get("abbrev", [])
+                ]
+                if any(state.lower() in text_lower for state in state_lists):
+                    boost = confidence_boosts.get("has_state", 0.2)
+                    entity.confidence += boost
+                    reasons.append(f"Contains US state: +{boost}")
+                    
+            # If no format was matched but basic validation passed
+            if not formats_matched and not reasons:
+                reasons.append("Basic validation passed but no specific format matched")
+                
+            # Store validation reasons
+            self.last_validation_reasons = reasons
+            return True
+    
     def _validate_educational_institution(self, entity: Entity, text: str) -> bool:
         """Validate educational institution entities using JSON configuration."""
         edu_config = self.config_loader.get_config("validation_params").get("educational", {})
@@ -199,49 +354,62 @@ class SpacyDetector(BaseDetector):
         confidence_penalties = edu_config.get("confidence_penalties", {})
         min_words = edu_config.get("min_words", 2)
         generic_terms = set(edu_config.get("generic_terms", []))
-
+    
         text_lower = entity.text.lower()
         words = text_lower.split()
         is_valid = True
-
-        # Apply penalties and boosts
+    
+        # 1) Single-word check: Exempt known acronyms, penalize others
         if len(words) < min_words:
-            penalty = confidence_penalties.get("single_word", -0.3)
-            entity.confidence += penalty
-            self.last_validation_reasons.append(f"Penalty for single word: {penalty}")
-            is_valid = False
+            # Trim whitespace, check uppercase
+            clean_text = entity.text.strip().upper()
+            self.logger.warning("ACRONYM DEBUG - TEXT: '%s', CLEAN: '%s', known_acronyms=%s",
+                    entity.text, clean_text, known_acronyms)
+            # If it’s a known acronym (MIT, UCLA, etc.), skip penalty
+            if clean_text in known_acronyms:
+                boost = confidence_boosts.get("known_acronym", 0.4)
+                entity.confidence += boost
+                self.last_validation_reasons.append(f"Boost for known acronym: {boost}")
+                return True  # is_valid
+            else:
+                # Otherwise penalize
+                penalty = confidence_penalties.get("single_word", -0.3)
+                entity.confidence += penalty
+                self.last_validation_reasons.append(f"Penalty for single word: {penalty}")
+                return False  # is_valid
 
+        
+        # 2) Generic terms => penalty
         if any(term in text_lower for term in generic_terms):
             penalty = confidence_penalties.get("generic_term", -1.0)
             entity.confidence += penalty
             self.last_validation_reasons.append(f"Penalty for generic term: {penalty}")
             is_valid = False
-
+    
+        # 3) Missing core terms => penalty
         if not any(term in text_lower for term in core_terms):
             penalty = confidence_penalties.get("no_core_terms", -1.0)
             entity.confidence += penalty
             self.last_validation_reasons.append(f"Penalty for missing core terms: {penalty}")
             is_valid = False
-
+    
+        # 4) All caps => penalty if not a known acronym
         if entity.text.isupper() and entity.text not in known_acronyms:
             penalty = confidence_penalties.get("improper_caps", -0.2)
             entity.confidence += penalty
             self.last_validation_reasons.append(f"Penalty for improper caps: {penalty}")
             is_valid = False
-
-        if entity.text in known_acronyms:
-            boost = confidence_boosts.get("known_acronym", 0.3)
-            entity.confidence += boost
-            self.last_validation_reasons.append(f"Boost for known acronym: {boost}")
-            is_valid = True
-
+    
+        # 5) If we do have core terms AND enough words => boost
+        #    (makes multi-word "University of X" get a nice bump)
         if any(term in text_lower for term in core_terms) and len(words) >= min_words:
             boost = confidence_boosts.get("full_name", 0.2)
             entity.confidence += boost
             self.last_validation_reasons.append(f"Boost for full name: {boost}")
             is_valid = True
-
+    
         return is_valid
+
 
     def detect_entities(self, text: str):
         """Detect entities in the provided text using SpaCy NLP."""

@@ -1,0 +1,61 @@
+{
+    "address_validation_tests": [
+        {
+            "text": "123 Main Street",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Basic street address"
+        },
+        {
+            "text": "456 Elm Road, Suite 12",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.3,
+            "description": "Address with suite number"
+        },
+        {
+            "text": "789 Oak Ave, Apt 4B",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.3,
+            "description": "Address with apartment number"
+        },
+        {
+            "text": "321 Pine St",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Address with abbreviated street"
+        },
+        {
+            "text": "159 Maple Boulevard",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Address with Boulevard"
+        },
+        {
+            "text": "753 Cedar Ln, Unit 15",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.3,
+            "description": "Address with unit number"
+        },
+        {
+            "text": "main street",
+            "expected_valid": false,
+            "description": "Missing street number"
+        },
+        {
+            "text": "123 fake address",
+            "expected_valid": false,
+            "description": "Missing valid street type"
+        },
+        {
+            "text": "12345",
+            "expected_valid": false,
+            "description": "Only numbers"
+        },
+        {
+            "text": "456 W Broadway Ave",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Address with directional prefix"
+        }
+    ]
+}

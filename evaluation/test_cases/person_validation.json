@@ -1,0 +1,49 @@
+{
+    "person_validation_tests": [
+        {
+            "text": "John Smith",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.1,
+            "description": "Standard properly capitalized name"
+        },
+        {
+            "text": "ROBERT JOHNSON",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.1,
+            "description": "ALL CAPS name"
+        },
+        {
+            "text": "María González",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.1,
+            "description": "Name with diacritics"
+        },
+        {
+            "text": "Dr. Jane Smith",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Name with title"
+        },
+        {
+            "text": "smith",
+            "expected_valid": false,
+            "description": "Lowercase single word"
+        },
+        {
+            "text": "SMITH",
+            "expected_valid": false,
+            "description": "Single word ALL CAPS without context"
+        },
+        {
+            "text": "john",
+            "expected_valid": false,
+            "description": "Single lowercase first name"
+        },
+        {
+            "text": "Prof. JANE SMITH",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Title with ALL CAPS name"
+        }
+    ]
+}

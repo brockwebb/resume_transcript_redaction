@@ -1,18 +1,288 @@
 {
-  "educational": {
-    "core_terms": ["university", "college", "institute", "school"],
-    "known_acronyms": ["UCLA", "MIT", "NYU", "USC", "UCI", "UCSB", "UCB"],
-    "confidence_boosts": {
-      "full_name": 0.3,
-      "known_acronym": 0.4
+    "educational": {
+        "core_terms": ["university", "college", "institute", "school"],
+        "known_acronyms": ["UCLA", "MIT", "NYU", "USC", "UCI", "UCSB", "UCB"],
+        "confidence_boosts": {
+            "full_name": 0.3,
+            "known_acronym": 0.4
+        },
+        "confidence_penalties": {
+            "no_core_terms": -1.0,
+            "improper_caps": -0.2,
+            "single_word": -0.3,
+            "generic_term": -1.0
+        },
+        "min_words": 2,
+        "generic_terms": ["academy of learning", "education center", "training facility"]
     },
-    "confidence_penalties": {
-      "no_core_terms": -1.0,
-      "improper_caps": -0.2,
-      "single_word": -0.3,
-      "generic_term": -1.0
+    "person": {
+        "title_markers": [
+            "dr", "doctor", "prof", "professor", "mr", "mrs", "ms", "rev", "reverend"
+        ],
+        "confidence_boosts": {
+            "has_title": 0.2,
+            "proper_case": 0.1,
+            "multiple_words": 0.1
+        },
+        "confidence_penalties": {
+            "single_word": -0.3,
+            "lowercase": -0.2
+        },
+        "validation_rules": {
+            "min_chars": 2,
+            "min_words": 1,
+            "allow_all_caps": true
+        }
     },
-    "min_words": 2,
-    "generic_terms": ["academy of learning", "education center", "training facility"]
-  }
+    "address": {
+        "street_types": {
+            "full": [
+                "Street", "Avenue", "Road", "Lane", "Drive", "Boulevard", "Court", 
+                "Circle", "Way", "Parkway", "Place", "Trail", "Terrace", "Highway"
+            ],
+            "abbrev": [
+                "St", "Ave", "Rd", "Ln", "Dr", "Blvd", "Ct", "Cir", "Pkwy", "Pl", 
+                "Trl", "Ter", "Hwy"
+            ]
+        },
+        "unit_types": [
+            "Apt", "Apartment", "Unit", "Suite", "Ste", "#"
+        ],
+        "directionals": [
+            "N", "S", "E", "W", "NE", "NW", "SE", "SW",
+            "North", "South", "East", "West", "Northeast", "Northwest", "Southeast", "Southwest"
+        ],
+        "confidence_boosts": {
+            "has_unit": 0.1,
+            "street_match": 0.2,
+            "directional": 0.1,
+            "full_address": 0.2,
+            "presidio_recognition": 0.1
+        },
+        "confidence_penalties": {
+            "no_street_type": -0.3,
+            "no_number": -0.5,
+            "invalid_format": -0.2
+        },
+        "validation_rules": {
+            "min_chars": 5,
+            "require_number": true,
+            "allow_po_box": true,
+            "require_street_type": true
+        }
+    },
+    "location": {
+        "us_states": {
+            "full": [
+                "Alabama", "Alaska", "Arizona", "Arkansas", "California",
+                "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
+                "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
+                "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
+                "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri",
+                "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey",
+                "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio",
+                "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
+                "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+                "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+            ],
+            "abbrev": [
+                "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+                "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+                "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+                "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+                "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+            ]
+        },
+        "confidence_boosts": {
+            "has_state": 0.2,
+            "has_zip": 0.1,
+            "known_format": 0.1,
+            "multi_word": 0.1,
+            "proper_case": 0.1
+        },
+        "confidence_penalties": {
+            "single_word": -0.2,
+            "lowercase": -0.3,
+            "no_context": -0.1
+        },
+        "validation_rules": {
+            "min_chars": 2,
+            "allow_single_word": true,
+            "require_capitalization": true,
+            "allow_all_caps": true,
+            "allow_hyphens": true
+        },
+        "format_patterns": {
+            "us_city_state": {
+                "regex": "^[A-Z][A-Za-z\\s-]+,\\s*(?:[A-Z]{2}|[A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)(?:\\s+\\d{5}(?:-\\d{4})?)?$",
+                "confidence": 0.9
+            },
+            "international": {
+                "regex": "^[A-Z][A-Za-z\\s-]+(?:,\\s*[A-Z][A-Za-z\\s-]+)?$",
+                "confidence": 0.7
+            },
+            "metro_area": {
+                "regex": "^[A-Z][A-Za-z\\s]*(?:-[A-Z][A-Za-z\\s]*)+$",
+                "confidence": 0.8
+            }
+        },
+        "context_words": [
+            "in", "at", "near", "from", "to",
+            "city", "town", "region", "area",
+            "north", "south", "east", "west",
+            "located", "based", "downtown"
+        ]
+    },
+    "date": {
+        "year_markers": [
+            "class of", "graduated", "grad.", "expected", "est.", "anticipated",
+            "since", "from", "in"
+        ],
+        "range_separators": [
+            "-", "–", "—", "to", "through", "until"
+        ],
+        "current_terms": [
+            "present", "current", "now", "ongoing"
+        ],
+        "month_formats": {
+            "full": [
+                "january", "february", "march", "april", "may", "june",
+                "july", "august", "september", "october", "november", "december"
+            ],
+            "abbrev": [
+                "jan", "feb", "mar", "apr", "may", "jun",
+                "jul", "aug", "sep", "oct", "nov", "dec"
+            ]
+        },
+        "patterns": {
+            "education_year": {
+                "regex": "\\b(?:class\\s+of|graduated|expected|anticipated)\\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?\\s+)?(?:19|20)\\d{2}\\b",
+                "confidence": 0.9
+            },
+            "single_year": {
+                "regex": "\\b(19|20)\\d{2}\\b",
+                "confidence": 0.7
+            },
+            "year_month": {
+                "regex": "(?:(?:19|20)\\d{2}[-./](?:0?[1-9]|1[0-2])|(?:0?[1-9]|1[0-2])[-./](?:19|20)\\d{2})",
+                "confidence": 0.8
+            },
+            "month_year": {
+                "regex": "(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?\\s*(?:19|20)\\d{2})",
+                "confidence": 0.9
+            },
+            "year_range": {
+                "regex": "(?:19|20)\\d{2}\\s*[-–—]\\s*(?:(?:19|20)\\d{2}|present|current|ongoing)",
+                "confidence": 0.85
+            }
+            
+        },
+        "false_positive_contexts": [
+            "hours", "credits", "points", "score", "gpa", "grade",
+            "course", "level", "version", "vol", "volume"
+        ],
+        "confidence_adjustments": {
+            "has_marker": 0.2,
+            "has_context": 0.1,
+            "ambiguous_format": -0.2,
+            "false_positive_context": -0.5
+        }
+    },
+    "gpa": {
+        "validation_rules": {
+            "min_value": 0.0,
+            "max_value": 4.0,
+            "decimal_places": 2,
+            "require_indicator": true,
+            "allow_range": true,
+            "min_chars": 3
+        },
+        "indicators": [
+            "gpa",
+            "grade point average",
+            "grade-point average",
+            "grade point",
+            "cumulative gpa",
+            "cgpa"
+        ],
+        "scale_indicators": [
+            "/ 4.0",
+            "/4.0",
+            "out of 4.0",
+            "of 4.0",
+            "on 4.0"
+        ],
+        "confidence_boosts": {
+            "has_indicator": 0.2,
+            "has_scale": 0.1,
+            "standard_format": 0.1,
+            "proper_value_range": 0.2,
+            "context_match": 0.1
+        },
+        "confidence_penalties": {
+            "no_indicator": -0.3,
+            "invalid_value": -0.5,
+            "suspicious_format": -0.2,
+            "ambiguous_context": -0.1
+        },
+        "common_formats": {
+            "standard": "\\b(?:GPA|Grade[ -]?Point[ -]?Average)[\\s:\\-–—]*([0-3](?:\\.[0-9]{1,2})?|4(?:\\.0{1,2})?)\\b",
+            "with_scale": "\\b(?:GPA|Grade[ -]?Point[ -]?Average)[\\s:\\-–—]*([0-3](?:\\.[0-9]{1,2})?|4(?:\\.0{1,2})?)[/\\s-]*4(?:\\.0{1,2})?\\b"
+        },
+        "context_words": [
+            "academic",
+            "semester",
+            "cumulative",
+            "score",
+            "average",
+            "grade",
+            "transcript",
+            "graduated",
+            "honors",
+            "dean's list"
+        ],
+        "false_positive_contexts": [
+            "price",
+            "cost",
+            "rate",
+            "ratio",
+            "score",
+            "percentage",
+            "test",
+            "exam"
+        ]
+    },
+    "phone": {
+        "validation_rules": {
+            "min_digits": 10,
+            "max_digits": 15,
+            "allow_extensions": true,
+            "require_country_code": false
+        },
+        "confidence_boosts": {
+            "format_match": 0.2,
+            "standard_format": 0.1,
+            "has_context": 0.1,
+            "has_extension": 0.1,
+            "proper_grouping": 0.1,
+            "intl_format": 0.1    
+        },
+        "confidence_penalties": {
+            "invalid_format": -0.3,
+            "suspicious_pattern": -0.2
+        },
+        "context_words": [
+            "phone",
+            "telephone",
+            "cell",
+            "mobile",
+            "call",
+            "number",
+            "contact",
+            "tel",
+            "office",
+            "fax"
+        ]
+    }
 }
+

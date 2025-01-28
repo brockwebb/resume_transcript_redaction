@@ -1,0 +1,61 @@
+{
+    "location_validation_tests": [
+        {
+            "text": "New York, NY",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Standard city, state format"
+        },
+        {
+            "text": "San Francisco, California",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.1,
+            "description": "City with full state name"
+        },
+        {
+            "text": "London, United Kingdom",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.1,
+            "description": "International city with country"
+        },
+        {
+            "text": "new york",
+            "expected_valid": false,
+            "description": "Lowercase city name"
+        },
+        {
+            "text": "SEATTLE",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.1,
+            "description": "ALL CAPS single city"
+        },
+        {
+            "text": "Boston, MA 02110",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.3,
+            "description": "City, state with ZIP code"
+        },
+        {
+            "text": "München",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.1,
+            "description": "International city with diacritics"
+        },
+        {
+            "text": "washington",
+            "expected_valid": false,
+            "description": "Ambiguous lowercase single word"
+        },
+        {
+            "text": "12345",
+            "expected_valid": false,
+            "description": "ZIP code only"
+        },
+        {
+            "text": "New York-Newark-Jersey City",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.2,
+            "description": "Metropolitan area with hyphens"
+        }
+    ]
+}

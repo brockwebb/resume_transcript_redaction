@@ -1,0 +1,59 @@
+{
+    "gpa_validation_tests": [
+        {
+            "description": "Standard GPA format with indicator",
+            "text": "GPA: 3.75",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.3
+        },
+        {
+            "description": "GPA with scale indicator",
+            "text": "GPA: 3.85/4.0",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.4
+        },
+        {
+            "description": "Full Grade Point Average format",
+            "text": "Grade Point Average: 4.00",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.3
+        },
+        {
+            "description": "Cumulative GPA format",
+            "text": "Cumulative GPA: 3.92",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.3
+        },
+        {
+            "description": "Invalid GPA value above maximum",
+            "text": "GPA: 4.5",
+            "expected_valid": false
+        },
+        {
+            "description": "Invalid GPA value below minimum",
+            "text": "GPA: -1.5",
+            "expected_valid": false
+        },
+        {
+            "description": "Number without GPA indicator",
+            "text": "3.75",
+            "expected_valid": false
+        },
+        {
+            "description": "GPA in academic context",
+            "text": "Academic GPA: 3.8",
+            "expected_valid": true,
+            "min_confidence_adjustment": 0.4
+        },
+        {
+            "description": "Invalid format with too many decimals",
+            "text": "GPA: 3.857",
+            "expected_valid": false
+        },
+        {
+            "description": "GPA with suspicious context",
+            "text": "Test score: 3.75",
+            "expected_valid": false
+        }
+    ]
+}
