@@ -1080,157 +1080,332 @@ class PresidioDetector(BaseDetector):
         self.last_validation_reasons = reasons
         return True
 
+##########Validate_Protected_Class##############
+    
     def _validate_protected_class(self, entity: Entity, text: str) -> bool:
-        """
-        Validate protected class entities using configuration-driven rules.
-        Must be called from validate_detection method.
-        """
         if not entity or not entity.text:
             return False
     
         protected_config = self.config_loader.get_config("validation_params").get("protected_class", {})
+        validation_rules = protected_config.get("validation_rules", {})
         text_lower = entity.text.lower()
         context_lower = text.lower() if text else ""
         reasons = []
-        import re
+        score = 0
     
-        # Get configurations
-        validation_rules = protected_config.get("validation_rules", {})
-        confidence_boosts = protected_config.get("confidence_boosts", {})
-        confidence_penalties = protected_config.get("confidence_penalties", {})
-        categories = protected_config.get("categories", {})
+        # Get scoring values from config
+        term_match_score = validation_rules.get("term_match_score", 0.3)
+        context_match_score = validation_rules.get("context_match_score", 0.3)
+        threshold = validation_rules.get("validation_threshold", 0.3)
     
-        # Basic validation
-        if len(entity.text) < validation_rules.get("min_chars", 3):
-            reasons.append("Text too short")
-            self.last_validation_reasons = reasons
-            return False
+        # Load protected class patterns
+        gender_patterns = protected_config.get("categories", {}).get("gender_patterns", {})
+        religious_patterns = protected_config.get("categories", {}).get("religious_patterns", {})  # ✅ FIXED
+        orientation_terms = protected_config.get("categories", {}).get("orientation", [])
+        race_terms = protected_config.get("categories", {}).get("race_ethnicity", [])
+        religion_terms = protected_config.get("categories", {}).get("religion", [])
     
-        # Handle pronouns - no context needed
-        pronoun_patterns = categories.get("pronoun_patterns", {})
+        # 1. Check pronoun patterns
+        pronoun_patterns = protected_config.get("categories", {}).get("pronoun_patterns", {})
         for pattern_name, pattern in pronoun_patterns.items():
             if re.search(pattern, entity.text, re.IGNORECASE):
-                boost = confidence_boosts.get("proper_format", 0.1)
-                entity.confidence += boost
-                reasons.append(f"Matches pronoun pattern {pattern_name}: +{boost}")
-                self.last_validation_reasons = reasons
-                return True
+                score += term_match_score
+                reasons.append(f"Pronoun pattern match: +{term_match_score}")
+                break
     
-        # Organization validation
-        gender_patterns = categories.get("gender_patterns", {})
-        org_regex = gender_patterns.get("org_membership", "")
+        # 2a. Gender Organization Membership Validation
+        org_regex = gender_patterns.get("org_membership")
         if org_regex and re.search(org_regex, entity.text, re.IGNORECASE):
-            org_context = gender_patterns.get("org_context", [])
-            leadership_terms = ["chair", "president", "leader", "founder", "representative"]
-            
-            # Check for either organization context or leadership terms
-            if any(term in context_lower for term in org_context + leadership_terms):
-                boost = confidence_boosts.get("known_organization", 0.2)
-                entity.confidence += boost
-                reasons.append(f"Gender organization with context: +{boost}")
-                self.last_validation_reasons = reasons
-                return True
+            org_contexts = gender_patterns.get("org_context", [])
+            matched_context = [ctx for ctx in org_contexts if ctx in context_lower]
     
-        # Religious organization handling
-        religious_patterns = protected_config.get("religious_patterns", {})
-        org_membership = religious_patterns.get("org_membership", {}).get("regex", "")
-        if org_membership and re.search(org_membership, entity.text, re.IGNORECASE):
-            if any(term in context_lower for term in religious_patterns.get("leadership_roles", [])):
-                boost = religious_patterns.get("org_membership", {}).get("boost", 0.2)
-                entity.confidence += boost
-                reasons.append(f"Religious organization with leadership context: +{boost}")
-                self.last_validation_reasons = reasons
-                return True
-    
-        # Identity context check
-        context_patterns = categories.get("context_patterns", {})
-        for pattern_type, pattern_info in context_patterns.items():
-            if re.search(pattern_info["regex"], context_lower):
-                boost = pattern_info.get("boost", 0.2)
-                entity.confidence += boost
-                reasons.append(f"Found {pattern_type} context: +{boost}")
-                self.last_validation_reasons = reasons
-                return True
-    
-        # Race/ethnicity validation
-        race_terms = categories.get("race_ethnicity", [])
-        if any(term in text_lower for term in race_terms):
-            identity_context = ["descent", "identifies as", "identity", "background"]
-            if any(term in context_lower for term in identity_context):
-                boost = confidence_boosts.get("has_context", 0.2)
-                entity.confidence += boost
-                reasons.append(f"Race/ethnicity with identity context: +{boost}")
-                self.last_validation_reasons = reasons
-                return True
-    
-        # If we reach here without returning True, apply confidence penalty
-        penalty = confidence_penalties.get("no_context", -0.4)
-        entity.confidence += penalty
-        reasons.append(f"Insufficient context: {penalty}")
-        self.last_validation_reasons = reasons
-        return False
+            if matched_context:
+                score += (term_match_score + context_match_score)
+                reasons.append(f"Matched gender-based organization '{entity.text}' with valid context '{matched_context}': +{term_match_score + context_match_score}")
+            else:
+                reasons.append(f"Gender-based organization detected, but missing valid context")
 
-    def _validate_phi(self, entity: Entity, text: str) -> bool:
-        if not entity.text:
-            return False
-    
-        phi_config = self.config_loader.get_config("validation_params").get("phi", {})
-        if not phi_config:
-            self.logger.error("Missing PHI validation configuration")
-            return False
-    
-        text_lower = entity.text.lower()
-        context_lower = text.lower() if text else ""
-        reasons = []
-    
-        validation_rules = phi_config.get("validation_rules", {})
-        confidence_boosts = phi_config.get("confidence_boosts", {})
-        confidence_penalties = phi_config.get("confidence_penalties", {})
-        categories = phi_config.get("categories", {})
-    
-        # Check specific conditions pattern
-        condition_pattern = phi_config.get("patterns", {}).get("specific_conditions", {})
-        if condition_pattern and re.search(condition_pattern["regex"], text_lower):
-            boost = condition_pattern.get("boost", 0.3)
-            entity.confidence += boost
-            reasons.append(f"Matched specific condition pattern: +{boost}")
-            self.last_validation_reasons = reasons
-            return True
-    
-        # Check treatments pattern
-        treatment_pattern = phi_config.get("patterns", {}).get("treatment_keywords", {})
-        if treatment_pattern and re.search(treatment_pattern["regex"], context_lower):
-            boost = treatment_pattern.get("boost", 0.2)
-            entity.confidence += boost
-            reasons.append(f"Found treatment context: +{boost}")
-            self.last_validation_reasons = reasons
-            return True
-    
-        # Check medical device/disability matches
-        devices = categories.get("disabilities", [])
-        conditions = categories.get("medical_conditions", [])
+
+        # 2b. Religious Organization Membership Validation 
+        # 2b. Religious Organization Membership Validation 
+        org_regex_religion = religious_patterns.get("org_membership")
         
-        if any(device in text_lower for device in devices) and any(cond in context_lower for cond in conditions):
-            boost = confidence_boosts.get("condition_specific_match", 0.4)
-            entity.confidence += boost
-            reasons.append(f"Medical device-condition match: +{boost}")
-            self.last_validation_reasons = reasons
-            return True
-    
-        # Check general medical context
-        context_words = phi_config.get("context_words", [])
-        context_matches = [word for word in context_words if word in context_lower]
+        if org_regex_religion and re.search(org_regex_religion, entity.text, re.IGNORECASE):
+            org_contexts_religion = religious_patterns.get("org_context", [])
+            leadership_contexts = religious_patterns.get("leadership_roles", [])
         
-        if len(context_matches) >= validation_rules.get("min_context_words", 2):
-            boost = confidence_boosts.get("has_medical_context", 0.3)
-            entity.confidence += boost
-            reasons.append(f"Sufficient medical context: +{boost}")
+            # Merge all valid contexts
+            valid_contexts = set(org_contexts_religion) | set(leadership_contexts)
+        
+            # Debugging: Ensure leadership roles and contexts are loaded
+            print(f"DEBUG: Valid religious organization contexts: {valid_contexts}")
+            print(f"DEBUG: Context Lower (Surrounding Text): '{context_lower}'")
+        
+            # Normalize context for matching
+            matched_contexts = [ctx for ctx in valid_contexts if ctx in context_lower]
+        
+            if matched_contexts:
+                score += (term_match_score + context_match_score)
+                reasons.append(f"Matched religious organization '{entity.text}' with valid context '{matched_contexts}': +{term_match_score + context_match_score}")
+            else:
+                reasons.append("Religious organization detected, but missing valid context")
+                print(f"DEBUG: Failed Match - Entity: '{entity.text}' | Context Lower: '{context_lower}' | Expected Contexts: {valid_contexts}")
+
+        
+        # 3. Validate identity terms with context
+        matched_term = None
+        term_type = None
+    
+        if any(term in text_lower for term in gender_patterns.get("gender_terms", [])):
+            matched_term = next(term for term in gender_patterns.get("gender_terms", []) if term in text_lower)
+            term_type = "gender"
+        elif any(term in text_lower for term in religion_terms):
+            matched_term = next(term for term in religion_terms if term in text_lower)
+            term_type = "religion"
+        elif any(term in text_lower for term in orientation_terms):
+            matched_term = next(term for term in orientation_terms if term in text_lower)
+            term_type = "orientation"
+        elif any(term in text_lower for term in race_terms):
+            matched_term = next(term for term in race_terms if term in text_lower)
+            term_type = "race"
+    
+        if matched_term:
+            valid_contexts = []
+            if term_type == "gender":
+                valid_contexts = gender_patterns.get("identity_context", [])
+            elif term_type == "religion":
+                valid_contexts = religious_patterns.get("practice_context", [])  # ✅ FIXED
+            elif term_type in ["race", "orientation"]:
+                valid_contexts = gender_patterns.get("identity_context", [])  # Use same identity contexts
+    
+            if any(ctx in context_lower for ctx in valid_contexts):
+                score += (term_match_score + context_match_score)
+                reasons.append(f"{term_type.title()} term '{matched_term}' with valid context: +{term_match_score + context_match_score}")
+            else:
+                reasons.append(f"Found {term_type} term '{matched_term}' but no valid context")
+    
+        # 4. Apply validation
+        if score >= threshold:
+            entity.confidence += score
             self.last_validation_reasons = reasons
             return True
     
         # Apply penalty for missing context
-        penalty = confidence_penalties.get("no_context", -0.4)
+        penalty = protected_config.get("confidence_penalties", {}).get("no_context", -0.4)
         entity.confidence += penalty
-        reasons.append(f"Insufficient context: {penalty}")
+        reasons.append(f"No protected class context: {penalty}")
         self.last_validation_reasons = reasons
         return False
+
+
+
+##########Validate_PHI############## 
+    
+    def _validate_phi(self, entity: Entity, text: str) -> bool:
+        """
+        Validate Protected Health Information (PHI) with configuration-driven rules
+        
+        Args:
+            entity (Entity): The entity to validate
+            text (str): Full text context
+        
+        Returns:
+            bool: Whether the entity is a valid PHI entity
+        """
+        if not entity or not entity.text:
+            return False
+    
+        # Load PHI configuration
+        phi_config = self.config_loader.get_config("validation_params").get("phi", {})
+        
+        # Basic setup
+        text_lower = entity.text.lower()
+        context_lower = text.lower() if text else ""
+        reasons = []
+        
+        # Extract configuration components
+        validation_rules = phi_config.get("validation_rules", {})
+        confidence_boosts = phi_config.get("confidence_boosts", {})
+        confidence_penalties = phi_config.get("confidence_penalties", {})
+        categories = phi_config.get("categories", {})
+        patterns = phi_config.get("patterns", {})
+        context_words = set(phi_config.get("context_words", []))
+        exclusion_terms = set(phi_config.get("exclusion_terms", []))
+        sensitivity_levels = phi_config.get("sensitivity_levels", {})
+        
+        # 1. Exclusion Check: Immediately reject if matches exclusion terms
+        # 1. Exclusion Check: Immediately reject if matches exclusion terms
+        generic_reject_terms = set(phi_config.get("generic_reject_terms", []))
+        medical_context_words = set(
+            phi_config.get("generic_term_context_requirements", {})
+            .get("required_context_words", [
+                'treatment', 'condition', 'disability', 
+                'accommodation', 'leave', 'therapy', 
+                'diagnosed', 'prescription'
+            ])
+        )
+        
+        # Specific handling for overly generic terms
+        def is_generic_medical_term(text_lower, context_lower):
+            # List of terms that require strong medical context
+            strict_generic_terms = {'health', 'medical', 'condition', 'treatment'}
+            
+            # If the entire term is a strict generic term
+            if text_lower in strict_generic_terms:
+                # Require multiple strong medical context words
+                context_matches = [word for word in medical_context_words if word in context_lower]
+                return len(context_matches) < 2
+            
+            return False
+        
+        # Apply generic term check using both the text and full context
+        if is_generic_medical_term(text_lower, text.lower()):
+            reasons.append(f"Generic medical term without sufficient context: {text_lower}")
+            self.last_validation_reasons = reasons
+            return False
+    
+        # 2. Always Valid Conditions Check
+        always_valid_conditions = validation_rules.get("always_valid_conditions", [])
+        if any(condition.lower() in text_lower for condition in always_valid_conditions):
+            boost = confidence_boosts.get("condition_specific_match", 0.5)
+            entity.confidence += boost
+            reasons.append("Always valid medical condition")
+            self.last_validation_reasons = reasons
+            return True
+    
+        # 3. Flatten medical terms for comprehensive checking
+        all_medical_terms = []
+        for category_type in categories.get("medical_conditions", {}).values():
+            all_medical_terms.extend(category_type)
+        for category_type in categories.get("treatments", {}).values():
+            all_medical_terms.extend(category_type)
+    
+        # 4. Medical Context Patterns
+        medical_context_patterns = patterns.get("medical_context_patterns", {})
+        context_regex_patterns = medical_context_patterns.get("regex", [])
+        
+        # Count context matches
+        context_matches = [
+            re.search(pattern, context_lower, re.IGNORECASE) 
+            for pattern in context_regex_patterns
+        ]
+        meaningful_context_matches = [match for match in context_matches if match]
+    
+        # 5. Context Word Matching
+        context_match_count = sum(1 for word in context_words if word in context_lower)
+    
+        # 6. Check if the entity is a known medical term
+        is_medical_term = any(term.lower() in text_lower for term in all_medical_terms)
+
+# 7. Check for generic terms and context requirements
+        generic_config = validation_rules.get("generic_term_context_requirements", {})
+        strict_terms = generic_config.get("strict_terms", [])
+        # Add debug for what we're seeing
+        self.logger.debug(f"Strict terms from config: {strict_terms}")
+        self.logger.debug(f"Text being checked: {text_lower}")
+        
+        # Check if we need to do strict validation
+        strict_match = next((term for term in strict_terms if term in text_lower), None)
+        if strict_match:
+            self.logger.debug(f"Found strict term match: {strict_match}")
+            is_valid, adjustment = self._check_generic_term_context(
+                text_lower,
+                context_lower,
+                generic_config,
+                entity.start if hasattr(entity, 'start') else None,
+                entity.end if hasattr(entity, 'end') else None
+            )
+            self.logger.debug(f"Generic term check results - Valid: {is_valid}, Adjustment: {adjustment}")
+        
+        # 8. Pattern Matching with Enhanced Boost for VA Disability
+        pattern_matches = []
+        for pattern_name, pattern_config in patterns.items():
+            if isinstance(pattern_config.get("regex"), list):
+                regex_patterns = pattern_config["regex"]
+            else:
+                regex_patterns = [pattern_config.get("regex")]
+            
+            for regex_pattern in regex_patterns:
+                match = re.search(regex_pattern, text_lower, re.IGNORECASE)
+                if match:
+                    # Special handling for VA disability patterns
+                    if any(va_term in regex_pattern for va_term in ['disabled', 'veteran', 'service-connected']):
+                        pattern_matches.append({
+                            "name": pattern_name,
+                            "boost": confidence_boosts.get("va_disability_match", 0.3)
+                        })
+                    else:
+                        pattern_matches.append({
+                            "name": pattern_name,
+                            "boost": pattern_config.get("boost", 0.2)
+                        })
+    
+        # 9. Confidence Boosting
+        total_boost = 0
+        for match in pattern_matches:
+            total_boost += match["boost"]
+            reasons.append(f"Pattern Match {match['name']}: +{match['boost']}")
+    
+        # 10. Add additional boost for veteran status specific terms
+        va_specific_terms = ['va disability', 'veteran disability', 'service-connected disability', 'percent disabled']
+        if any(term in text_lower for term in va_specific_terms):
+            va_boost = confidence_boosts.get("veteran_status_match", 0.3)
+            total_boost += va_boost
+            reasons.append(f"Veteran status specific term: +{va_boost}")
+    
+        # 11. Sensitivity Level Determination
+        sensitivity_level = "low"
+        for level, level_config in sensitivity_levels.items():
+            if any(cond.lower() in text_lower for cond in level_config.get("conditions", [])):
+                sensitivity_level = level
+                break
+    
+        # Add sensitivity level boost
+        sensitivity_config = sensitivity_levels.get(sensitivity_level, {})
+        max_sensitivity_boost = sensitivity_config.get("max_boost", 0.2)
+        total_boost += max_sensitivity_boost
+        reasons.append(f"Sensitivity Level '{sensitivity_level}': +{max_sensitivity_boost}")
+    
+        # 12. Final Validation
+        if total_boost > 0:
+            entity.confidence += total_boost
+            self.last_validation_reasons = reasons
+            return True
+    
+        # Default Rejection
+        penalty = confidence_penalties.get("no_context", -0.4)
+        entity.confidence += penalty
+        reasons.append(f"Insufficient Context: {penalty}")
+        self.last_validation_reasons = reasons
+        return False
+
+    def _check_generic_term_context(self, text_lower: str, context_lower: str, 
+                                  generic_config: dict, start_idx: int = None, 
+                                  end_idx: int = None) -> tuple[bool, float]:
+        """
+        Check if a generic health term has sufficient medical context.
+        Returns (is_valid, confidence_adjustment)
+        """
+        # Check if term requires strict validation
+        is_strict_term = any(term in text_lower for term in generic_config.get("strict_terms", []))
+        if not is_strict_term:
+            return True, 0.0
+    
+        # Get context window if positions provided
+        if start_idx is not None and end_idx is not None:
+            window_size = generic_config.get("context_window_size", 50)
+            start = max(0, start_idx - window_size)
+            end = min(len(context_lower), end_idx + window_size)
+            check_context = context_lower[start:end]
+        else:
+            check_context = context_lower
+    
+        # Count context matches
+        context_words = generic_config.get("required_context_words", [])
+        context_matches = [word for word in context_words if word in check_context]
+        required_matches = generic_config.get("minimum_context_words", 2)
+    
+        if len(context_matches) < required_matches:
+            return False, -0.7  # Use generic term penalty from config
+        
+        return True, 0.3  # Context match boost

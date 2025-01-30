@@ -25,7 +25,6 @@ routing:
       LOCATION: 0.8
       GPA: 0.9
       EDUCATIONAL_INSTITUTION: 0.8
-      DEMOGRAPHIC: 0.7
     validation:
       date_ignore_words:
         - "hours"
@@ -70,10 +69,10 @@ routing:
         presidio_weight: 0.5
         spacy_weight: 0.5
       PROTECTED_CLASS:
-        minimum_combined: 0.7
-        presidio_weight: 0.4
-        spacy_weight: 0.6
+        minimum_combined: 0.6
+        presidio_weight: 0.35
+        spacy_weight: 0.65
       PHI:
-        minimum_combined: 0.7
+        minimum_combined: 0.6
         presidio_weight: 0.5
         spacy_weight: 0.5

@@ -510,147 +510,374 @@ class SpacyDetector(BaseDetector):
 
         return has_number or has_street
 
+##########Validate_Protected_Class##############    
 
     def _validate_protected_class(self, entity: Entity, text: str) -> bool:
-        """
-        Validate protected class entities using contextual signals and configuration.
-        """
         if not entity or not entity.text:
             return False
     
+        # Load configurations
         protected_config = self.config_loader.get_config("validation_params").get("protected_class", {})
-        if not protected_config:
-            return False
-    
-        text_lower = entity.text.lower()
-        context_lower = text.strip().lower() if text else ""
-        reasons = []
-    
-        # Basic validation
         validation_rules = protected_config.get("validation_rules", {})
-        confidence_boosts = protected_config.get("confidence_boosts", {})
-        confidence_penalties = protected_config.get("confidence_penalties", {})
-        categories = protected_config.get("categories", {})
+        text_lower = entity.text.lower()
+        context_lower = text.lower() if text else ""
+        reasons = []
+        score = 0
     
-        if len(entity.text) < validation_rules.get("min_chars", 3):
-            reasons.append("Text too short")
-            self.last_validation_reasons = reasons
-            return False
+        # Get scoring values from config
+        term_match_score = validation_rules.get("term_match_score", 0.3)
+        context_match_score = validation_rules.get("context_match_score", 0.3)
+        threshold = validation_rules.get("validation_threshold", 0.3)
     
-        # Handle pronouns - no context needed
-        pronoun_patterns = categories.get("pronoun_patterns", {})
+        # First check pronoun patterns - these are self-validating
+        pronoun_patterns = protected_config.get("categories", {}).get("pronoun_patterns", {})
         for pattern_name, pattern in pronoun_patterns.items():
-            if re.search(pattern, entity.text, re.IGNORECASE):
-                boost = confidence_boosts.get("proper_format", 0.1)
-                entity.confidence += boost
-                reasons.append(f"Matches pronoun pattern {pattern_name}: +{boost}")
-                self.last_validation_reasons = reasons
-                return True
+            try:
+                self.logger.debug(f"Checking pronoun pattern: {pattern} against text: {entity.text}")
+                if re.search(pattern, entity.text, re.IGNORECASE):
+                    score += term_match_score
+                    reasons.append(f"Pronoun pattern match ({pattern_name}): +{term_match_score}")
+                    entity.confidence += score
+                    self.last_validation_reasons = reasons
+                    self.logger.debug(f"Matched pronoun pattern: {pattern_name}")
+                    return True
+            except re.error:
+                self.logger.warning(f"Invalid regex pattern: {pattern}")
+                continue
     
-        # Organization validation
-        gender_patterns = categories.get("gender_patterns", {})
-        org_regex = gender_patterns.get("org_membership", "")
-        if org_regex and re.search(org_regex, entity.text, re.IGNORECASE):
-            org_context = gender_patterns.get("org_context", [])
-            if any(role in context_lower for role in org_context):
-                boost = confidence_boosts.get("gender_context_match", 0.3)
-                entity.confidence += boost
-                reasons.append(f"Gender organization with leadership: +{boost}")
-                self.last_validation_reasons = reasons
-                return True
+        # Process with spaCy for non-pronoun cases
+        doc = self.nlp(text)
+        entity_doc = self.nlp(entity.text)
     
-        # Religious organization handling
-        religious_patterns = protected_config.get("religious_patterns", {})
-        org_membership = religious_patterns.get("org_membership", {}).get("regex", "")
-        if org_membership and re.search(org_membership, entity.text, re.IGNORECASE):
-            if any(term in context_lower for term in religious_patterns.get("leadership_roles", [])):
-                boost = religious_patterns.get("org_membership", {}).get("boost", 0.2)
-                entity.confidence += boost
-                reasons.append(f"Religious organization with leadership: +{boost}")
-                self.last_validation_reasons = reasons
-                return True
+        # Debug full spaCy parse
+        self.logger.debug("\nFull SpaCy Parse:")
+        self.logger.debug("Text tokens:")
+        for token in doc:
+            self.logger.debug(f"Token: {token.text}")
+            self.logger.debug(f"  Dep: {token.dep_}")
+            self.logger.debug(f"  Head: {token.head.text}")
+            self.logger.debug(f"  Children: {[child.text for child in token.children]}")
+            self.logger.debug(f"  Left children: {[child.text for child in token.lefts]}")
+            self.logger.debug(f"  Right children: {[child.text for child in token.rights]}")
+            self.logger.debug(f"  Ancestors: {[ancestor.text for ancestor in token.ancestors]}")
     
-        # Identity context check
-        context_patterns = categories.get("context_patterns", {})
-        for pattern_type, pattern_info in context_patterns.items():
-            if re.search(pattern_info["regex"], context_lower):
-                boost = pattern_info.get("boost", 0.2)
-                entity.confidence += boost
-                reasons.append(f"Found {pattern_type} context: +{boost}")
-                self.last_validation_reasons = reasons
-                return True
+        self.logger.debug("\nNoun chunks:")
+        for chunk in doc.noun_chunks:
+            self.logger.debug(f"Chunk: {chunk.text}")
+            self.logger.debug(f"  Root: {chunk.root.text}")
+            self.logger.debug(f"  Root dep: {chunk.root.dep_}")
+            self.logger.debug(f"  Root head: {chunk.root.head.text}")
+            
+            # Log compounds and modifiers
+            compounds = [t.text for t in chunk.root.children if t.dep_ == 'compound']
+            modifiers = [t.text for t in chunk.root.children if t.dep_ in ['amod', 'advmod']]
+            self.logger.debug(f"  Compounds: {compounds}")
+            self.logger.debug(f"  Modifiers: {modifiers}")
     
-        # Race/ethnicity validation
-        race_terms = categories.get("race_ethnicity", [])
-        if any(term in text_lower for term in race_terms):
-            identity_context = ["descent", "identifies as", "identity", "background"]
-            if any(term in context_lower for term in identity_context):
-                boost = confidence_boosts.get("has_context", 0.2)
-                entity.confidence += boost
-                reasons.append(f"Race/ethnicity with identity context: +{boost}")
-                self.last_validation_reasons = reasons
-                return True
+        # Load all identity terms from config
+        gender_patterns = protected_config.get("categories", {}).get("gender_patterns", {})
+        religious_patterns = protected_config.get("categories", {}).get("religious_patterns", {})
+        orientation_terms = protected_config.get("categories", {}).get("orientation", [])
+        race_terms = protected_config.get("categories", {}).get("race_ethnicity", [])
+        
+        all_identity_terms = (
+            gender_patterns.get("gender_terms", []) +
+            religious_patterns.get("religious_terms", []) +
+            orientation_terms +
+            race_terms
+        )
     
-        # If we reach here without returning True, apply penalty
-        penalty = confidence_penalties.get("no_context", -0.4)
+        # Find matched identity term
+        matched_term = None
+        for token in entity_doc:
+            term_text = token.text.lower()
+            lemma_text = token.lemma_.lower()
+            self.logger.debug(f"Checking term: {term_text} (lemma: {lemma_text})")
+            if term_text in all_identity_terms or lemma_text in all_identity_terms:
+                matched_term = term_text
+                self.logger.debug(f"Matched identity term: {matched_term}")
+                break
+    
+        if matched_term:
+            # Get valid contexts from config
+            valid_contexts = (
+                gender_patterns.get("identity_context", []) +
+                religious_patterns.get("identity_context", []) +
+                religious_patterns.get("practice_context", []) +
+                gender_patterns.get("org_context", []) +
+                religious_patterns.get("org_context", []) +
+                religious_patterns.get("leadership_roles", [])
+            )
+            
+            self.logger.debug(f"Looking for valid contexts: {valid_contexts}")
+            self.logger.debug(f"In text: {text}")
+    
+            # Check noun chunks first
+            for chunk in doc.noun_chunks:
+                chunk_text = chunk.text.lower()
+                if matched_term in chunk_text:
+                    self.logger.debug(f"Found matched term in noun chunk: {chunk_text}")
+                    self.logger.debug(f"Chunk root: {chunk.root.text}")
+                    self.logger.debug(f"Chunk root dep: {chunk.root.dep_}")
+                    self.logger.debug(f"Chunk root head: {chunk.root.head.text}")
+    
+                    # Log all relationships in the chunk
+                    for token in chunk:
+                        self.logger.debug(f"Token in chunk: {token.text}")
+                        self.logger.debug(f"  Dep to root: {token.dep_}")
+                        self.logger.debug(f"  Head: {token.head.text}")
+                        self.logger.debug(f"  Dependencies: {[(child.text, child.dep_) for child in token.children]}")
+    
+                    # Check context words connected to this chunk
+                    if chunk.root.dep_ in ['dobj', 'pobj', 'nsubj', 'attr']:
+                        head_text = chunk.root.head.text.lower()
+                        if head_text in valid_contexts:
+                            self.logger.debug(f"Found context match through chunk head: {head_text}")
+                            score += (term_match_score + context_match_score)
+                            reasons.append(f"Found context through head: +{term_match_score + context_match_score}")
+                            entity.confidence += score
+                            self.last_validation_reasons = reasons
+                            return True
+    
+                    # Check children of the chunk root
+                    for token in chunk.root.children:
+                        token_text = token.text.lower()
+                        if token_text in valid_contexts:
+                            self.logger.debug(f"Found context match through chunk child: {token_text}")
+                            score += (term_match_score + context_match_score)
+                            reasons.append(f"Found context through child: +{term_match_score + context_match_score}")
+                            entity.confidence += score
+                            self.last_validation_reasons = reasons
+                            return True
+    
+            # If not found in chunks, check dependency chains
+            for token in doc:
+                token_text = token.text.lower()
+                if token_text in valid_contexts:
+                    self.logger.debug(f"Found context match: {token_text}")
+                    
+                    # Build dependency chain
+                    token_chain = []
+                    current = token
+                    while current and len(token_chain) < 5:
+                        token_chain.append(current)
+                        current = current.head
+                    self.logger.debug(f"Dependency chain: {[t.text for t in token_chain]}")
+    
+                    # Check each token in chain and its children
+                    for chain_token in token_chain:
+                        chain_text = chain_token.text.lower()
+                        if chain_text == matched_term:
+                            self.logger.debug(f"Found match in chain at {chain_token.text}")
+                            score += (term_match_score + context_match_score)
+                            reasons.append(f"Found context through chain: +{term_match_score + context_match_score}")
+                            entity.confidence += score
+                            self.last_validation_reasons = reasons
+                            return True
+    
+                        # Check immediate children
+                        for child in chain_token.children:
+                            child_text = child.text.lower()
+                            if child_text == matched_term:
+                                self.logger.debug(f"Found match in child of {chain_token.text}")
+                                score += (term_match_score + context_match_score)
+                                reasons.append(f"Found context through child: +{term_match_score + context_match_score}")
+                                entity.confidence += score
+                                self.last_validation_reasons = reasons
+                                return True
+                            
+                            # Check grandchildren
+                            for grandchild in child.children:
+                                grandchild_text = grandchild.text.lower()
+                                if grandchild_text == matched_term:
+                                    self.logger.debug(f"Found match in grandchild of {chain_token.text}")
+                                    score += (term_match_score + context_match_score)
+                                    reasons.append(f"Found context through grandchild: +{term_match_score + context_match_score}")
+                                    entity.confidence += score
+                                    self.last_validation_reasons = reasons
+                                    return True
+    
+        # Apply penalty if no valid matches found
+        penalty = protected_config.get("confidence_penalties", {}).get("no_context", -0.4)
         entity.confidence += penalty
         reasons.append(f"No protected class context: {penalty}")
         self.last_validation_reasons = reasons
         return False
 
+
+##########Validate_PHI############## 
+    
     def _validate_phi(self, entity: Entity, text: str) -> bool:
+        """
+        Validate PHI entities using configuration-based rules with improved context handling.
+        """
         if not entity or not entity.text:
             return False
     
+        # Load PHI configuration
         phi_config = self.config_loader.get_config("validation_params").get("phi", {})
-        if not phi_config:
-            return False
-    
-        context_str = text.strip() if text else ""
-        if not context_str:
-            self.last_validation_reasons.append("No context provided")
-            return False
-    
         text_lower = entity.text.lower()
-        context_lower = context_str.lower()
+        context_lower = text.lower() if text else ""
         reasons = []
+        total_boost = 0
+        is_valid = False
     
-        # Specific condition pattern check
-        condition_pattern = phi_config.get("patterns", {}).get("specific_conditions", {})
-        if condition_pattern and re.search(condition_pattern["regex"], text_lower):
-            boost = condition_pattern.get("boost", 0.3)
-            entity.confidence += boost
-            reasons.append(f"Matched specific condition: +{boost}")
-            self.last_validation_reasons = reasons
-            return True
-    
-        # Check if text is a medical condition and context has treatment
-        conditions = phi_config.get("categories", {}).get("medical_conditions", [])
-        treatments = phi_config.get("categories", {}).get("treatments", [])
-    
-        is_condition = any(c in text_lower for c in conditions)
-        has_treatment = any(t in context_lower for t in treatments)
-        
-        if is_condition and has_treatment:
+        # 1. Check if it's an always-valid condition first
+        always_valid = phi_config.get("validation_rules", {}).get("always_valid_conditions", [])
+        if any(condition.lower() in text_lower for condition in always_valid):
             boost = phi_config.get("confidence_boosts", {}).get("condition_specific_match", 0.4)
-            entity.confidence += boost
-            reasons.append(f"Condition with treatment context: +{boost}")
-            self.last_validation_reasons = reasons
-            return True
-    
-        # Check if text is treatment and context has condition
-        is_treatment = any(t in text_lower for t in treatments)
-        has_condition = any(c in context_lower for c in conditions)
+            total_boost += boost
+            reasons.append(f"Always valid condition match: +{boost}")
+            is_valid = True
         
-        if is_treatment and has_condition:
-            boost = phi_config.get("confidence_boosts", {}).get("condition_specific_match", 0.4)
-            entity.confidence += boost
-            reasons.append(f"Treatment with condition context: +{boost}")
-            self.last_validation_reasons = reasons
-            return True
+        # 2. Process with spaCy for linguistic analysis
+        doc = self.nlp(text)
+        entity_doc = self.nlp(entity.text)
     
-        penalty = phi_config.get("confidence_penalties", {}).get("no_context", -0.4)
-        entity.confidence += penalty
-        reasons.append(f"No medical context: {penalty}")
+        # 3. Check for medical conditions categories
+        medical_conditions = phi_config.get("categories", {}).get("medical_conditions", {})
+        for category, conditions in medical_conditions.items():
+            if any(condition.lower() in text_lower for condition in conditions):
+                boost = phi_config.get("confidence_boosts", {}).get("condition_specific_match", 0.4)
+                total_boost += boost
+                reasons.append(f"Medical condition match ({category}): +{boost}")
+                is_valid = True
+                break
+    
+        # 4. Check for treatment matches
+        treatments = phi_config.get("categories", {}).get("treatments", {})
+        for category, treatment_list in treatments.items():
+            if any(treatment.lower() in text_lower for treatment in treatment_list):
+                boost = phi_config.get("confidence_boosts", {}).get("treatment_context_match", 0.4)
+                total_boost += boost
+                reasons.append(f"Treatment match ({category}): +{boost}")
+                is_valid = True
+                break
+    
+        # 5. Check for disability-related content
+        disabilities = phi_config.get("categories", {}).get("disabilities", {})
+        for category, disability_list in disabilities.items():
+            if any(disability.lower() in text_lower for disability in disability_list):
+                boost = phi_config.get("confidence_boosts", {}).get("condition_specific_match", 0.4)
+                total_boost += boost
+                reasons.append(f"Disability match ({category}): +{boost}")
+                is_valid = True
+                break
+    
+        # 6. Pattern matching
+        patterns = phi_config.get("patterns", {})
+        for pattern_type, pattern_config in patterns.items():
+            regex_patterns = pattern_config.get("regex", [])
+            if not isinstance(regex_patterns, list):
+                regex_patterns = [regex_patterns]
+            
+            for pattern in regex_patterns:
+                try:
+                    if re.search(pattern, text_lower, re.IGNORECASE):
+                        boost = pattern_config.get("boost", 0.3)
+                        total_boost += boost
+                        reasons.append(f"Pattern match ({pattern_type}): +{boost}")
+                        is_valid = True
+                except re.error:
+                    self.logger.warning(f"Invalid regex pattern: {pattern}")
+                    continue
+    
+        # 7. Context word validation
+        context_words = set(phi_config.get("context_words", []))
+        context_matches = sum(1 for token in doc if token.text.lower() in context_words)
+        
+        if context_matches >= phi_config.get("validation_rules", {}).get("min_context_words", 0):
+            boost = phi_config.get("confidence_boosts", {}).get("has_medical_context", 0.3)
+            total_boost += boost
+            reasons.append(f"Context words match ({context_matches}): +{boost}")
+            is_valid = True
+    
+        # 8. Check for generic terms that require additional context
+        # Step 8: Check for generic terms that require additional context
+        #
+        # 1) Only proceed if this entity text is in generic_reject_terms
+        #    e.g., "medication", "treatment", "condition", "health", etc.
+        
+        generic_terms = set(phi_config.get("generic_reject_terms", []))
+        entity_text_lower = entity.text.lower()
+        
+        if entity_text_lower in generic_terms:
+            # Load config for required context
+            required_config = phi_config.get("generic_term_context_requirements", {})
+            required_words = set(required_config.get("required_context_words", []))
+            min_required = required_config.get("minimum_context_words", 2)
+        
+            penalty = phi_config.get("confidence_penalties", {}).get("generic_medical_term", -0.7)
+            
+            # 2) If your context has been loaded into 'doc', 
+            #    ensure it's from the *entire* 'context' string, NOT just the entity.text
+            #    e.g., doc = self.nlp(context_string)
+        
+            # 3) Attempt to find the spaCy sentence containing this entity.
+            entity_span = None
+            for sent in doc.sents:
+                # If this sentence covers the entity's char range:
+                if sent.start_char <= entity.start and sent.end_char >= entity.end:
+                    entity_span = sent
+                    break
+            
+            # If spaCy didn't split sentences or we didn't find one, fallback to entire doc
+            if not entity_span:
+                entity_span = doc
+            
+            # 4) Count how many "required context words" appear in that sentence (or doc).
+            #    We do BOTH text.lower() & lemma_.lower() to catch morphological variants.
+            context_matches = 0
+            for token in entity_span:
+                t_lower = token.text.lower()
+                l_lower = token.lemma_.lower()
+        
+                if t_lower in required_words or l_lower in required_words:
+                    context_matches += 1
+        
+            # 5) If we found fewer than min_required matches, penalize & set is_valid=False
+            if context_matches < min_required:
+                total_boost += penalty
+                reasons.append(f"Generic term without sufficient context: {penalty}")
+                is_valid = False
+
+
+    
+        9. # Apply final confidence adjustment
+        if is_valid:
+            entity.confidence += total_boost
+        else:
+            penalty = phi_config.get("confidence_penalties", {}).get("no_context", -0.7)
+            entity.confidence += penalty
+            reasons.append(f"No valid medical context found: {penalty}")
+    
         self.last_validation_reasons = reasons
+        return is_valid
+
+
+
+    # Specific handling for overly generic medical terms
+    def is_generic_medical_term(text_lower, doc):
+        # List of terms that require strong medical context
+        strict_generic_terms = {'health', 'medical', 'condition', 'treatment'}
+        
+        # If the entire term is a strict generic term
+        if text_lower in strict_generic_terms:
+            # Count strong medical context words
+            context_words = {
+                'diagnosed', 'treatment', 'condition', 'illness', 
+                'therapy', 'prescription', 'medical', 'healthcare', 
+                'clinical', 'diagnosis', 'disability'
+            }
+            
+            # Check tokens and their lemmas
+            context_matches = sum(
+                1 for token in doc 
+                if (token.text.lower() in context_words or 
+                    token.lemma_.lower() in context_words)
+            )
+            
+            # Require multiple context words
+            return context_matches < 2
+        
         return False

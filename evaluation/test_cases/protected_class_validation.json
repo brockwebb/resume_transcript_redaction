@@ -36,11 +36,11 @@
             "description": "Gender identity with context"
         },
         {
-            "text": "Muslim",
-            "context": "Practicing Muslim faith",
+            "text": "Muslim Student Association",
+            "context": "Member of Muslim Student Association",
             "expected_valid": true,
             "min_confidence_adjustment": 0.2,
-            "description": "Religious identity with context"
+            "description": "Religious organization membership"
         },
         {
             "text": "Asian",

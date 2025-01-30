@@ -367,17 +367,22 @@
     },
     "protected_class": {
         "validation_rules": {
-            "min_chars": 3,
+            "min_chars": 2,
             "min_words": 1,
             "require_context": true,
-            "min_context_words": 2,
-            "allow_acronyms": true
+            "min_context_words": 1,
+                "validation_threshold": 0.3, 
+                "term_match_score": 0.3, 
+                "context_match_score": 0.3
         },
         "confidence_boosts": {
             "has_context": 0.2,
             "gender_context_match": 0.3,
-            "proper_format": 0.1,
-            "multiple_words": 0.1
+            "proper_format": 0.2,
+            "multiple_words": 0.1,
+            "gender_identity_match": 0.3,
+            "academic_context": 0.2,
+            "collective_group": 0.2  
         },
         "confidence_penalties": {
             "no_context": -0.4,
@@ -386,113 +391,309 @@
         },
         "categories": {
             "gender_patterns": {
-                "org_membership": "\\b(?:(?:Women|Men|Gender|Trans)\\s+(?:in|for|of)\\s+[A-Z][a-zA-Z\\s]+)\\b",
-                "gender_terms": ["women", "men", "female", "male", "transgender", "trans", "nonbinary", "gender"],
-                "org_context": ["member", "chair", "president", "founder", "leader", "representative", "coordinator"]
+                "org_membership": "\\b(?:(?:Women|Men|Gender|Trans|Nonbinary)\\s*'?s?\\s+(?:Leadership|Professional|Student|Medical|Business|Tech|STEM|Engineering)\\s+(?:Network|Association|Society|Group|Organization))|(?:(?:Women|Men|Gender|Trans|Nonbinary)\\s+(?:in|for|of|and|within|at)\\s+[a-zA-Z][a-zA-Z\\s]*)|(?:Association|Society|Network|Organization|Coalition)\\s+(?:of|for)\\s+(?:Women|Men|Gender|Trans|Nonbinary)",
+                "org_context_regex": "\\b(?:member|chair|president|founder|leader|representative|coordinator|founded)\\b",
+                "identity_regex": "\\b(?:identifies\\s+as|gender\\s+identity|self\\s+describes)\\b",
+                "gender_terms": [
+                    "women", "men", "female", "male", "transgender", 
+                    "trans", "nonbinary", "gender", "queer", 
+                    "gender non-conforming", "genderfluid", 
+                    "gender diverse"
+                ],
+                "identity_context": [
+                    "identifies as", "identity", "identifies", "gender identity", 
+                    "descent", "background", "self-describes", "expresses as", 
+                    "community", "member of", "part of", "LGBTQ+ community", "LGBTQ+",
+                    "belonging to", "affiliate", "leadership", 
+                    "group", "leader", "active in", "advocate", 
+                    "supporting", "representation", 
+                    "chair", "founder", "executive", "board member", "director", "organizer"
+                ],
+                "org_context": [
+                    "member", "chair", "president", "founder", "leader",
+                    "representative", "coordinator", "founded", "group",
+                    "organization", "network", "association", "society",
+                    "chapter", "activist", "advocacy", "professional", 
+                    "engineer", "scientist", "lawyer", "doctor", "academic", 
+                    "conference", "council", "board member", "executive", "organizer"
+                ]
             },
-            "orientation": [
-                "lgbtqia+", "gay", "lesbian", "bisexual", "queer", "asexual"
-            ],
-            "race_ethnicity": [
-                "african american", "asian", "hispanic", "latino",
-                "pacific islander", "white", "caucasian", "black", "indigenous"
-            ],
-            "religion": [
-                "christian", "muslim", "jewish", "buddhist", "hindu", "sikh", "atheist"
-            ],
-            "pronoun_indicators": [
-                "pronouns:", "pronoun:", "preferred pronouns:", "my pronouns:", "(", "["
-            ],
             "pronoun_patterns": {
                 "full_disclosure": "\\b(?:pronouns?:?\\s*(?:\\(|\\[)?)[\\w/]+(?:\\)|\\])?\\b",
                 "parenthetical": "(?:\\(|\\[)[\\w/]+(?:\\)|\\])",
                 "colon_format": "\\b(?:pronouns?:?\\s*)[\\w/]+"
-            }
-        },
-        "religious_patterns": {
-            "org_membership": {
-                "regex": "\\b(?:(?:Muslim|Jewish|Christian|Buddhist|Hindu|Sikh)\\s+(?:Student|Law|Medical|Business|Professional|Fellowship|Association|Society|Group))\\b",
-                "boost": 0.2
             },
-            "religious_terms": [
-                "worship", "prayer", "faith", "religious", "spiritual",
-                "congregation", "temple", "mosque", "synagogue", "church"
+            "orientation": [
+                "lgbtqia+", "gay", "lesbian", "bisexual", 
+                "queer", "asexual", "pan", "questioning"
             ],
-            "leadership_roles": [
-                "leader", "president", "chair", "coordinator",
-                "representative", "founder", "organizer"
+            "race_ethnicity": [
+                "african american", "asian", "hispanic", "latino", 
+                "pacific islander", "white", "caucasian", 
+                "black", "indigenous", "multiracial", "mixed race"
             ],
-            "practice_context": [
-                "practicing", "observant", "devout", "active",
-                "member", "participate", "attend"
-            ]
+            "religious_patterns": {
+                "org_membership": "\\b(?:(?:Muslim|Jewish|Christian|Buddhist|Hindu|Sikh|Atheist|Agnostic|Secular)[\\s-]+(?:Student|Law|Medical|Business|Professional|Fellowship|Association|Society|Group|Council|Network|Ministry|Outreach)|(?:Student|Law|Medical|Business|Professional|Fellowship|Association|Society|Group|Council|Network|Ministry|Outreach)[\\s-]+(?:Muslim|Jewish|Christian|Buddhist|Hindu|Sikh|Atheist|Agnostic|Secular))\\b",
+                "org_context_regex": "\\b(?:member|chair|president|founder|leader|representative|coordinator|founded|activist|participant|affiliate|clergy|minister|pastor|rabbi|imam|chaplain|deacon|bishop|elder|spiritual advisor)\\b",
+                "identity_regex": "\\b(?:identifies\\s+as|religious\\s+belief|faith\\s+identity|self\\s+describes|practicing|observant|faith-based|devout)\\b",
+                "religious_terms": [
+                    "christian", "muslim", "jewish", "buddhist", "hindu", "sikh",
+                    "catholic", "protestant", "mormon", "shinto", "zoroastrian", 
+                    "bahai", "unitarian", "pagan", "wiccan", "druid", "atheist", 
+                    "agnostic", "secular", "non-religious", "freethinker", 
+                    "humanist", "rationalist"
+                ],
+                "identity_context": [
+                    "identifies as", "faith", "belief", "religious background", 
+                    "self-describes", "community", "member of", "part of", 
+                    "belonging to", "affiliate", "leadership", "group", 
+                    "leader", "active in", "advocate", "supporting", 
+                    "representation", "observant", "practicing", "clergy"
+                ],
+                "org_context": [
+                    "member", "chair", "president", "founder", "leader",
+                    "representative", "coordinator", "founded", "group",
+                    "organization", "network", "association", "society",
+                    "chapter", "activist", "advocacy", "faith-based", 
+                    "religious organization", "minister", "priest", "rabbi", 
+                    "imam", "pastor", "bishop", "deacon", "elder", "missionary", "law", "medical", "business", "engineering", "professional", "student", "graduate", "undergraduate", "students", "lawyers", "doctors", "engineers", "professionals"
+                ],
+                "leadership_roles": [
+                    "chair", "president", "founder", "leader", "leading", "representative",
+                    "coordinator", "minister", "priest", "rabbi", "imam", "pastor",
+                    "bishop", "deacon", "elder", "missionary", "evangelist", "reverend"
+                ]
+            }
+    
         }
     },
     "phi": {
         "validation_rules": {
-            "min_chars": 3,
+            "min_chars": 2,
             "min_words": 1,
             "require_context": true,
-            "min_context_words": 2,
-            "allow_acronyms": true
+            "min_context_words": 0,  
+            "max_sensitivity_level": 3,
+            "require_professional_context": false,
+            "require_medical_context": false,  
+            "always_valid_conditions": [
+                "type 1 diabetes", 
+                "type 2 diabetes", 
+                "stage 4 cancer", 
+                "huntington's disease", 
+                "multiple sclerosis", 
+                "cystic fibrosis",
+                "insulin pump",
+                "ada request",
+                "reasonable accommodation", "medical leave",
+                "accommodation needed"
+            ]
+        },
+        "generic_reject_terms": [
+            "health", 
+            "medication",
+            "medical", 
+            "condition", 
+            "treatment"
+        ],
+        "generic_term_context_requirements": {
+            "required_context_words": [
+                "medical", 
+                "treatment", "therapy", "therapies",
+                "condition", 
+                "disability", 
+                "prescription", "prescribed",
+                "illness", "disease",
+                "healthcare",
+                "clinical", 
+                "diagnosis", "diagnoses", "diagnosed", 
+                "taking", "receiving", "using",  
+                "managing", "ongoing", "undergoing",  
+                "scheduled",  
+                "recovery", "recovering"
+            ],
+            "minimum_context_words": 2,
+            "context_window_size": 50
         },
         "confidence_boosts": {
-            "has_medical_context": 0.3,
-            "condition_specific_match": 0.4,
-            "explicit_condition_disclosure": 0.2
+            "has_medical_context": 0.4,
+            "condition_specific_match": 0.5,
+            "explicit_condition_disclosure": 0.3,
+            "treatment_context_match": 0.4,
+            "professional_confirmation": 0.3,
+            "longitudinal_context": 0.2,
+            "specialized_terminology": 0.2,
+            "diagnostic_precision": 0.3,
+            "va_disability_match": 0.3
         },
         "confidence_penalties": {
-            "no_context": -0.4,
-            "ambiguous_term": -0.3,
-            "generic_medical_term": -0.2
+            "no_context": -0.7,
+            "ambiguous_term": -0.4,
+            "generic_medical_term": -0.7,
+            "insufficient_detail": -0.2,
+            "potential_misclassification": -0.3
         },
         "categories": {
-            "medical_conditions": [
-                "diabetes", "hypertension", "asthma", "adhd", "anxiety disorder",
-                "depression", "bipolar disorder", "arthritis", "cancer",
-                "epilepsy", "autism", "schizophrenia", "stroke", "dementia"
-            ],
-            "treatments": [
-                "insulin pump", "medication", "therapy", "surgery", "treatment",
-                "rehabilitation", "prescription", "antibiotics", "chemotherapy",
-                "radiation", "antidepressants"
-            ],
-            "disabilities": [
-                "wheelchair", "hearing aid", "prosthetic", "service animal",
-                "visual impairment", "mobility issues", "disability",
-                "reasonable accommodation", "assistive device"
-            ],
-            "medical_procedures": [
-                "blood test", "x-ray", "MRI", "CT scan", "vaccination", "surgery",
-                "biopsy", "ultrasound", "diagnosis", "screening"
-            ]
+            "medical_conditions": {
+                "chronic": [
+                    "diabetes", "hypertension", "multiple sclerosis", 
+                    "rheumatoid arthritis", "lupus", "fibromyalgia", 
+                    "chronic fatigue syndrome", "inflammatory bowel disease"
+                ],
+                "mental_health": [
+                    "depression", "bipolar disorder", "schizophrenia", 
+                    "anxiety disorder", "post-traumatic stress disorder", 
+                    "obsessive-compulsive disorder", "eating disorder", 
+                    "attention deficit disorder"
+                ],
+                "neurological": [
+                    "epilepsy", "parkinson's disease", "alzheimer's", 
+                    "multiple sclerosis", "cerebral palsy", "brain injury"
+                ],
+                "cancer": [
+                    "breast cancer", "lung cancer", "prostate cancer", 
+                    "leukemia", "lymphoma", "melanoma", "stage 4 cancer"
+                ],
+                "rare_conditions": [
+                    "cystic fibrosis", "huntington's disease", 
+                    "muscular dystrophy", "rare genetic disorder"
+                ]
+            },
+            "treatments": {
+                "pharmaceutical": [
+                    "insulin", "chemotherapy", "radiation", 
+                    "antidepressants", "antiretroviral", "immunosuppressants"
+                ],
+                "surgical": [
+                    "organ transplant", "joint replacement", 
+                    "cardiac surgery", "neurosurgery"
+                ],
+                "therapeutic": [
+                    "physical therapy", "occupational therapy", 
+                    "speech therapy", "cognitive behavioral therapy", 
+                    "dialysis", "rehabilitation"
+                ]
+            },
+            "disabilities": {
+                "mobility": [
+                    "wheelchair", "prosthetic", "mobility aid", 
+                    "walker", "crutches", "service dog"
+                ],
+                "sensory": [
+                    "hearing aid", "visual impairment", "sign language", 
+                    "braille reader"
+                ],
+                "cognitive": [
+                    "developmental disability", "learning disability", 
+                    "intellectual disability"
+                ],
+                "ada_related": [
+                    "ada request",
+                    "ada accommodation",
+                    "reasonable accommodation",
+                    "workplace modification",
+                    "disability adaptation",
+                    "employment accommodation"
+                ],
+                "veteran_status": [
+                    "service-connected disability", "combat veteran", 
+                    "veteran benefits", "military disability", "disabled vet", "service-connected", "veteran disability", "percent disabled", "p&t", "permanent and total", "service member disability"
+                ]
+            },
+            "medical_procedures": {
+                "diagnostic": [
+                    "blood test", "x-ray", "MRI", "CT scan", 
+                    "biopsy", "ultrasound", "genetic testing", 
+                    "neurological screening"
+                ],
+                "invasive": [
+                    "surgery", "endoscopy", "cardiac catheterization", 
+                    "lumbar puncture", "bone marrow biopsy"
+                ]
+            }
         },
         "patterns": {
             "specific_conditions": {
-                "regex": "\\b(?:Type\\s*1|Type\\s*2)\\s+diabetes\\b",
-                "boost": 0.3
+                "regex": [
+                    "\\b(?:Type\\s*[12]\\s*diabetes|insulin\\s+pump|\\d+%\\s*disabled|veteran\\s+status|\\w+\\s+medical\\s+condition)\\b",
+                     "\\b(?:ada\\s+request|reasonable\\s+accommodation|disability\\s+adaptation)\\b",
+                    "\\b(?:stage\\s+[0-4]\\s+\\w+\\s+cancer)\\b",
+                    "\\b(?:service-connected\\s+disability\\s+\\d+%)\\b"
+                ],
+                "boost": 0.4
             },
             "medication_patterns": {
-                "regex": "\\b(?:taking|prescribed)\\s+medication\\b",
-                "boost": 0.2
+                "regex": [
+                    "\\b(?:taking|prescribed|current)\\s+medication\\b",
+                    "\\b(?:dosage|prescription|medication\\s+management)\\b"
+                ],
+                "boost": 0.3
             },
             "procedure_context": {
-                "regex": "\\b(?:undergoing|scheduled\\s+for|recent)\\s+(?:procedure|treatment)\\b",
-                "boost": 0.2
+                "regex": [
+                    "\\b(?:undergoing|scheduled\\s+for|recent|upcoming)\\s+(?:procedure|treatment|intervention)\\b",
+                    "\\b(?:preparing\\s+for|recovering\\s+from)\\s+(?:medical\\s+procedure)\\b"
+                ],
+                "boost": 0.3
             },
             "treatment_keywords": {
-            "regex": "\\b(?:therapy|treatment|medication|diagnosed\\s+with)\\b",
-            "boost": 0.2
+                "regex": [
+                    "\\b(?:therapy|treatment|medication|diagnosed\\s+with|managing|uses|responding\\s+to)\\b",
+                    "\\b(?:medical\\s+management|ongoing\\s+care|long-term\\s+treatment)\\b"
+                ],
+                "boost": 0.3
+            },
+            "medical_context_patterns": {
+                "regex": [
+                     "\\b(?:medical|diagnosed|treatment|condition|disability|prescription|health|clinical)\\b",
+                    "\\b(?:medical\\s+history|ongoing\\s+condition|health\\s+management)\\b",
+                    "\\b(?:\\d+%\\s*disabled|service-connected|veteran\\s+disability)\\b"
+                ],
+                "boost": 0.1
             }
         },
         "context_words": [
-            "medical", "diagnosed", "treatment", "condition", "disability", "prescription",
-            "illness", "therapy", "healthcare", "health", "clinical", "diagnosis"
+            "medical", "diagnosed", "treatment", "condition", 
+            "disability", "prescription", "illness", "therapy", 
+            "healthcare", "health", "clinical", "diagnosis",
+            "veteran", "medical support", "health management",
+            "medical record", "patient", "healthcare provider",
+            "chronic", "ongoing", "long-term", "management",
+            "care plan", "medical history", "veteran", "service", "military", 
+            "disabled", "service-connected", "veteran status", "disability", "benefits", "ada",
+            "americans with disabilities act",
+            "accommodation",
+            "reasonable accommodation",
+            "workplace modification",
+            "employment adaptation"
         ],
-        "confidence_adjustments": {
-            "has_diagnosis_context": 0.2,
-            "explicit_condition_disclosure": 0.3,
-            "false_positive_context": -0.4
+        "exclusion_terms": [
+            "medical school",
+            "medical device company",
+            "medical equipment",
+            "medical research",
+            "medical professional",
+            "medical terminology",
+            "medical billing",
+            "health insurance",
+            "health plan",
+            "health management",
+            "health services"
+        ],
+        "sensitivity_levels": {
+            "low": {
+                "conditions": ["minor injury", "common cold", "vet", "veteran", "service member"],
+                "max_boost": 0.2
+            },
+            "medium": {
+                "conditions": ["chronic condition", "manageable disease", "service-connected","percent disabled", "disability status", "ada request", "workplace accommodation"],
+                "max_boost": 0.3
+            },
+            "high": {
+                "conditions": ["terminal illness", "severe disability"],
+                "max_boost": 0.5,
+                "requires_explicit_consent": true
+            }
         }
     }
 }
