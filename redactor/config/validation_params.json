@@ -597,8 +597,23 @@
                 ],
                 "veteran_status": [
                     "service-connected disability", "combat veteran", 
-                    "veteran benefits", "military disability", "disabled vet", "service-connected", "veteran disability", "percent disabled", "p&t", "permanent and total", "service member disability"
-                ]
+                    "veteran benefits", "military disability", "disabled vet", 
+                    "service-connected", "veteran disability", "percent disabled", 
+                    "p&t", "permanent and total", "service member disability"
+                ],
+                "va_status_markers": {
+                    "rating_terms": [
+                        "veteran status", 
+                        "va rating",
+                        "disability rating",
+                        "service connected rating",
+                        "va status",
+                        "disability status",
+                        "p&t status",
+                        "permanent and total"
+                    ],
+                    "context_boost": 0.3
+                }
             },
             "medical_procedures": {
                 "diagnostic": [

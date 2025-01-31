@@ -709,152 +709,453 @@ class SpacyDetector(BaseDetector):
     
     def _validate_phi(self, entity: Entity, text: str) -> bool:
         """
-        Validate PHI entities using configuration-based rules with improved context handling.
+        Validate PHI entities using advanced spaCy linguistic analysis and configuration rules.
         """
         if not entity or not entity.text:
+            self.logger.debug("Empty entity or text")
             return False
     
         # Load PHI configuration
         phi_config = self.config_loader.get_config("validation_params").get("phi", {})
         text_lower = entity.text.lower()
-        context_lower = text.lower() if text else ""
         reasons = []
         total_boost = 0
         is_valid = False
     
-        # 1. Check if it's an always-valid condition first
-        always_valid = phi_config.get("validation_rules", {}).get("always_valid_conditions", [])
-        if any(condition.lower() in text_lower for condition in always_valid):
-            boost = phi_config.get("confidence_boosts", {}).get("condition_specific_match", 0.4)
-            total_boost += boost
-            reasons.append(f"Always valid condition match: +{boost}")
-            is_valid = True
+        self.logger.debug(f"Starting PHI validation for entity: '{entity.text}'")
+        self.logger.debug(f"Context text: '{text}'")
         
-        # 2. Process with spaCy for linguistic analysis
+        # Process with spaCy for linguistic analysis
         doc = self.nlp(text)
         entity_doc = self.nlp(entity.text)
+        entity_start = text.find(entity.text)
+        if entity_start == -1:  # Handle case-insensitive match
+            entity_start = text.lower().find(text_lower)
+            self.logger.debug(f"Used case-insensitive match to find entity at position {entity_start}")
     
-        # 3. Check for medical conditions categories
-        medical_conditions = phi_config.get("categories", {}).get("medical_conditions", {})
-        for category, conditions in medical_conditions.items():
-            if any(condition.lower() in text_lower for condition in conditions):
-                boost = phi_config.get("confidence_boosts", {}).get("condition_specific_match", 0.4)
-                total_boost += boost
-                reasons.append(f"Medical condition match ({category}): +{boost}")
-                is_valid = True
-                break
+        # Find the token span corresponding to our entity
+        entity_tokens = []
+        for token in doc:
+            if token.idx >= entity_start and token.idx < entity_start + len(entity.text):
+                entity_tokens.append(token)
     
-        # 4. Check for treatment matches
-        treatments = phi_config.get("categories", {}).get("treatments", {})
-        for category, treatment_list in treatments.items():
-            if any(treatment.lower() in text_lower for treatment in treatment_list):
-                boost = phi_config.get("confidence_boosts", {}).get("treatment_context_match", 0.4)
-                total_boost += boost
-                reasons.append(f"Treatment match ({category}): +{boost}")
-                is_valid = True
-                break
+        if not entity_tokens:
+            self.logger.warning(f"Could not find entity tokens for '{entity.text}'")
+            return False
     
-        # 5. Check for disability-related content
-        disabilities = phi_config.get("categories", {}).get("disabilities", {})
-        for category, disability_list in disabilities.items():
-            if any(disability.lower() in text_lower for disability in disability_list):
-                boost = phi_config.get("confidence_boosts", {}).get("condition_specific_match", 0.4)
-                total_boost += boost
-                reasons.append(f"Disability match ({category}): +{boost}")
-                is_valid = True
-                break
+        self.logger.debug("Entity tokens found:")
+        for token in entity_tokens:
+            self.logger.debug(f"  Token: '{token.text}', POS: {token.pos_}, Dep: {token.dep_}, Head: '{token.head.text}'")
     
-        # 6. Pattern matching
-        patterns = phi_config.get("patterns", {})
-        for pattern_type, pattern_config in patterns.items():
-            regex_patterns = pattern_config.get("regex", [])
-            if not isinstance(regex_patterns, list):
-                regex_patterns = [regex_patterns]
+        # 1. Analyze syntactic dependencies and relationships
+        def check_dependency_patterns():
+            nonlocal total_boost
+            medical_verbs = set(phi_config.get("medical_verbs", {
+                'treat', 'diagnose', 'prescribe', 'administer', 'receive',
+                'manage', 'suffer', 'experience', 'undergo', 'require'
+            }))
+            medical_context_found = False
             
-            for pattern in regex_patterns:
-                try:
-                    if re.search(pattern, text_lower, re.IGNORECASE):
-                        boost = pattern_config.get("boost", 0.3)
+            self.logger.debug("Checking dependency patterns...")
+            
+            for token in entity_tokens:
+                # Log token's dependency structure
+                self.logger.debug(f"\nAnalyzing token: '{token.text}'")
+                self.logger.debug(f"Head: '{token.head.text}', Dependency: {token.dep_}")
+                
+                # Check ancestors
+                ancestors = list(token.ancestors)
+                self.logger.debug(f"Ancestors: {[t.text for t in ancestors]}")
+                for ancestor in ancestors:
+                    self.logger.debug(f"Checking ancestor: '{ancestor.text}', lemma: '{ancestor.lemma_}'")
+                    if ancestor.lemma_ in medical_verbs:
+                        boost = phi_config.get("confidence_boosts", {}).get("treatment_context_match", 0.3)
+                        reason = f"Medical verb dependency ({ancestor.lemma_} → {token.text}): +{boost}"
+                        self.logger.debug(f"Found medical verb ancestor: {reason}")
+                        reasons.append(reason)
                         total_boost += boost
-                        reasons.append(f"Pattern match ({pattern_type}): +{boost}")
-                        is_valid = True
-                except re.error:
-                    self.logger.warning(f"Invalid regex pattern: {pattern}")
+                        medical_context_found = True
+    
+                # Check children
+                children = list(token.children)
+                self.logger.debug(f"Children: {[t.text for t in children]}")
+                for child in children:
+                    self.logger.debug(f"Checking child: '{child.text}', dep: {child.dep_}")
+                    if child.dep_ in {'prep', 'dobj', 'pobj'} and any(
+                        term in child.text.lower() for term in phi_config.get("context_words", [])
+                    ):
+                        boost = phi_config.get("confidence_boosts", {}).get("has_medical_context", 0.2)
+                        reason = f"Medical context dependency ({token.text} → {child.text}): +{boost}"
+                        self.logger.debug(f"Found medical context child: {reason}")
+                        reasons.append(reason)
+                        total_boost += boost
+                        medical_context_found = True
+    
+            self.logger.debug(f"Dependency check result: medical_context_found={medical_context_found}")
+            return medical_context_found
+    
+        # 2. Analyze noun chunks for medical phrases
+        def analyze_noun_chunks():
+            nonlocal total_boost
+            medical_terms = set(phi_config.get("context_words", []))
+            chunk_match_found = False
+            
+            self.logger.debug("\nAnalyzing noun chunks...")
+            
+            for chunk in doc.noun_chunks:
+                self.logger.debug(f"\nExamining chunk: '{chunk.text}'")
+                self.logger.debug(f"Root: '{chunk.root.text}', Root dep: {chunk.root.dep_}")
+                
+                # Check if our entity is part of this chunk
+                chunk_tokens = list(chunk)
+                entity_in_chunk = any(token in entity_tokens for token in chunk_tokens)
+                self.logger.debug(f"Entity in chunk: {entity_in_chunk}")
+                
+                if entity_in_chunk:
+                    # Look for medical modifiers
+                    modifiers = [token for token in chunk if token.dep_ in {'amod', 'compound'}]
+                    self.logger.debug(f"Modifiers found: {[(t.text, t.dep_) for t in modifiers]}")
+                    
+                    medical_modifiers = [mod for mod in modifiers if mod.text.lower() in medical_terms]
+                    if medical_modifiers:
+                        boost = phi_config.get("confidence_boosts", {}).get("specialized_terminology", 0.3)
+                        reason = f"Medical noun phrase ({chunk.text}): +{boost}"
+                        self.logger.debug(f"Found medical modifier: {reason}")
+                        reasons.append(reason)
+                        total_boost += boost
+                        chunk_match_found = True
+    
+            self.logger.debug(f"Noun chunk analysis result: chunk_match_found={chunk_match_found}")
+            return chunk_match_found
+
+        # 3. Detect treatment patterns using dependency parsing
+        def check_treatment_patterns():
+            nonlocal total_boost
+            treatments = phi_config.get("categories", {}).get("treatments", {})
+            treatment_found = False
+    
+            self.logger.debug("\nChecking treatment patterns...")
+    
+            # Flatten treatment lists from config
+            all_treatments = {
+                treatment.lower() 
+                for category in treatments.values() 
+                for treatment in category
+            }
+            self.logger.debug(f"Loaded {len(all_treatments)} treatments from config")
+    
+            for token in entity_tokens:
+                self.logger.debug(f"\nAnalyzing token for treatment: '{token.text}'")
+                
+                # Check for direct treatment mentions
+                if token.text.lower() in all_treatments:
+                    boost = phi_config.get("confidence_boosts", {}).get("treatment_context_match", 0.4)
+                    reason = f"Direct treatment reference ({token.text}): +{boost}"
+                    self.logger.debug(f"Found direct treatment: {reason}")
+                    reasons.append(reason)
+                    total_boost += boost
+                    treatment_found = True
                     continue
     
-        # 7. Context word validation
-        context_words = set(phi_config.get("context_words", []))
-        context_matches = sum(1 for token in doc if token.text.lower() in context_words)
-        
-        if context_matches >= phi_config.get("validation_rules", {}).get("min_context_words", 0):
-            boost = phi_config.get("confidence_boosts", {}).get("has_medical_context", 0.3)
-            total_boost += boost
-            reasons.append(f"Context words match ({context_matches}): +{boost}")
-            is_valid = True
+                # Log dependency structure
+                self.logger.debug(f"Token head: '{token.head.text}', lemma: '{token.head.lemma_}', dep: {token.dep_}")
+                if token.head.head:
+                    self.logger.debug(f"Grandparent: '{token.head.head.text}', lemma: '{token.head.head.lemma_}'")
     
-        # 8. Check for generic terms that require additional context
-        # Step 8: Check for generic terms that require additional context
-        #
-        # 1) Only proceed if this entity text is in generic_reject_terms
-        #    e.g., "medication", "treatment", "condition", "health", etc.
-        
-        generic_terms = set(phi_config.get("generic_reject_terms", []))
-        entity_text_lower = entity.text.lower()
-        
-        if entity_text_lower in generic_terms:
-            # Load config for required context
-            required_config = phi_config.get("generic_term_context_requirements", {})
-            required_words = set(required_config.get("required_context_words", []))
-            min_required = required_config.get("minimum_context_words", 2)
-        
-            penalty = phi_config.get("confidence_penalties", {}).get("generic_medical_term", -0.7)
+                # Check treatment-related syntactic patterns
+                treatment_patterns = [
+                    # receiving/undergoing treatment
+                    (token.dep_ == 'dobj' and token.head.lemma_ in {'receive', 'undergo', 'start'}),
+                    # treated with/by
+                    (token.dep_ == 'pobj' and token.head.head.lemma_ == 'treat'),
+                    # prescribed treatment
+                    (token.dep_ == 'dobj' and token.head.lemma_ == 'prescribe'),
+                    # taking/using medication
+                    (token.dep_ == 'dobj' and token.head.lemma_ in {'take', 'use', 'need'}),
+                    # treatment for condition
+                    (token.head.lemma_ == 'for' and token.head.head.lemma_ == 'treatment')
+                ]
+    
+                for i, pattern_match in enumerate(treatment_patterns):
+                    if pattern_match:
+                        boost = phi_config.get("confidence_boosts", {}).get("treatment_context_match", 0.3)
+                        reason = f"Treatment syntax pattern ({token.head.lemma_} → {token.text}): +{boost}"
+                        self.logger.debug(f"Found treatment pattern {i+1}: {reason}")
+                        reasons.append(reason)
+                        total_boost += boost
+                        treatment_found = True
+                        break
+    
+            self.logger.debug(f"Treatment pattern check result: treatment_found={treatment_found}")
+            return treatment_found
+    
+        # 4. Analyze medical context using spaCy's linguistic features
+        def analyze_medical_context():
+            nonlocal total_boost
+            medical_conditions = phi_config.get("categories", {}).get("medical_conditions", {})
+            condition_found = False
             
-            # 2) If your context has been loaded into 'doc', 
-            #    ensure it's from the *entire* 'context' string, NOT just the entity.text
-            #    e.g., doc = self.nlp(context_string)
-        
-            # 3) Attempt to find the spaCy sentence containing this entity.
-            entity_span = None
-            for sent in doc.sents:
-                # If this sentence covers the entity's char range:
-                if sent.start_char <= entity.start and sent.end_char >= entity.end:
-                    entity_span = sent
+            self.logger.debug("\nAnalyzing medical context...")
+            
+            # Flatten condition lists from config
+            all_conditions = {
+                condition.lower() 
+                for category in medical_conditions.values() 
+                for condition in category
+            }
+            self.logger.debug(f"Loaded {len(all_conditions)} medical conditions from config")
+    
+            for token in entity_tokens:
+                # Get token's neighborhood in dependency tree
+                context_tokens = list(token.children) + list(token.ancestors)
+                
+                self.logger.debug(f"\nAnalyzing context for token: '{token.text}'")
+                self.logger.debug(f"Context tokens: {[t.text for t in context_tokens]}")
+
+                for context_token in context_tokens:
+                    self.logger.debug(f"\nChecking context token: '{context_token.text}'")
+                    self.logger.debug(f"POS: {context_token.pos_}, Dep: {context_token.dep_}, Lemma: {context_token.lemma_}")
+                    
+                    # Check for condition mentions
+                    if context_token.text.lower() in all_conditions:
+                        boost = phi_config.get("confidence_boosts", {}).get("condition_specific_match", 0.4)
+                        reason = f"Medical condition context ({context_token.text}): +{boost}"
+                        self.logger.debug(f"Found medical condition: {reason}")
+                        reasons.append(reason)
+                        total_boost += boost
+                        condition_found = True
+                        break
+    
+                    # Check for diagnostic/symptomatic language patterns
+                    diagnostic_patterns = [
+                        (context_token.lemma_ in {'diagnose', 'present', 'show'} and 
+                         any(c.dep_ == 'prep' for c in context_token.children)),
+                        (context_token.dep_ == 'prep' and context_token.head.lemma_ in {'suffer', 'experience'})
+                    ]
+                    
+                    for i, is_match in enumerate(diagnostic_patterns):
+                        if is_match:
+                            boost = phi_config.get("confidence_boosts", {}).get("diagnostic_precision", 0.3)
+                            reason = f"Diagnostic context ({context_token.lemma_}): +{boost}"
+                            self.logger.debug(f"Found diagnostic pattern {i+1}: {reason}")
+                            reasons.append(reason)
+                            total_boost += boost
+                            condition_found = True
+                            break
+    
+            self.logger.debug(f"Medical context analysis result: condition_found={condition_found}")
+            return condition_found
+            
+       
+        # 5. Analyze veteran disability patterns
+        def analyze_veteran_disability():
+            """Analyze veteran-specific disability patterns using dependency parsing."""
+            nonlocal total_boost
+            veteran_found = False
+            
+            self.logger.debug("\nAnalyzing veteran disability patterns...")
+            
+            # Get disability patterns from config
+            disabilities = phi_config.get("categories", {}).get("disabilities", {})
+            veteran_status = disabilities.get("veteran_status", [])
+            va_status_config = disabilities.get("va_status_markers", {})
+            va_status_terms = va_status_config.get("rating_terms", [])
+            status_boost = va_status_config.get("context_boost", 0.3)
+            
+            self.logger.debug(f"Loaded veteran status patterns: {veteran_status}")
+            self.logger.debug(f"Loaded VA status terms: {va_status_terms}")
+            
+            # Check for percentage patterns
+            percentage_token = None
+            for token in doc:
+                if token.text == '%' and token.i > 0:
+                    prev_token = doc[token.i - 1]
+                    if prev_token.like_num:
+                        percentage_token = token
+                        self.logger.debug(f"Found percentage pattern: {prev_token.text}%")
+                        break
+            
+            if percentage_token:
+                # Look for disability terms in context
+                context_tokens = []
+                # Look before percentage
+                start_idx = max(0, percentage_token.i - 5)
+                # Look after percentage
+                end_idx = min(len(doc), percentage_token.i + 5)
+                context_tokens = doc[start_idx:end_idx]
+                
+                self.logger.debug(f"Analyzing context around percentage: {[t.text for t in context_tokens]}")
+                
+                # 1. Check for VA status terms in broader context
+                full_context = ' '.join(t.text.lower() for t in doc)
+                for status in va_status_terms:
+                    if status in full_context:
+                        self.logger.debug(f"Found VA status term: {status}")
+                        reason = f"VA status context ({status}): +{status_boost}"
+                        self.logger.debug(f"Found VA status context: {reason}")
+                        reasons.append(reason)
+                        total_boost += status_boost
+                        veteran_found = True
+                        
+                # 2. Check immediate context for veteran status patterns
+                context_text = ' '.join(t.text.lower() for t in context_tokens)
+                for pattern in veteran_status:
+                    if pattern in context_text:
+                        boost = phi_config.get("confidence_boosts", {}).get("va_disability_match", 0.4)
+                        reason = f"VA disability pattern ({pattern}): +{boost}"
+                        self.logger.debug(f"Found VA disability pattern: {reason}")
+                        reasons.append(reason)
+                        total_boost += boost
+                        veteran_found = True
+                
+                # 3. Check dependency-based patterns
+                for token in context_tokens:
+                    self.logger.debug(f"Checking token: {token.text} (lemma: {token.lemma_})")
+                    
+                    if token.lemma_ in {'disability', 'disabled', 'veteran', 'service'}:
+                        self.logger.debug(f"Found key term: {token.text} ({token.lemma_})")
+                        
+                        # Check for service connection pattern
+                        if token.lemma_ == 'service' and any(
+                            child.lemma_ == 'connect' for child in token.children
+                        ):
+                            boost = phi_config.get("confidence_boosts", {}).get("va_disability_match", 0.3)
+                            reason = f"Service connected pattern: +{boost}"
+                            self.logger.debug(reason)
+                            reasons.append(reason)
+                            total_boost += boost
+                            veteran_found = True
+                        
+                        # Check for VA rating pattern
+                        if token.lemma_ == 'disability' and any(
+                            t.text.lower() in {'va', 'rating', 'rate'} 
+                            for t in list(token.children) + list(token.ancestors)
+                        ):
+                            boost = phi_config.get("confidence_boosts", {}).get("va_disability_match", 0.3)
+                            reason = f"VA rating pattern: +{boost}"
+                            self.logger.debug(reason)
+                            reasons.append(reason)
+                            total_boost += boost
+                            veteran_found = True
+            
+            self.logger.debug(f"Veteran disability analysis result: veteran_found={veteran_found}")
+            return veteran_found
+
+        # 6. Analyze ADA accommodation patterns
+        def analyze_ada_accommodations():
+            """Analyze ADA-related accommodation patterns using dependency parsing."""
+            nonlocal total_boost
+            accommodation_found = False
+            
+            self.logger.debug("\nAnalyzing ADA accommodation patterns...")
+            
+            # Get disability patterns from config
+            disabilities = phi_config.get("categories", {}).get("disabilities", {})
+            ada_patterns = disabilities.get("ada_related", [])
+            
+            self.logger.debug(f"Loaded ADA accommodation patterns: {ada_patterns}")
+            
+            # Check for basic accommodation terms first
+            accommodation_terms = {'accommodation', 'accommodations', 'ada', 'disability'}
+            context_terms = {'need', 'needed', 'require', 'required', 'requesting', 'disability'}
+            
+            # Check full context
+            full_context = ' '.join(t.text.lower() for t in doc)
+            
+            # First check exact patterns
+            for pattern in ada_patterns:
+                if pattern in full_context:
+                    boost = phi_config.get("confidence_boosts", {}).get("has_medical_context", 0.4)
+                    reason = f"ADA accommodation pattern ({pattern}): +{boost}"
+                    self.logger.debug(f"Found ADA pattern: {reason}")
+                    reasons.append(reason)
+                    total_boost += boost
+                    accommodation_found = True
                     break
             
-            # If spaCy didn't split sentences or we didn't find one, fallback to entire doc
-            if not entity_span:
-                entity_span = doc
+            # Then check for accommodation term + context term combinations
+            if not accommodation_found:
+                words = set(t.text.lower() for t in doc)
+                if any(a in words for a in accommodation_terms) and any(c in words for c in context_terms):
+                    boost = phi_config.get("confidence_boosts", {}).get("has_medical_context", 0.4)
+                    reason = f"Accommodation context pattern: +{boost}"
+                    self.logger.debug(f"Found accommodation context pattern")
+                    reasons.append(reason)
+                    total_boost += boost
+                    accommodation_found = True
             
-            # 4) Count how many "required context words" appear in that sentence (or doc).
-            #    We do BOTH text.lower() & lemma_.lower() to catch morphological variants.
-            context_matches = 0
-            for token in entity_span:
-                t_lower = token.text.lower()
-                l_lower = token.lemma_.lower()
+            self.logger.debug(f"ADA accommodation analysis result: accommodation_found={accommodation_found}")
+            return accommodation_found
+            
         
-                if t_lower in required_words or l_lower in required_words:
-                    context_matches += 1
+        # Section 7. Apply linguistic analysis
+        # Apply linguistic analysis
+        dep_match = check_dependency_patterns()
+        self.logger.debug(f"\nDependency pattern results: {dep_match}")
         
-            # 5) If we found fewer than min_required matches, penalize & set is_valid=False
-            if context_matches < min_required:
-                total_boost += penalty
-                reasons.append(f"Generic term without sufficient context: {penalty}")
-                is_valid = False
+        chunk_match = analyze_noun_chunks()
+        self.logger.debug(f"Noun chunk analysis results: {chunk_match}")
+        
+        treatment_match = check_treatment_patterns()
+        self.logger.debug(f"Treatment pattern results: {treatment_match}")
+        
+        context_match = analyze_medical_context()
+        self.logger.debug(f"Medical context analysis results: {context_match}")
+        
+        veteran_match = analyze_veteran_disability()
+        self.logger.debug(f"Veteran disability analysis results: {veteran_match}")
 
-
+        # Add ADA accommodation check
+        ada_match = analyze_ada_accommodations()
+        self.logger.debug(f"ADA accommodation analysis results: {ada_match}")
     
-        9. # Apply final confidence adjustment
+        # Validate based on combined linguistic evidence
+        is_valid = any([dep_match, chunk_match, treatment_match, context_match, veteran_match, ada_match])
+        self.logger.debug(f"\nCombined validation result: is_valid={is_valid}")
+        self.logger.debug(f"Total confidence boost: {total_boost}")
+
+        
+        # Section 8. Handle generic terms with strict requirements
+        if text_lower in phi_config.get("generic_reject_terms", []):
+            self.logger.debug("\nGeneric term detected, applying strict validation")
+            if not treatment_match:  # Skip strict validation if it's a clear treatment reference
+                required_context = phi_config.get("generic_term_context_requirements", {})
+                required_words = set(required_context.get("required_context_words", []))
+                min_required = required_context.get("minimum_context_words", 2)
+                
+                # Use spaCy's dependency parsing to find related context words
+                context_matches = sum(1 for token in doc if (
+                    token.text.lower() in required_words and
+                    any(t in entity_tokens for t in list(token.children) + list(token.ancestors))
+                ))
+                
+                self.logger.debug(f"Context word matches found: {context_matches}, minimum required: {min_required}")
+                
+                if context_matches < min_required:
+                    penalty = phi_config.get("confidence_penalties", {}).get("generic_medical_term", -0.7)
+                    total_boost += penalty
+                    reasons.append(f"Generic term without sufficient context: {penalty}")
+                    self.logger.debug(f"Insufficient context - applying penalty: {penalty}")
+                    self.last_validation_reasons = reasons
+                    entity.confidence += penalty
+                    return False
+    
+        # 7. Apply final confidence adjustment
         if is_valid:
             entity.confidence += total_boost
+            self.logger.debug(f"Validation successful - Final confidence: {entity.confidence}")
         else:
             penalty = phi_config.get("confidence_penalties", {}).get("no_context", -0.7)
             entity.confidence += penalty
             reasons.append(f"No valid medical context found: {penalty}")
+            self.logger.debug(f"Validation failed - Applied penalty: {penalty}, Final confidence: {entity.confidence}")
     
         self.last_validation_reasons = reasons
+        self.logger.debug("\nValidation reasons:")
+        for reason in reasons:
+            self.logger.debug(f"  {reason}")
+            
         return is_valid
-
-
 
     # Specific handling for overly generic medical terms
     def is_generic_medical_term(text_lower, doc):
