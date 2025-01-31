@@ -28,3 +28,7 @@ Pillow==9.4.0
 # PyTorch (left as a note; installed separately)
 # For Mac (CPU-only): pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 # For default setup: conda install pytorch torchvision torchaudio cpuonly -c pytorch
+
+# Visualization
+matplotlib==3.10.0
+
