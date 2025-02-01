@@ -1,32 +1,45 @@
 # Resume Redaction System Architecture
 
 ## Overview
-The Resume Redaction System is designed to automatically detect and redact sensitive information from resumes and professional documents while preserving important technical and professional content. The system leverages both Presidio and spaCy for entity detection, using each tool's strengths while coordinating their outputs for optimal accuracy.
+The Resume Redaction System automatically detects and redacts sensitive information from resumes and professional documents while preserving important technical and professional content. The system uses a consolidated approach with a single source of truth for pattern matching, combining Presidio's NLP capabilities with spaCy's contextual understanding.
 
 ## System Components
 
 ### 1. Core Detection Framework
-The system uses a modular entity detection framework with three main components:
+The system uses a modular entity detection framework with the following key components:
 
 #### BaseDetector Interface
-Common interface for all detection implementations:
+Common interface defining core detection capabilities:
 ```python
 class BaseDetector:
     """Base interface for entity detection implementations"""
     def detect_entities(self, text: str) -> List[Entity]
     def validate_detection(self, entity: Entity) -> bool
     def get_confidence(self, entity: Entity) -> float
+    def prepare_text(self, text: str) -> str
 ```
+
+#### ValidationPatternMatcher
+Central pattern matching component that serves as single source of truth:
+- Loads patterns from validation_params.json
+- Provides consistent validation rules
+- Used by both direct pattern matching and Presidio
+- Sections:
+  * Pattern Loading and Management
+  * Entity Detection
+  * Preprocessing and Filtering
+  * Validation Logic
 
 #### Specialized Detectors
 
 **PresidioDetector**
-- Primary responsibility: Pattern-based and structured data detection
-- Strengths:
-  * Emails, phone numbers, credit cards
-  * Social security numbers, ID numbers
-  * Formatted dates and times
-  * URLs and IP addresses
+- Primary responsibility: NLP-enhanced pattern detection
+- Uses ValidationPatternMatcher for consistent pattern handling
+- Sections:
+  * Configuration and Setup
+  * Entity Detection
+  * Result Processing
+  * Entity Validation
 
 **SpacyDetector**
 - Primary responsibility: Context-aware named entity recognition
@@ -37,132 +50,171 @@ class BaseDetector:
   * Professional context understanding
 
 #### EnsembleCoordinator
-Manages the coordination between detectors:
-- Routes entities to appropriate detector based on type
-- Combines and validates results
-- Resolves conflicts between detections
-- Applies confidence thresholds
+Coordinates detection systems:
+- Routes entities based on configured rules
+- Combines results using weighted confidence scores
+- Resolves detection conflicts
+- Applies validation through ValidationPatternMatcher
 
 ### 2. Configuration System
 
-#### Entity Routing Configuration
-New configuration file: `entity_routing.yaml`
+#### Core Configuration Files
+The system uses a set of JSON and YAML configuration files:
+
+**validation_params.json**
+- Primary source of truth for pattern matching
+- Entity-specific validation rules
+- Confidence thresholds and adjustments
+- Context requirements for each entity type
+
+**entity_routing.yaml**
 ```yaml
 routing:
   presidio_primary:
     entities:
-      - EMAIL
+      - ADDRESS
+      - EMAIL_ADDRESS
       - PHONE_NUMBER
-      - SSN
-      - CREDIT_CARD
-      - URL
-    confidence_threshold: 0.85
+      - INTERNET_REFERENCE
+      - LOCATION
+      - GPA
+      - EDUCATIONAL_INSTITUTION
+    thresholds:
+      ADDRESS: 0.8
+      EMAIL_ADDRESS: 0.7
+      PHONE_NUMBER: 0.8
+      # ... other thresholds
 
   spacy_primary:
     entities:
       - PERSON
-      - ORG
-      - GPE
-    confidence_threshold: 0.75
+    thresholds:
+      PERSON: 0.6
 
   ensemble_required:
     entities:
-      - TITLE
-      - EDUCATION
-      - ORGANIZATION
+      - DATE_TIME
+      - EDUCATIONAL_INSTITUTION
+      - PHI
+      - PROTECTED_CLASS
     confidence_thresholds:
-      minimum_combined: 0.80
-      minimum_individual: 0.60
-
-validation_rules:
-  context_window: 50  # words
-  minimum_context_matches: 1
+      DATE_TIME:
+        minimum_combined: 0.7
+        presidio_weight: 0.65
+        spacy_weight: 0.35
+      # ... other entity settings
 ```
 
-#### Detection Patterns Configuration
-Enhanced `detection_patterns.yaml`:
-- Pattern definitions for each entity type
-- Context rules for validation
-- Entity-specific confidence thresholds
-- Technical term definitions and rules
+#### Configuration Management
+ConfigLoader class provides:
+- Centralized configuration loading
+- Environment-specific settings
+- Path resolution for config files
+- Config validation and error handling
 
 ### 3. Processing Pipeline
 
+#### Core Processing Components
+1. **RedactionProcessor**
+   - Main orchestration component
+   - Uses ValidationPatternMatcher for pattern detection
+   - Integrates with EnsembleCoordinator
+   - Handles text normalization and filtering
+
+2. **RedactFileProcessor**
+   - Handles PDF file operations
+   - Manages bounding boxes for redactions
+   - Applies redaction styling
+   - PDF validation and error handling
+
+#### Detection Flow
+```mermaid
+graph TD
+    A[Input Text] --> B[RedactionProcessor]
+    B --> C{Pattern Match?}
+    C -->|Yes| D[ValidationPatternMatcher]
+    C -->|No| E[EnsembleCoordinator]
+    E --> F{Route by Type}
+    F -->|Pattern Based| G[PresidioDetector]
+    F -->|Context Based| H[SpacyDetector]
+    G --> I[ValidationPatternMatcher]
+    D --> J[Result Collection]
+    I --> J
+    H --> J
+    J --> K[Apply Redactions]
+```
+
+#### Process Stages
+
 1. **Input Processing**
-   - Document loading and text extraction
+   - Document text extraction
    - Initial text normalization
-   - Batch management for multiple files
+   - Word list generation for PDF mapping
 
 2. **Entity Detection**
-   ```mermaid
-   graph TD
-       A[Input Text] --> B[Entity Classification]
-       B --> C{Route by Type}
-       C -->|Pattern Match| D[Presidio Detector]
-       C -->|Named Entity| E[spaCy Detector]
-       C -->|Complex Entity| F[Ensemble Detection]
-       D --> G[Result Aggregation]
-       E --> G
-       F --> G
-       G --> H[Output Generation]
-   ```
+   - Pattern-based detection using ValidationPatternMatcher
+   - Fallback to ensemble detection if needed
+   - Entity validation and confidence scoring
 
 3. **Result Processing**
-   - Confidence score calculation
-   - Overlap resolution
-   - Final validation checks
-   - Redaction application
+   - Combine detection results
+   - Apply keep_word filters
+   - Generate bounding boxes for redaction
 
-### 4. Supporting Infrastructure
+4. **Output Generation**
+   - Apply redactions to PDF
+   - Generate redaction statistics
+   - Handle output file creation
+  
+### 4. Evaluation and Testing Framework
 
-#### Logging System
-- Comprehensive error tracking
-- Performance monitoring
-- Decision audit trails
-- Debug information for each detection
+#### Evaluation Components
 
-#### Configuration Management
-- Runtime configuration loading
-- Environment-specific settings
-- Pattern and rule management
-- Dynamic updates support
+1. **EvaluationGUI**
+   - Interactive testing interface
+   - Entity-type specific analysis
+   - Performance metrics visualization
+   - Debug logging display
 
-## Implementation Strategy
+2. **TestRunner**
+   - Batch test execution
+   - Statistical analysis
+   - Performance metrics collection
+   - Comparison between runs
 
-### Phase 1: Foundation
-1. Create base detector interface
-2. Implement specialized detectors
-3. Setup configuration structure
-4. Add basic routing logic
+#### Testing Infrastructure
 
-### Phase 2: Integration
-1. Implement ensemble coordinator
-2. Add validation logic
-3. Create result aggregation
-4. Setup logging infrastructure
+1. **StageOneEvaluator**
+   - Entity detection analysis
+   - Pattern matching validation
+   - Confidence score evaluation
+   - Detection overlap analysis
 
-### Phase 3: Optimization
-1. Add performance monitoring
-2. Implement caching if needed
-3. Add parallel processing support
-4. Fine-tune configurations
+2. **EntityMatcher**
+   - Ground truth comparison
+   - Entity span matching
+   - Confidence threshold testing
+   - False positive/negative analysis
 
-## Future Considerations
+3. **EntityMetrics**
+   - Precision/recall calculation
+   - Type-based performance metrics
+   - Confidence distribution analysis
+   - Pattern effectiveness measurement
 
-### Potential Enhancements
-1. GUI-based configuration management
-2. Real-time performance monitoring
-3. Custom pattern definition interface
-4. Additional NLP model integration
+#### Test Suite Organization
+```
+data/
+  test_suite/
+    originals/       # Original test documents
+    annotations/     # Ground truth annotations
+    results/        # Test run results
+    test_manifest.yaml  # Test definitions
+```
 
-### Performance Optimizations
-1. Batch processing improvements
-2. Caching strategies
-3. Parallel processing options
-4. Memory usage optimization
-
-### Maintenance Considerations
-1. Regular pattern updates
-2. Configuration backup strategies
-3. Log rotation and management
-4. Performance monitoring and tuning
+#### Evaluation Metrics
+- Entity detection accuracy
+- Pattern matching precision
+- Context validation effectiveness
+- Processing performance
+- Memory usage tracking
