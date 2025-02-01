@@ -1,0 +1,1290 @@
+alexis_rivera:
+  detection_analysis:
+    by_detector:
+      presidio: 12
+      spacy: 3
+    by_type:
+      ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 5
+      EDUCATIONAL_INSTITUTION:
+        detected: 2
+        detection_rate: 1.0
+        total: 2
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      GPA:
+        detected: 2
+        detection_rate: 1.0
+        total: 2
+      INTERNET_REFERENCE:
+        detected: 0
+        detection_rate: 0.0
+        total: 2
+      LOCATION:
+        detected: 5
+        detection_rate: 1.25
+        total: 4
+      PERSON:
+        detected: 3
+        detection_rate: 3.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PROTECTED_CLASS:
+        detected: 0
+        detection_rate: 0.0
+        total: 2
+    confidence_distribution:
+      0.6-0.8: 3
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: INTERNET_REFERENCE
+    mapped_type: null
+    text: linkedin.com/in/alexisrivera-tech
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: INTERNET_REFERENCE
+    mapped_type: null
+    text: '@alexis_rivera_dev'
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2019
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2016
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: July 2019
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: June 2018
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2019
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: Women in Data Science (WiDS) initiative
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: UnidosUS
+  unmapped_entities: []
+cheryl_turner:
+  detection_analysis:
+    by_detector:
+      presidio: 11
+      spacy: 1
+    by_type:
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 5
+      EDUCATIONAL_INSTITUTION:
+        detected: 2
+        detection_rate: 1.0
+        total: 2
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      LOCATION:
+        detected: 7
+        detection_rate: 1.1666666666666667
+        total: 6
+      PERSON:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+    confidence_distribution:
+      0.6-0.8: 1
+      0.8-1.0: 2
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: '2018'
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2010 - 2018
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2004 - 2010
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2003 - 2004
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2000 - 2003
+  unmapped_entities: []
+deshawn_carter:
+  detection_analysis:
+    by_detector:
+      presidio: 9
+      spacy: 1
+    by_type:
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 4
+      EDUCATIONAL_INSTITUTION:
+        detected: 2
+        detection_rate: 1.0
+        total: 2
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      INTERNET_REFERENCE:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      LOCATION:
+        detected: 5
+        detection_rate: 1.25
+        total: 4
+      PERSON:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PHI:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PROTECTED_CLASS:
+        detected: 0
+        detection_rate: 0.0
+        total: 2
+      SSN:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+    confidence_distribution:
+      0.6-0.8: 1
+      0.8-1.0: 2
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: INTERNET_REFERENCE
+    mapped_type: null
+    text: deshawnaitech.com
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: SSN
+    mapped_type: null
+    text: '9876'
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: "June 2018 \u2013 Present"
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: "September 2015 \u2013 May 2018"
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2015
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2011
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: Black and Latinx youth
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PHI
+    mapped_type: null
+    text: 'Accessibility Needs: Prefers voice-to-text tools due to repetitive strain
+      injury'
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: 'Pronouns: He/Him'
+  unmapped_entities: []
+elena_garcia:
+  detection_analysis:
+    by_detector:
+      presidio: 12
+      spacy: 1
+    by_type:
+      ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      DATE:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 3
+      EDUCATIONAL_INSTITUTION:
+        detected: 3
+        detection_rate: 3.0
+        total: 1
+      EMAIL_ADDRESS:
+        detected: 2
+        detection_rate: 1.0
+        total: 2
+      INTERNET_REFERENCE:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      LOCATION:
+        detected: 6
+        detection_rate: 3.0
+        total: 2
+      OTHER_ID:
+        detected: 0
+        detection_rate: 0.0
+        total: 2
+      PERSON:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+    confidence_distribution:
+      0.6-0.8: 1
+      0.8-1.0: 2
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PHONE_NUMBER
+    mapped_type: null
+    text: (+1) 212-345-6789
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: INTERNET_REFERENCE
+    mapped_type: null
+    text: www.drelena.bio
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: OTHER_ID
+    mapped_type: null
+    text: 0000-0002-1234-5678
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: OTHER_ID
+    mapped_type: null
+    text: A123-456-789
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: "July 2014 \u2013 Present"
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: "June 2010 \u2013 June 2014"
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE
+    mapped_type: null
+    text: May 2010
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2006
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: EDUCATIONAL_INSTITUTION
+    mapped_type: null
+    text: NYU Medical Center
+  unmapped_entities: []
+jack_spencer:
+  detection_analysis:
+    by_detector:
+      presidio: 10
+      spacy: 1
+    by_type:
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 5
+      EDUCATIONAL_INSTITUTION:
+        detected: 2
+        detection_rate: 2.0
+        total: 1
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      LOCATION:
+        detected: 6
+        detection_rate: 1.5
+        total: 4
+      PERSON:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+    confidence_distribution:
+      0.6-0.8: 1
+      0.8-1.0: 6
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PERSON
+    mapped_type: null
+    text: JACK SPENCER
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2017 - Present
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2014 - 2017
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2012 - 2013
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2013 - 2014
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2009 - 2012
+  unmapped_entities: []
+jennifer_price:
+  detection_analysis:
+    by_detector:
+      presidio: 12
+      spacy: 3
+    by_type:
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 5
+      EDUCATIONAL_INSTITUTION:
+        detected: 2
+        detection_rate: 1.0
+        total: 2
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      LOCATION:
+        detected: 8
+        detection_rate: 1.6
+        total: 5
+      PERSON:
+        detected: 3
+        detection_rate: 3.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+    confidence_distribution:
+      0.6-0.8: 3
+      0.8-1.0: 3
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PERSON
+    mapped_type: null
+    text: JENNIFER PRICE
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: '2011'
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2001 - 2011
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 1999 - 2000
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2000 - 2001
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 1996 - 1999
+  unmapped_entities: []
+johnathan_doe:
+  detection_analysis:
+    by_detector:
+      presidio: 15
+      spacy: 3
+    by_type:
+      ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 4
+      EDUCATIONAL_INSTITUTION:
+        detected: 2
+        detection_rate: 1.0
+        total: 2
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      GPA:
+        detected: 2
+        detection_rate: 1.0
+        total: 2
+      INTERNET_REFERENCE:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      LOCATION:
+        detected: 8
+        detection_rate: 1.6
+        total: 5
+      PERSON:
+        detected: 3
+        detection_rate: 3.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      SSN:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+    confidence_distribution:
+      0.6-0.8: 2
+      0.8-1.0: 3
+  mapping_conflicts:
+  - mappings:
+    - PERSON
+    - LOCATION
+    text: Tableau
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: INTERNET_REFERENCE
+    mapped_type: null
+    text: linkedin.com/in/johndoe123
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: SSN
+    mapped_type: null
+    text: 123-45-6789
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: "June 2018 \u2013 Present"
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: "May 2017 \u2013 August 2017"
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2018
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2015
+  unmapped_entities: []
+jordan_patel:
+  detection_analysis:
+    by_detector:
+      presidio: 11
+      spacy: 2
+    by_type:
+      ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 5
+      EDUCATIONAL_INSTITUTION:
+        detected: 2
+        detection_rate: 1.0
+        total: 2
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      GPA:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      INTERNET_REFERENCE:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      LOCATION:
+        detected: 5
+        detection_rate: 1.25
+        total: 4
+      PERSON:
+        detected: 2
+        detection_rate: 2.0
+        total: 1
+      PHI:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+    confidence_distribution:
+      0.6-0.8: 2
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: INTERNET_REFERENCE
+    mapped_type: null
+    text: jordanpatel.dev
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2010-2016
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: "July 2018 \u2013 Present"
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: "January 2010 \u2013 January 2016"
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: June 2018
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: June 2016
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PHI
+    mapped_type: null
+    text: 'Accessibility Statement: Will require screen magnification tools for extended
+      periods of computer work due to partial visual impairment'
+  unmapped_entities: []
+noah_spencer:
+  detection_analysis:
+    by_detector:
+      presidio: 11
+    by_type:
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 5
+      EDUCATIONAL_INSTITUTION:
+        detected: 3
+        detection_rate: 1.5
+        total: 2
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      LOCATION:
+        detected: 6
+        detection_rate: 1.2
+        total: 5
+      PERSON:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+    confidence_distribution:
+      0.8-1.0: 5
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2019 - Present
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2016 - 2019
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2012 - 2015
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2015 - 2016
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2009 - 2012
+  unmapped_entities: []
+priya_ahmed:
+  detection_analysis:
+    by_detector:
+      presidio: 9
+      spacy: 1
+    by_type:
+      ADDRESS:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 5
+      EDUCATIONAL_INSTITUTION:
+        detected: 3
+        detection_rate: 1.0
+        total: 3
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      INTERNET_REFERENCE:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      LOCATION:
+        detected: 4
+        detection_rate: 1.0
+        total: 4
+      PERSON:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PHI:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PROTECTED_CLASS:
+        detected: 0
+        detection_rate: 0.0
+        total: 2
+    confidence_distribution: {}
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: ADDRESS
+    mapped_type: null
+    text: 45 Lotus Crescent, Unit 3
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: INTERNET_REFERENCE
+    mapped_type: null
+    text: linkedin.com/in/priya-ahmed-phd
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PHI
+    mapped_type: null
+    text: 'Medical Disclosure: Type 1 diabetic, requires accommodations for insulin
+      pump usage during work hours'
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: July 2015
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: August 2010
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2015
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: June 2015
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2010
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: Muslim Women in STEM
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: Islamic
+  unmapped_entities: []
+riley_bennett:
+  detection_analysis:
+    by_detector:
+      presidio: 8
+      spacy: 2
+    by_type:
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 4
+      EDUCATIONAL_INSTITUTION:
+        detected: 2
+        detection_rate: 1.0
+        total: 2
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      INTERNET_REFERENCE:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      LOCATION:
+        detected: 4
+        detection_rate: 1.3333333333333333
+        total: 3
+      PERSON:
+        detected: 2
+        detection_rate: 2.0
+        total: 1
+      PHI:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PROTECTED_CLASS:
+        detected: 0
+        detection_rate: 0.0
+        total: 6
+    confidence_distribution:
+      0.6-0.8: 2
+      0.8-1.0: 1
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: (they/them)
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: 'Pronouns: They/Them'
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: INTERNET_REFERENCE
+    mapped_type: null
+    text: rileybennettdata.com
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: "July 2018 \u2013 Present"
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: "May 2017 \u2013 June 2018"
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2018
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2015
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: LGBTQIA+
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: Queer
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: LGBTQIA+
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PHI
+    mapped_type: null
+    text: 'Accessibility: Uses blue light glasses for prolonged screen time'
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: Queer-Friendly
+  unmapped_entities: []
+samira_nguyen:
+  detection_analysis:
+    by_detector:
+      presidio: 14
+      spacy: 2
+    by_type:
+      ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 5
+      EDUCATIONAL_INSTITUTION:
+        detected: 4
+        detection_rate: 1.3333333333333333
+        total: 3
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      INTERNET_REFERENCE:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      LOCATION:
+        detected: 7
+        detection_rate: 1.4
+        total: 5
+      OTHER_ID:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      PERSON:
+        detected: 2
+        detection_rate: 2.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PROTECTED_CLASS:
+        detected: 0
+        detection_rate: 0.0
+        total: 2
+    confidence_distribution:
+      0.6-0.8: 2
+      0.8-1.0: 2
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: INTERNET_REFERENCE
+    mapped_type: null
+    text: github.com/samira-nguyen
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: October 2017
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: "October 2013 \u2013 September 2017"
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: September 2017
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: September 2013
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2011
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: 'Travel Restrictions: Requires visa support for non-EU countries'
+  unmapped_entities: []
+taylor_simms:
+  detection_analysis:
+    by_detector:
+      presidio: 5
+      spacy: 1
+    by_type:
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 9
+      EDUCATIONAL_INSTITUTION:
+        detected: 3
+        detection_rate: 3.0
+        total: 1
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      INTERNET_REFERENCE:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      PERSON:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+    confidence_distribution: {}
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: INTERNET_REFERENCE
+    mapped_type: null
+    text: linkedin.com/in/taylorsimms
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2014-09
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2021-05
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2013-01
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2014-08
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2011-06
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 2013-01
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: '2008'
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: '2012'
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: '2030'
+  unmapped_entities: []
+taylor_smith:
+  detection_analysis:
+    by_detector:
+      presidio: 9
+      spacy: 1
+    by_type:
+      ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      DATE_TIME:
+        detected: 0
+        detection_rate: 0.0
+        total: 5
+      EDUCATIONAL_INSTITUTION:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      EMAIL_ADDRESS:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      GPA:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      INTERNET_REFERENCE:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+      LOCATION:
+        detected: 4
+        detection_rate: 1.0
+        total: 4
+      PERSON:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PHONE_NUMBER:
+        detected: 1
+        detection_rate: 1.0
+        total: 1
+      PROTECTED_CLASS:
+        detected: 0
+        detection_rate: 0.0
+        total: 1
+    confidence_distribution:
+      0.6-0.8: 1
+  mapping_conflicts: []
+  missed_entities:
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: INTERNET_REFERENCE
+    mapped_type: null
+    text: linkedin.com/in/taylormsmith
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: 05/15/1986
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: June 2015
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: August 2010
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2015
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: DATE_TIME
+    mapped_type: null
+    text: May 2008
+  - !!python/object:evaluation.evaluate.DetectionResult
+    confidence: 1.0
+    detector: ground_truth
+    entity_type: PROTECTED_CLASS
+    mapped_type: null
+    text: Mentor, Women in Leadership Initiative
+  unmapped_entities: []

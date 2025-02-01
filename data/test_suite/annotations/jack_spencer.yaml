@@ -89,7 +89,7 @@ entities:
     end_char: 1204
   sensitivity: medium
 - text: Ashford University
-  type: EEDUCATIONAL_INSTITUTION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1

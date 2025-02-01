@@ -49,7 +49,7 @@ entities:
     end_char: 178
   sensitivity: medium
 - text: "@alexis_rivera_dev"
-  type: INTERNET_REFERENCEA
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
