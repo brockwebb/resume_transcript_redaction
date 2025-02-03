@@ -13,13 +13,13 @@ from pathlib import Path
 
 # Base components
 from .detectors.base_detector import Entity
-from .detectors.validation_pattern_matcher import ValidationPatternMatcher
 from .detectors.ensemble_coordinator import EnsembleCoordinator
 from .redactor_file_processing import RedactFileProcessor
 
 # Utilities
 from app.utils.logger import RedactionLogger
 from app.utils.config_loader import ConfigLoader
+
 
 ###############################################################################
 # SECTION 2: CLASS DEFINITION AND INITIALIZATION
@@ -92,30 +92,65 @@ class RedactionProcessor:
             raise
 
     def _init_core_components(self) -> None:
-        """Initialize detection systems using validation patterns."""
-        try:
-            # Initialize pattern matcher with validation patterns
-            self.pattern_matcher = ValidationPatternMatcher(
-                config_loader=self.config_loader,
-                logger=self.logger
-            )
-            
-            if self.debug_mode:
-                self.logger.debug("ValidationPatternMatcher initialized")
-                self.logger.debug(f"Loaded patterns for types: {list(self.pattern_matcher.patterns.keys())}")
-
-            # Initialize ensemble detection system
-            self.ensemble = EnsembleCoordinator(
-                config_loader=self.config_loader,
-                logger=self.logger
-            )
-            
-            if self.debug_mode:
-                self.logger.debug("EnsembleCoordinator initialized")
+            """Initialize detection systems using ensemble detection."""
+            try:
+                # Initialize ensemble detection system
+                self.ensemble = EnsembleCoordinator(
+                    config_loader=self.config_loader,
+                    logger=self.logger
+                )
                 
+                if self.debug_mode:
+                    self.logger.debug("EnsembleCoordinator initialized")
+                    
+            except Exception as e:
+                self.logger.error(f"Error initializing core components: {str(e)}")
+                raise
+    
+    def detect_entities(self, text: str) -> List[Entity]:
+        """
+        Detect entities in text using ensemble detection.
+        
+        Args:
+            text: Text to analyze
+            
+        Returns:
+            List of detected entities
+        """
+        if not text:
+            self.logger.warning("Empty text provided for entity detection")
+            return []
+
+        try:
+            # Get detections using ensemble
+            detected = self.ensemble.detect_entities(text)
+            
+            if self.debug_mode:
+                self.logger.debug(f"Detected {len(detected)} entities")
+                for entity in detected:
+                    self.logger.debug(
+                        f"{entity.entity_type}: '{entity.text}' "
+                        f"({entity.confidence:.2f})"
+                    )
+
+            # Filter using keep words
+            filtered = []
+            for entity in detected:
+                if self._should_keep(entity.text):
+                    if self.debug_mode:
+                        self.logger.debug(f"Keeping term '{entity.text}' matched in keep_words")
+                    continue
+                
+                filtered.append(entity)
+
+            if self.debug_mode:
+                self.logger.debug(f"After filtering: {len(filtered)} entities")
+
+            return filtered
+
         except Exception as e:
-            self.logger.error(f"Error initializing core components: {str(e)}")
-            raise
+            self.logger.error(f"Error in entity detection: {str(e)}")
+            return []
 
     def _init_word_filters(self) -> None:
         """Initialize word filter lists from configuration."""

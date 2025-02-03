@@ -1,13 +1,20 @@
 # redactor/detectors/base_detector.py
 
+###############################################################################
+# SECTION 1: IMPORTS AND TYPE DEFINITIONS
+###############################################################################
+
 from abc import ABC, abstractmethod
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Set
 from dataclasses import dataclass
 from pathlib import Path
 
 @dataclass
 class Entity:
-    """Represents a detected entity with its metadata."""
+    """
+    Represents a detected entity with its metadata.
+    Core data structure for all entity detection results.
+    """
     text: str
     entity_type: str
     confidence: float
@@ -16,8 +23,15 @@ class Entity:
     source: str
     metadata: Optional[Dict[str, Any]] = None
 
+###############################################################################
+# SECTION 2: BASE DETECTOR CLASS
+###############################################################################
+
 class BaseDetector(ABC):
-    """Abstract base class for entity detectors."""
+    """
+    Abstract base class for entity detectors.
+    Provides common functionality and interface for all detectors.
+    """
     
     def __init__(self, 
                  config_loader: Any,
@@ -34,43 +48,125 @@ class BaseDetector(ABC):
         self.logger = logger
         self.config_loader = config_loader
         self.confidence_threshold = confidence_threshold
-        self._validate_config()
+        self._cached_configs = {}
+        
+        # Set debug mode based on logger configuration
+        self.debug_mode = False
+        if logger:
+            if hasattr(logger, 'level'):
+                self.debug_mode = logger.level == 10
+            elif hasattr(logger, 'getEffectiveLevel'):
+                self.debug_mode = logger.getEffectiveLevel() == 10
+            elif hasattr(logger, 'log_level'):
+                self.debug_mode = logger.log_level == "DEBUG"
+        
+        if self.debug_mode and self.logger:
+            self.logger.debug("Initialized BaseDetector in debug mode")
+            
+        # Load and cache core configurations
+        if not self._load_core_configs():
+            if self.logger:
+                self.logger.error("Failed to load core configurations")
+            raise ValueError("Failed to load core configurations")
+            
+        # Validate detector-specific configuration
+        if not self._validate_config():
+            if self.logger:
+                self.logger.error("Configuration validation failed")
+            raise ValueError("Configuration validation failed")
 
-    @abstractmethod
+    def _load_core_configs(self) -> bool:
+        """Load and cache core configurations."""
+        try:
+            # Load validation parameters
+            validation_config = self.config_loader.get_config("validation_params")
+            if validation_config:
+                self._cached_configs["validation_params"] = validation_config
+                if self.debug_mode:
+                    self.logger.debug("Loaded validation_params configuration")
+            else:
+                if self.logger:
+                    self.logger.error("Missing validation_params configuration")
+                return False
+
+            # Load entity routing
+            routing_config = self.config_loader.get_config("entity_routing")
+            if routing_config:
+                self._cached_configs["entity_routing"] = routing_config
+                if self.debug_mode:
+                    self.logger.debug("Loaded entity_routing configuration")
+            else:
+                if self.logger:
+                    self.logger.error("Missing entity_routing configuration")
+                return False
+
+            return True
+
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error loading core configs: {str(e)}")
+            return False
+
     def _validate_config(self) -> bool:
         """
-        Validate detector-specific configuration.
+        Base configuration validation.
+        Validates presence of required configs and basic structure.
         
         Returns:
             bool: Whether configuration is valid
         """
-        pass
+        try:
+            # Get cached configs
+            validation_config = self._cached_configs.get("validation_params")
+            routing_config = self._cached_configs.get("entity_routing")
+            
+            if not validation_config or not routing_config:
+                if self.logger:
+                    self.logger.error("Missing required cached configurations")
+                return False
+
+            # Verify routing structure
+            routing = routing_config.get("routing", {})
+            if not routing:
+                if self.logger:
+                    self.logger.error("Missing routing configuration")
+                return False
+
+            # Verify at least one valid routing section exists
+            valid_sections = ["presidio_primary", "spacy_primary", "ensemble_required"]
+            if not any(section in routing for section in valid_sections):
+                if self.logger:
+                    self.logger.error("No valid routing sections found")
+                return False
+
+            return True
+
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error validating config: {str(e)}")
+            return False
+
+###############################################################################
+# SECTION 3: ABSTRACT INTERFACE METHODS
+###############################################################################
 
     @abstractmethod
     def detect_entities(self, text: str) -> List[Entity]:
         """
         Detect entities in text.
+        Must be implemented by each detector.
         
         Args:
             text: Input text to analyze
             
         Returns:
-            List of detected entities
+            List[Entity]: List of detected entities
         """
         pass
 
-    @abstractmethod
-    def validate_detection(self, entity: Entity) -> bool:
-        """
-        Validate a detected entity.
-        
-        Args:
-            entity: Entity to validate
-            
-        Returns:
-            bool: Whether entity is valid
-        """
-        pass
+###############################################################################
+# SECTION 4: UTILITY METHODS
+###############################################################################
 
     def get_confidence(self, entity: Entity) -> float:
         """
@@ -98,23 +194,10 @@ class BaseDetector(ABC):
         """
         return confidence >= self.confidence_threshold
 
-    def log_detection(self, entity: Entity, context: str = "") -> None:
-        """
-        Log entity detection details.
-        
-        Args:
-            entity: Detected entity
-            context: Optional context information
-        """
-        if self.logger:
-            self.logger.debug(
-                f"Detected {entity.entity_type}: '{entity.text}' "
-                f"(confidence: {entity.confidence:.2f}) {context}"
-            )
-
     def prepare_text(self, text: str) -> str:
         """
         Prepare text for detection.
+        Basic text normalization.
         
         Args:
             text: Input text

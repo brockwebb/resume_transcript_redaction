@@ -1,5 +1,5 @@
 {
-    "educational": {
+    "EDUCATIONAL_INSTITUTION": {
         "core_terms": ["university", "college", "institute", "school"],
         "known_acronyms": ["UCLA", "MIT", "NYU", "USC", "UCI", "UCSB", "UCB"],
         "confidence_boosts": {
@@ -15,7 +15,7 @@
         "min_words": 2,
         "generic_terms": ["academy of learning", "education center", "training facility"]
     },
-    "person": {
+    "PERSON": {
         "title_markers": [
             "dr", "doctor", "prof", "professor", "mr", "mrs", "ms", "rev", "reverend"
         ],
@@ -34,7 +34,7 @@
             "allow_all_caps": true
         }
     },
-    "address": {
+    "ADDRESS": {
         "street_types": {
             "full": [
                 "Street", "Avenue", "Road", "Lane", "Drive", "Boulevard", "Court", 
@@ -71,7 +71,7 @@
             "require_street_type": true
         }
     },
-    "location": {
+    "LOCATION": {
         "us_states": {
             "full": [
                 "Alabama", "Alaska", "Arizona", "Arkansas", "California",
@@ -133,7 +133,7 @@
             "located", "based", "downtown"
         ]
     },
-    "date": {
+    "DATE_TIME": {
         "year_markers": [
             "class of", "graduated", "grad.", "expected", "est.", "anticipated",
             "since", "from", "in"
@@ -188,7 +188,7 @@
             "false_positive_context": -0.5
         }
     },
-    "gpa": {
+    "GPA": {
         "validation_rules": {
             "min_value": 0.0,
             "max_value": 4.0,
@@ -252,7 +252,7 @@
             "exam"
         ]
     },
-    "phone": {
+    "PHONE_NUMBER": {
         "validation_rules": {
             "min_digits": 10,
             "max_digits": 15,
@@ -284,7 +284,7 @@
             "fax"
         ]
     },
-    "email_address": {
+    "EMAIL_ADDRESS": {
         "validation_rules": {
             "min_chars": 5,
             "max_length": 254,  
@@ -318,7 +318,7 @@
             "strict": "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
         }
     },
-    "internet_reference": {
+    "INTERNET_REFERENCE": {
         "validation_rules": {
             "min_chars": 4,
             "max_length": 2048,
@@ -365,7 +365,7 @@
             }
         }
     },
-    "protected_class": {
+    "PROTECTED_CLASS": {
         "validation_rules": {
             "min_chars": 2,
             "min_words": 1,
@@ -467,7 +467,7 @@
     
         }
     },
-    "phi": {
+    "PHI": {
         "validation_rules": {
             "min_chars": 2,
             "min_words": 1,
@@ -710,6 +710,48 @@
                 "requires_explicit_consent": true
             }
         }
+    },
+    "OTHER_ID": {
+        "validation_rules": {
+            "min_chars": 5,
+            "max_length": 30,
+            "require_context": true,
+            "allow_spaces": true
+        },
+        "confidence_boosts": {
+            "known_format": 0.3,
+            "has_context": 0.2,
+            "standard_length": 0.1
+        },
+        "confidence_penalties": {
+            "no_context": -0.3,
+            "suspicious_format": -0.2
+        },
+        "patterns": {
+            "passport": {
+                "regex": "\\b[A-Z]\\d{8}\\b", 
+                "confidence": 0.9
+            },
+            "visa": {
+                "regex": "\\b[A-Z]\\d{7}\\b",  
+                "confidence": 0.8
+            },
+            "generic_id": {
+                "regex": "\\b(?:[A-Z0-9]{6,}|[A-Z]-\\d{6,})\\b",  
+                "confidence": 0.6
+            }
+        },
+        "context_words": [
+            "passport",
+            "visa",
+            "permit",
+            "id",
+            "identification",
+            "number",
+            "document",
+            "authorization",
+            "license"
+        ]
     }
 }
 

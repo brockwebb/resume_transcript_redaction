@@ -1,0 +1,191 @@
+{
+  "test_id": "priya_ahmed",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0,
+      "partial_matches": 0,
+      "false_positives": 1,
+      "false_negatives": 19
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "LOCATION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 4,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "ADDRESS": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PHONE_NUMBER": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "OTHER_ID": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "INTERNET_REFERENCE": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "exact_matches": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 1
+        }
+      },
+      "ensemble_detections": {
+        "DATE_TIME": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 5,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PHI": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PROTECTED_CLASS": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [
+        "Entity(text='Priya S. Ahmed \\nAddress', entity_type='PERSON', start_char=0, end_char=23, confidence=0.7999999999999999, page=1, sensitivity=None)"
+      ],
+      "partial": [],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [],
+      "no_match": [],
+      "unmatched_ground_truth": [
+        "Entity(text='May 2010', entity_type='DATE_TIME', start_char=732, end_char=740, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='San Francisco, CA', entity_type='LOCATION', start_char=60, end_char=77, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='(408) 678-9101', entity_type='PHONE_NUMBER', start_char=79, end_char=93, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='University of California', entity_type='EDUCATIONAL_INSTITUTION', start_char=681, end_char=705, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='priya.ahmed.scientist@example.com', entity_type='EMAIL_ADDRESS', start_char=102, end_char=135, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='August 2010', entity_type='DATE_TIME', start_char=524, end_char=535, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='June 2015', entity_type='DATE_TIME', start_char=626, end_char=635, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Stanford University', entity_type='EDUCATIONAL_INSTITUTION', start_char=580, end_char=599, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Islamic', entity_type='PROTECTED_CLASS', start_char=1240, end_char=1247, confidence=1.0, page=2, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='45 Lotus Crescent, Unit 3', entity_type='ADDRESS', start_char=25, end_char=50, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Berkeley, CA', entity_type='LOCATION', start_char=707, end_char=719, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Muslim Women in STEM', entity_type='PROTECTED_CLASS', start_char=1119, end_char=1139, confidence=1.0, page=2, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='July 2015', entity_type='DATE_TIME', start_char=79, end_char=87, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='San Jose, CA 95123', entity_type='LOCATION', start_char=52, end_char=70, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Stanford, CA', entity_type='LOCATION', start_char=601, end_char=613, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='May 2015', entity_type='DATE_TIME', start_char=538, end_char=546, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='linkedin.com/in/priya-ahmed-phd', entity_type='INTERNET_REFERENCE', start_char=147, end_char=178, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Medical Disclosure: Type 1 diabetic, requires accommodations for insulin pump usage during work hours', entity_type='PHI', start_char=175, end_char=276, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)"
+      ],
+      "unmatched_detected": []
+    },
+    "match_statistics": {
+      "exact_matches": 1,
+      "partial_matches": 0,
+      "sensitivity_mismatches": 0,
+      "type_mismatches": 0,
+      "unmatched_ground_truth": 18,
+      "unmatched_detected": 0
+    }
+  }
+}

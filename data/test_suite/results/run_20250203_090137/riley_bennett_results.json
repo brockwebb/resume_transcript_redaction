@@ -1,0 +1,194 @@
+{
+  "test_id": "riley_bennett",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0.3333333333333333,
+      "recall": 0.05263157894736842,
+      "f1_score": 0.09090909090909091,
+      "partial_matches": 0,
+      "false_positives": 2,
+      "false_negatives": 18
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "PHONE_NUMBER": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "LOCATION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 3,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "INTERNET_REFERENCE": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "OTHER_ID": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 0.3333333333333333,
+          "recall": 1.0,
+          "f1_score": 0.5,
+          "exact_matches": 1,
+          "false_positives": 2,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 3
+        }
+      },
+      "ensemble_detections": {
+        "PROTECTED_CLASS": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 5,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PHI": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DATE_TIME": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 4,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [
+        "Entity(text='Riley J. Bennett', entity_type='PERSON', start_char=0, end_char=16, confidence=0.7999999999999999, page=1, sensitivity=None)"
+      ],
+      "partial": [],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [],
+      "no_match": [],
+      "unmatched_ground_truth": [
+        "Entity(text='Accessibility: Uses blue light glasses for prolonged screen time', entity_type='PHI', start_char=761, end_char=825, confidence=1.0, page=2, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='riley.bennett.analytics@protonmail.com', entity_type='EMAIL_ADDRESS', start_char=79, end_char=117, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='(they/them)', entity_type='PROTECTED_CLASS', start_char=17, end_char=28, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Berkeley, CA', entity_type='LOCATION', start_char=310, end_char=322, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='University of Oregon', entity_type='EDUCATIONAL_INSTITUTION', start_char=376, end_char=396, confidence=1.0, page=2, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Eugene, OR', entity_type='LOCATION', start_char=398, end_char=408, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='May 2015', entity_type='DATE_TIME', start_char=420, end_char=428, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='rileybennettdata.com', entity_type='INTERNET_REFERENCE', start_char=131, end_char=151, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='University of California', entity_type='EDUCATIONAL_INSTITUTION', start_char=284, end_char=308, confidence=1.0, page=2, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='May 2018', entity_type='DATE_TIME', start_char=334, end_char=342, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Queer-Friendly', entity_type='PROTECTED_CLASS', start_char=1113, end_char=1127, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='May 2017 \u2013 June 2018', entity_type='DATE_TIME', start_char=50, end_char=70, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='(415) 678-1234', entity_type='PHONE_NUMBER', start_char=55, end_char=69, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='July 2018 \u2013 Present', entity_type='DATE_TIME', start_char=767, end_char=786, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='LGBTQIA+', entity_type='PROTECTED_CLASS', start_char=343, end_char=351, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Queer', entity_type='PROTECTED_CLASS', start_char=1113, end_char=1118, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Pronouns: They/Them', entity_type='PROTECTED_CLASS', start_char=626, end_char=645, confidence=1.0, page=2, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='San Francisco, CA', entity_type='LOCATION', start_char=749, end_char=766, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)"
+      ],
+      "unmatched_detected": [
+        "Entity(text='Tableau', entity_type='PERSON', start_char=508, end_char=515, confidence=0.7, page=1, sensitivity=None)",
+        "Entity(text='Eugene', entity_type='PERSON', start_char=1570, end_char=1576, confidence=0.7, page=1, sensitivity=None)"
+      ]
+    },
+    "match_statistics": {
+      "exact_matches": 1,
+      "partial_matches": 0,
+      "sensitivity_mismatches": 0,
+      "type_mismatches": 0,
+      "unmatched_ground_truth": 18,
+      "unmatched_detected": 2
+    }
+  }
+}

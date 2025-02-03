@@ -7,7 +7,8 @@
 from typing import List, Optional, Any, Dict
 from presidio_analyzer import AnalyzerEngine
 from .base_detector import BaseDetector, Entity
-from .validation_pattern_matcher import ValidationPatternMatcher
+#from .validation_pattern_matcher import ValidationPatternMatcher
+from redactor.validation.validation_rules import EntityValidationRules
 import re
 
 ###############################################################################
@@ -16,36 +17,109 @@ import re
 
 class PresidioDetector(BaseDetector):
     """
-    Presidio-based detector that uses ValidationPatternMatcher for consistency.
-    Combines Presidio's NLP capabilities with validated patterns from a single source.
+    Uses Presidio for enhanced NLP-based entity detection.
+    Focuses on structured data patterns and validation rules.
     """
     
-    def __init__(self, config_loader: Any, logger: Optional[Any] = None, language: str = "en"):
+    def __init__(self, 
+                 config_loader: Any,
+                 logger: Optional[Any] = None,
+                 confidence_threshold: float = 0.7):
         """
         Initialize Presidio detector with configuration.
         
         Args:
             config_loader: Configuration loader instance
             logger: Optional logger instance
-            language: Language code for Presidio analyzer
+            confidence_threshold: Minimum confidence threshold
         """
-        # Initialize base class
-        super().__init__(config_loader, logger)
+        # Initialize base detector first
+        super().__init__(config_loader, logger, confidence_threshold)
         
-        self.language = language
+        # Initialize core attributes
         self.analyzer = None
-        self.entity_types = {}
-        self.last_validation_reasons = []
-        
-        # Initialize pattern matcher for consistent pattern handling
-        self.pattern_matcher = ValidationPatternMatcher(config_loader, logger)
-        
-        # Initialize components
+        self.entity_types = set()
+        self.entity_mappings = {}
+        self.confidence_thresholds = {}
+
+        # Initialize validation rules
+        try:
+            self.validation_rules = EntityValidationRules(logger)
+            if self.debug_mode:
+                self.logger.debug("Validation rules initialized successfully")
+        except Exception as e:
+            if self.logger:
+                self.logger.warning(
+                    f"Failed to initialize validation rules: {e}. "
+                    "Will continue with default validation."
+                )
+            self.validation_rules = None
+
+        # Initialize Presidio components
         self._init_presidio()
-        self._load_entity_types()
+        self._validate_config()
+
+    def _init_presidio(self) -> None:
+        """Initialize Presidio analyzer and components."""
+        try:
+            from presidio_analyzer import AnalyzerEngine
+            self.analyzer = AnalyzerEngine()
+            
+            if self.debug_mode:
+                self.logger.debug("Initialized Presidio analyzer")
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Failed to initialize Presidio analyzer: {e}")
+            raise
+
+    def _validate_config(self) -> bool:
+        """
+        Validate Presidio configuration and setup entity mappings.
         
-        if self.debug_mode:
-            self.logger.debug("PresidioDetector initialized with ValidationPatternMatcher")
+        Returns:
+            bool: Whether configuration is valid
+        """
+        try:
+            routing_config = self.config_loader.get_config("entity_routing")
+            if not routing_config or "routing" not in routing_config:
+                if self.logger:
+                    self.logger.error("Missing routing configuration for PresidioDetector")
+                return False
+    
+            presidio_config = routing_config["routing"].get("presidio_primary", {})
+            ensemble_config = routing_config["routing"].get("ensemble_required", {})
+            
+            # Load basic entities from presidio_primary
+            self.entity_types = set(presidio_config.get("entities", []))
+            self.entity_mappings = presidio_config.get("mappings", {})
+            
+            # Get base thresholds
+            base_thresholds = presidio_config.get("thresholds", {})
+            ensemble_thresholds = ensemble_config.get("confidence_thresholds", {})
+            
+            # Initialize and populate thresholds
+            self.confidence_thresholds = {}
+            
+            # Add base thresholds
+            for entity, threshold in base_thresholds.items():
+                self.confidence_thresholds[entity] = threshold
+                
+            # Add ensemble thresholds - using minimum_combined as base
+            for entity, config in ensemble_thresholds.items():
+                if entity in self.entity_types:
+                    self.confidence_thresholds[entity] = config.get("minimum_combined", self.confidence_threshold)
+    
+            if self.debug_mode:
+                self.logger.debug(f"Loaded Presidio entity types: {self.entity_types}")
+                self.logger.debug(f"Entity mappings: {self.entity_mappings}")
+                self.logger.debug(f"Confidence thresholds: {self.confidence_thresholds}")
+    
+            return True
+    
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error validating Presidio config: {str(e)}")
+            return False
 
 ###############################################################################
 # SECTION 3: CONFIGURATION AND SETUP
@@ -233,13 +307,13 @@ class PresidioDetector(BaseDetector):
             return pattern_entities
 
 ###############################################################################
-    # SECTION 6: ENTITY VALIDATION
-    ###############################################################################
+# SECTION 6: ENTITY VALIDATION
+###############################################################################
 
     def validate_detection(self, entity: Entity, text: str) -> bool:
         """
         Validate entity detection against configured thresholds.
-        Uses ValidationPatternMatcher's validation rules for consistency.
+        Uses EntityValidationRules for validation.
         
         Args:
             entity: Entity to validate
@@ -277,8 +351,21 @@ class PresidioDetector(BaseDetector):
                 self.last_validation_reasons.append(reason)
                 return False
             
-            # Delegate to ValidationPatternMatcher's validation rules
-            return self.pattern_matcher.validate_detection(entity, text)
+            # Use EntityValidationRules for validation
+            if self.validation_rules:
+                validation_result = self.validation_rules.validate_entity(entity, text)
+                
+                if self.debug_mode:
+                    self.logger.debug(
+                        f"Validation result for {entity.entity_type}: "
+                        f"Valid: {validation_result.is_valid}, "
+                        f"Reason: {validation_result.reason}"
+                    )
+                
+                return validation_result.is_valid
+            
+            # Fallback if no validation rules
+            return True
             
         except Exception as e:
             self.logger.error(f"Error validating entity {entity}: {str(e)}")
