@@ -5,9 +5,8 @@
 ###############################################################################
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Optional, Any, Set
+from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
-from pathlib import Path
 
 @dataclass
 class Entity:
@@ -60,95 +59,25 @@ class BaseDetector(ABC):
             elif hasattr(logger, 'log_level'):
                 self.debug_mode = logger.log_level == "DEBUG"
         
+        # Cache needed configurations
+        self._cache_configs()
+        
         if self.debug_mode and self.logger:
             self.logger.debug("Initialized BaseDetector in debug mode")
-            
-        # Load and cache core configurations
-        if not self._load_core_configs():
-            if self.logger:
-                self.logger.error("Failed to load core configurations")
-            raise ValueError("Failed to load core configurations")
-            
-        # Validate detector-specific configuration
-        if not self._validate_config():
-            if self.logger:
-                self.logger.error("Configuration validation failed")
-            raise ValueError("Configuration validation failed")
 
-    def _load_core_configs(self) -> bool:
-        """Load and cache core configurations."""
+    def _cache_configs(self) -> None:
+        """Cache commonly used configurations."""
         try:
-            # Load validation parameters
-            validation_config = self.config_loader.get_config("validation_params")
-            if validation_config:
-                self._cached_configs["validation_params"] = validation_config
-                if self.debug_mode:
-                    self.logger.debug("Loaded validation_params configuration")
-            else:
-                if self.logger:
-                    self.logger.error("Missing validation_params configuration")
-                return False
-
-            # Load entity routing
-            routing_config = self.config_loader.get_config("entity_routing")
-            if routing_config:
-                self._cached_configs["entity_routing"] = routing_config
-                if self.debug_mode:
-                    self.logger.debug("Loaded entity_routing configuration")
-            else:
-                if self.logger:
-                    self.logger.error("Missing entity_routing configuration")
-                return False
-
-            return True
-
+            config_names = ["validation_params", "entity_routing"]
+            for name in config_names:
+                config = self.config_loader.get_config(name)
+                if config:
+                    self._cached_configs[name] = config
+                elif self.debug_mode:
+                    self.logger.debug(f"No config found for {name}")
         except Exception as e:
             if self.logger:
-                self.logger.error(f"Error loading core configs: {str(e)}")
-            return False
-
-    def _validate_config(self) -> bool:
-        """
-        Base configuration validation.
-        Validates presence of required configs and basic structure.
-        
-        Returns:
-            bool: Whether configuration is valid
-        """
-        try:
-            # Get cached configs
-            validation_config = self._cached_configs.get("validation_params")
-            routing_config = self._cached_configs.get("entity_routing")
-            
-            if not validation_config or not routing_config:
-                if self.logger:
-                    self.logger.error("Missing required cached configurations")
-                return False
-
-            # Verify routing structure
-            routing = routing_config.get("routing", {})
-            if not routing:
-                if self.logger:
-                    self.logger.error("Missing routing configuration")
-                return False
-
-            # Verify at least one valid routing section exists
-            valid_sections = ["presidio_primary", "spacy_primary", "ensemble_required"]
-            if not any(section in routing for section in valid_sections):
-                if self.logger:
-                    self.logger.error("No valid routing sections found")
-                return False
-
-            return True
-
-        except Exception as e:
-            if self.logger:
-                self.logger.error(f"Error validating config: {str(e)}")
-            return False
-
-###############################################################################
-# SECTION 3: ABSTRACT INTERFACE METHODS
-###############################################################################
+                self.logger.error(f"Error caching configs: {str(e)}")
 
     @abstractmethod
     def detect_entities(self, text: str) -> List[Entity]:
@@ -164,35 +93,20 @@ class BaseDetector(ABC):
         """
         pass
 
-###############################################################################
-# SECTION 4: UTILITY METHODS
-###############################################################################
-
-    def get_confidence(self, entity: Entity) -> float:
+    @abstractmethod
+    def validate_detection(self, entity: Entity, text: str = "") -> bool:
         """
-        Get confidence score for entity.
+        Validate detected entity.
+        Must be implemented by each detector using ValidationCoordinator.
         
         Args:
-            entity: Entity to score
+            entity: Entity to validate
+            text: Original text context
             
         Returns:
-            float: Confidence score between 0 and 1
+            bool indicating if entity is valid
         """
-        if not entity.confidence or entity.confidence < 0:
-            return 0.0
-        return min(1.0, entity.confidence)
-
-    def check_threshold(self, confidence: float) -> bool:
-        """
-        Check if confidence meets threshold.
-        
-        Args:
-            confidence: Confidence score to check
-            
-        Returns:
-            bool: Whether confidence meets threshold
-        """
-        return confidence >= self.confidence_threshold
+        pass
 
     def prepare_text(self, text: str) -> str:
         """
@@ -207,4 +121,70 @@ class BaseDetector(ABC):
         """
         if not text:
             return ""
-        return text.strip()
+            
+        # Basic text normalization
+        try:
+            text = text.strip()
+            text = " ".join(text.split())  # Normalize whitespace
+            return text
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error preparing text: {str(e)}")
+            return ""
+
+    def _normalize_text(self, text: str) -> str:
+        """
+        Normalize text for comparison.
+        
+        Args:
+            text: Text to normalize
+            
+        Returns:
+            str: Normalized text
+        """
+        if not text:
+            return ""
+            
+        try:
+            # Basic normalization
+            text = text.lower().strip()
+            
+            # Remove punctuation except preserved characters
+            text = ''.join(
+                c for c in text 
+                if c.isalnum() or c in '.-_ '
+            )
+            
+            # Normalize whitespace
+            text = ' '.join(text.split())
+            
+            return text
+            
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error normalizing text: {str(e)}")
+            return ""
+
+    def _safe_log(self, msg: str, level: str = "debug") -> None:
+        """
+        Safely log message if logger exists.
+        
+        Args:
+            msg: Message to log
+            level: Log level (debug, info, warning, error)
+        """
+        if not self.logger:
+            return
+            
+        try:
+            if level == "debug" and self.debug_mode:
+                self.logger.debug(msg)
+            elif level == "info":
+                self.logger.info(msg)
+            elif level == "warning":
+                self.logger.warning(msg)
+            elif level == "error":
+                self.logger.error(msg)
+                
+        except Exception:
+            pass  # Fail silently if logging fails

@@ -1,20 +1,29 @@
 # evaluation/test_validation.py
+
+# evaluation/test_validation.py
+
+###############################################################################
+# SECTION 1: IMPORTS AND SETUP
+###############################################################################
+
 from pathlib import Path
 import pytest
-from redactor.detectors.spacy_detector import SpacyDetector
-from redactor.detectors.presidio_detector import PresidioDetector 
-from redactor.detectors.ensemble_coordinator import EnsembleCoordinator 
+from redactor.validation import ValidationCoordinator
 from redactor.detectors.base_detector import Entity
 from app.utils.config_loader import ConfigLoader
 from app.utils.logger import RedactionLogger
 import json
 
-class BaseEntityValidationTest:
-    """Base class for entity validation tests providing common setup"""
+###############################################################################
+# SECTION 2: BASE TEST CLASS
+###############################################################################
+
+class BaseValidationTest:
+    """Base class for validation tests providing common setup."""
     
     @pytest.fixture
-    def setup_detector(self):
-        """Setup shared detector configuration"""
+    def setup_validation(self):
+        """Setup shared validation configuration."""
         self.logger = RedactionLogger(
             name="test_validation",
             log_level="DEBUG",
@@ -23,28 +32,31 @@ class BaseEntityValidationTest:
         )
         self.config_loader = ConfigLoader()
         self.config_loader.load_all_configs()
-        return self._get_detector()
         
-    def _get_detector(self):
-        """Override in child classes to return appropriate detector"""
-        raise NotImplementedError("Detector must be specified in child class")
+        # Initialize validator
+        self.validator = ValidationCoordinator(
+            config_loader=self.config_loader,
+            logger=self.logger
+        )
+        return self.validator
         
     def _load_test_cases(self, filename: str) -> list:
-        """Load test cases from JSON file"""
+        """Load test cases from JSON file."""
         test_cases_path = Path("evaluation/test_cases") / filename
         assert test_cases_path.exists(), f"Test cases file not found: {test_cases_path}"
         with open(test_cases_path) as f:
             return json.load(f)
 
-class TestEducationalValidation(BaseEntityValidationTest):
-    """Test validation rules for educational institutions"""
+###############################################################################
+# SECTION 3: EDUCATIONAL INSTITUTION TESTS
+###############################################################################
+
+class TestEducationalValidation(BaseValidationTest):
+    """Test validation rules for educational institutions."""
     
-    def _get_detector(self):
-        return SpacyDetector(self.config_loader, self.logger)
-        
-    def test_educational_validation(self, setup_detector):
-        """Test educational institution validation with different cases"""
-        detector = setup_detector
+    def test_educational_validation(self, setup_validation):
+        """Test educational institution validation with different cases."""
+        validator = setup_validation
         test_cases = self._load_test_cases("educational_validation.json")["educational_validation_tests"]
         
         for case in test_cases:
@@ -58,30 +70,35 @@ class TestEducationalValidation(BaseEntityValidationTest):
             )
 
             initial_confidence = entity.confidence
-            is_valid = detector.validate_detection(entity, "")
-            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
+            result = validator.validate_entity(entity, "")
+            
+            confidence_change = round(entity.confidence - initial_confidence, 2) if result.is_valid else 0.0
 
-            assert is_valid == case["expected_valid"], (
-                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
-                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
-                f"Reasons: {detector.last_validation_reasons}"
+            assert result.is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, "
+                f"got {result.is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, "
+                f"Adjustments: {confidence_change}, "
+                f"Reasons: {result.reasons}"
             )
             
-            if is_valid and "min_confidence_adjustment" in case:
+            if result.is_valid and "min_confidence_adjustment" in case:
                 assert confidence_change >= round(case["min_confidence_adjustment"], 2), (
                     f"Insufficient confidence adjustment for: {case['description']}. "
-                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, got {confidence_change}"
+                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, "
+                    f"got {confidence_change}"
                 )
 
-class TestPersonValidation(BaseEntityValidationTest):
-    """Test validation rules for person names"""
+###############################################################################
+# SECTION 4: PERSON VALIDATION TESTS
+###############################################################################
+
+class TestPersonValidation(BaseValidationTest):
+    """Test validation rules for person names."""
     
-    def _get_detector(self):
-        return SpacyDetector(self.config_loader, self.logger)
-        
-    def test_person_validation(self, setup_detector):
-        """Test person name validation with different cases"""
-        detector = setup_detector
+    def test_person_validation(self, setup_validation):
+        """Test person name validation with different cases."""
+        validator = setup_validation
         test_cases = self._load_test_cases("person_validation.json")["person_validation_tests"]
         
         for case in test_cases:
@@ -95,31 +112,28 @@ class TestPersonValidation(BaseEntityValidationTest):
             )
 
             initial_confidence = entity.confidence
-            is_valid = detector.validate_detection(entity, "")
-            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
-
-            assert is_valid == case["expected_valid"], (
-                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
-                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
-                f"Validation reasons: {detector.last_validation_reasons}"
-            )
+            result = validator.validate_entity(entity, "")
             
-            if is_valid and "min_confidence_adjustment" in case:
-                assert confidence_change >= round(case["min_confidence_adjustment"], 2), (
-                    f"Insufficient confidence adjustment for: {case['description']}. "
-                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, got {confidence_change}. "
-                    f"Validation reasons: {detector.last_validation_reasons}"
-                )
+            confidence_change = round(entity.confidence - initial_confidence, 2) if result.is_valid else 0.0
 
-class TestDateValidation(BaseEntityValidationTest):
-    """Test validation rules for dates"""
+            assert result.is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, "
+                f"got {result.is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, "
+                f"Adjustments: {confidence_change}, "
+                f"Reasons: {result.reasons}"
+            )
+
+###############################################################################
+# SECTION 5: DATE VALIDATION TESTS
+###############################################################################
+
+class TestDateValidation(BaseValidationTest):
+    """Test validation rules for dates."""
     
-    def _get_detector(self):
-        return PresidioDetector(self.config_loader, self.logger)
-        
-    def test_date_validation(self, setup_detector):
-        """Test date validation with different cases"""
-        detector = setup_detector
+    def test_date_validation(self, setup_validation):
+        """Test date validation with different cases."""
+        validator = setup_validation
         test_cases = self._load_test_cases("date_validation.json")["date_validation_tests"]
         
         for case in test_cases:
@@ -138,31 +152,36 @@ class TestDateValidation(BaseEntityValidationTest):
             )
 
             initial_confidence = entity.confidence
-            is_valid = detector.validate_detection(entity, "")
-            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
+            result = validator.validate_entity(entity, "")
+            
+            confidence_change = round(entity.confidence - initial_confidence, 2) if result.is_valid else 0.0
 
-            assert is_valid == case["expected_valid"], (
-                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
-                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
-                f"Validation reasons: {detector.last_validation_reasons}"
+            assert result.is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, "
+                f"got {result.is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, "
+                f"Adjustments: {confidence_change}, "
+                f"Reasons: {result.reasons}"
             )
             
-            if is_valid and "min_confidence_adjustment" in case:
+            if result.is_valid and "min_confidence_adjustment" in case:
                 assert confidence_change >= round(case["min_confidence_adjustment"], 2), (
                     f"Insufficient confidence adjustment for: {case['description']}. "
-                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, got {confidence_change}. "
-                    f"Validation reasons: {detector.last_validation_reasons}"
+                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, "
+                    f"got {confidence_change}. "
+                    f"Reasons: {result.reasons}"
                 )
 
-class TestLocationValidation(BaseEntityValidationTest):
-    """Test validation rules for locations"""
+###############################################################################
+# SECTION 6: LOCATION VALIDATION TESTS
+###############################################################################
+
+class TestLocationValidation(BaseValidationTest):
+    """Test validation rules for locations."""
     
-    def _get_detector(self):
-        return SpacyDetector(self.config_loader, self.logger)
-        
-    def test_location_validation(self, setup_detector):
-        """Test location validation with different cases"""
-        detector = setup_detector
+    def test_location_validation(self, setup_validation):
+        """Test location validation with different cases."""
+        validator = setup_validation
         test_cases = self._load_test_cases("location_validation.json")["location_validation_tests"]
         
         for case in test_cases:
@@ -176,31 +195,68 @@ class TestLocationValidation(BaseEntityValidationTest):
             )
 
             initial_confidence = entity.confidence
-            is_valid = detector.validate_detection(entity, "")
-            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
+            result = validator.validate_entity(entity, "")
+            
+            confidence_change = round(entity.confidence - initial_confidence, 2) if result.is_valid else 0.0
 
-            assert is_valid == case["expected_valid"], (
-                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
-                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
-                f"Validation reasons: {detector.last_validation_reasons}"
+            assert result.is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, "
+                f"got {result.is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, "
+                f"Adjustments: {confidence_change}, "
+                f"Reasons: {result.reasons}"
             )
             
-            if is_valid and "min_confidence_adjustment" in case:
+            if result.is_valid and "min_confidence_adjustment" in case:
                 assert confidence_change >= round(case["min_confidence_adjustment"], 2), (
                     f"Insufficient confidence adjustment for: {case['description']}. "
-                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, got {confidence_change}. "
-                    f"Validation reasons: {detector.last_validation_reasons}"
+                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, "
+                    f"got {confidence_change}. "
+                    f"Reasons: {result.reasons}"
                 )
-
-class TestAddressValidation(BaseEntityValidationTest):
-    """Test validation rules for addresses"""
-    
-    def _get_detector(self):
-        return PresidioDetector(self.config_loader, self.logger)  # Changed to PresidioDetector
+                
+    def test_location_formats(self, setup_validation):
+        """Test specific location format validations."""
+        validator = setup_validation
         
-    def test_address_validation(self, setup_detector):
-        """Test address validation with different cases"""
-        detector = setup_detector
+        # Test US city-state format
+        entity = Entity(
+            text="San Francisco, CA 94105",
+            entity_type="LOCATION",
+            confidence=0.8,
+            start=0,
+            end=22,
+            source="spacy"
+        )
+        result = validator.validate_entity(entity, "")
+        assert result.is_valid, f"Failed to validate US city-state format: {result.reasons}"
+        assert any("city-state" in reason.lower() for reason in result.reasons), \
+            "Missing city-state format validation reason"
+        
+        # Test international format
+        entity = Entity(
+            text="München",
+            entity_type="LOCATION",
+            confidence=0.8,
+            start=0,
+            end=7,
+            source="spacy"
+        )
+        result = validator.validate_entity(entity, "")
+        assert result.is_valid, f"Failed to validate international format: {result.reasons}"
+        assert any("international" in reason.lower() for reason in result.reasons), \
+            "Missing international format validation reason"
+
+###############################################################################
+# SECTION 7: ADDRESS VALIDATION TESTS
+###############################################################################
+
+class TestAddressValidation(BaseValidationTest):
+    """Test validation rules for addresses."""
+    
+    def test_address_validation(self, setup_validation):
+        """Test address validation with different cases."""
+        validator = setup_validation
         test_cases = self._load_test_cases("address_validation.json")["address_validation_tests"]
         
         for case in test_cases:
@@ -210,7 +266,7 @@ class TestAddressValidation(BaseEntityValidationTest):
                 confidence=0.8,
                 start=0,
                 end=len(case["text"]),
-                source="presidio",  # Changed source to presidio
+                source="presidio",
                 metadata={
                     "recognition_metadata": {
                         "pattern_name": "address_pattern"
@@ -219,31 +275,67 @@ class TestAddressValidation(BaseEntityValidationTest):
             )
 
             initial_confidence = entity.confidence
-            is_valid = detector.validate_detection(entity, "")
-            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
+            result = validator.validate_entity(entity, "")
+            
+            confidence_change = round(entity.confidence - initial_confidence, 2) if result.is_valid else 0.0
 
-            assert is_valid == case["expected_valid"], (
-                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
-                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
-                f"Validation reasons: {detector.last_validation_reasons}"
+            assert result.is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, "
+                f"got {result.is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, "
+                f"Adjustments: {confidence_change}, "
+                f"Reasons: {result.reasons}"
             )
             
-            if is_valid and "min_confidence_adjustment" in case:
+            if result.is_valid and "min_confidence_adjustment" in case:
                 assert confidence_change >= round(case["min_confidence_adjustment"], 2), (
                     f"Insufficient confidence adjustment for: {case['description']}. "
-                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, got {confidence_change}. "
-                    f"Validation reasons: {detector.last_validation_reasons}"
+                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, "
+                    f"got {confidence_change}. "
+                    f"Reasons: {result.reasons}"
                 )
-
-class TestGPAValidation(BaseEntityValidationTest):
-    """Test validation rules for GPA entities"""
-    
-    def _get_detector(self):
-        return PresidioDetector(self.config_loader, self.logger)
+                
+    def test_address_patterns(self, setup_validation):
+        """Test specific address format patterns."""
+        validator = setup_validation
         
-    def test_gpa_validation(self, setup_detector):
-        """Test GPA validation with different cases"""
-        detector = setup_detector
+        # Test street address format
+        entity = Entity(
+            text="123 Main Street",
+            entity_type="ADDRESS",
+            confidence=0.8,
+            start=0,
+            end=14,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "")
+        assert result.is_valid, f"Failed to validate basic street address: {result.reasons}"
+        
+        # Test apartment format
+        entity = Entity(
+            text="456 Oak Ave, Apt 2B",
+            entity_type="ADDRESS",
+            confidence=0.8,
+            start=0,
+            end=18,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "")
+        assert result.is_valid, f"Failed to validate address with apartment: {result.reasons}"
+        assert any("apartment" in reason.lower() or "unit" in reason.lower() 
+                  for reason in result.reasons), \
+            "Missing apartment format validation reason"
+
+###############################################################################
+# SECTION 8: GPA VALIDATION TESTS
+###############################################################################
+
+class TestGPAValidation(BaseValidationTest):
+    """Test validation rules for GPA entities."""
+    
+    def test_gpa_validation(self, setup_validation):
+        """Test GPA validation with different cases."""
+        validator = setup_validation
         test_cases = self._load_test_cases("gpa_validation.json")["gpa_validation_tests"]
         
         for case in test_cases:
@@ -262,212 +354,295 @@ class TestGPAValidation(BaseEntityValidationTest):
             )
 
             initial_confidence = entity.confidence
-            is_valid = detector.validate_detection(entity, "")
-            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
+            result = validator.validate_entity(entity, "")
+            
+            confidence_change = round(entity.confidence - initial_confidence, 2) if result.is_valid else 0.0
 
-            assert is_valid == case["expected_valid"], (
-                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
-                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
-                f"Validation reasons: {detector.last_validation_reasons}"
+            assert result.is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, "
+                f"got {result.is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, "
+                f"Adjustments: {confidence_change}, "
+                f"Reasons: {result.reasons}"
             )
             
-            if is_valid and "min_confidence_adjustment" in case:
+            if result.is_valid and "min_confidence_adjustment" in case:
                 assert confidence_change >= round(case["min_confidence_adjustment"], 2), (
                     f"Insufficient confidence adjustment for: {case['description']}. "
-                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, got {confidence_change}. "
-                    f"Validation reasons: {detector.last_validation_reasons}"
+                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, "
+                    f"got {confidence_change}. "
+                    f"Reasons: {result.reasons}"
                 )
 
-class TestPhoneValidation(BaseEntityValidationTest):
-    """Test validation rules for phone number entities"""
-    
-    def _get_detector(self):
-        return PresidioDetector(self.config_loader, self.logger)
+    def test_gpa_edge_cases(self, setup_validation):
+        """Test GPA validation edge cases."""
+        validator = setup_validation
         
-    def test_phone_validation(self, setup_detector):
-        """Test phone validation with different cases"""
-        detector = setup_detector
+        # Test exact 4.0
+        entity = Entity(
+            text="4.0",
+            entity_type="GPA",
+            confidence=0.9,
+            start=0,
+            end=3,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "GPA: 4.0")
+        assert result.is_valid, f"Failed to validate 4.0 GPA: {result.reasons}"
+        
+        # Test invalid high value
+        entity = Entity(
+            text="4.1",
+            entity_type="GPA",
+            confidence=0.9,
+            start=0,
+            end=3,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "")
+        assert not result.is_valid, "Should not validate GPA > 4.0"
+        
+        # Test with scale indicator
+        entity = Entity(
+            text="3.75/4.0",
+            entity_type="GPA",
+            confidence=0.9,
+            start=0,
+            end=8,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "")
+        assert result.is_valid, f"Failed to validate GPA with scale: {result.reasons}"
+        assert any("scale" in reason.lower() for reason in result.reasons), \
+            "Missing scale indicator validation reason"
+
+
+###############################################################################
+# SECTION 9: COMMUNICATION VALIDATION TESTS
+###############################################################################
+
+class TestPhoneValidation(BaseValidationTest):
+    """Test validation rules for phone numbers."""
+    
+    def test_phone_validation(self, setup_validation):
+        """Test phone number validation with different cases."""
+        validator = setup_validation
         test_cases = self._load_test_cases("phone_validation.json")["phone_validation_tests"]
         
         for case in test_cases:
             entity = Entity(
                 text=case["text"],
                 entity_type="PHONE_NUMBER",
-                confidence=0.9,  # Starting with high confidence like GPA
+                confidence=0.9,
                 start=0,
                 end=len(case["text"]),
                 source="presidio",
                 metadata={
                     "recognition_metadata": {
-                        "pattern_name": "us_standard"  # Using default pattern
+                        "pattern_name": "us_standard"
                     }
                 }
             )
 
             initial_confidence = entity.confidence
-            is_valid = detector.validate_detection(entity, "")
-            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
+            result = validator.validate_entity(entity, "")
+            
+            confidence_change = round(entity.confidence - initial_confidence, 2) if result.is_valid else 0.0
 
-            assert is_valid == case["expected_valid"], (
-                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
-                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
-                f"Validation reasons: {detector.last_validation_reasons}"
+            assert result.is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, "
+                f"got {result.is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, "
+                f"Adjustments: {confidence_change}, "
+                f"Reasons: {result.reasons}"
             )
             
-            if is_valid and "min_confidence_adjustment" in case:
+            if result.is_valid and "min_confidence_adjustment" in case:
                 assert confidence_change >= round(case["min_confidence_adjustment"], 2), (
                     f"Insufficient confidence adjustment for: {case['description']}. "
-                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, got {confidence_change}. "
-                    f"Validation reasons: {detector.last_validation_reasons}"
+                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, "
+                    f"got {confidence_change}. "
+                    f"Reasons: {result.reasons}"
                 )
 
-class TestEmailValidation(BaseEntityValidationTest):
-    """Test validation rules for email addresses"""
-    
-    def _get_detector(self):
-        return PresidioDetector(self.config_loader, self.logger)
+    def test_phone_formats(self, setup_validation):
+        """Test validation of different phone number formats."""
+        validator = setup_validation
         
-    def test_email_validation(self, setup_detector):
-        """Test email validation with different cases"""
-        detector = setup_detector
+        # Test standard US format
+        entity = Entity(
+            text="(555) 123-4567",
+            entity_type="PHONE_NUMBER",
+            confidence=0.8,
+            start=0,
+            end=14,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "")
+        assert result.is_valid, f"Failed to validate standard US format: {result.reasons}"
+        assert any("standard format" in reason.lower() for reason in result.reasons), \
+            "Missing standard format validation reason"
+        
+        # Test with area code
+        entity = Entity(
+            text="1-555-123-4567",
+            entity_type="PHONE_NUMBER",
+            confidence=0.8,
+            start=0,
+            end=14,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "")
+        assert result.is_valid, f"Failed to validate number with area code: {result.reasons}"
+        
+        # Test with extension
+        entity = Entity(
+            text="555-123-4567 ext. 890",
+            entity_type="PHONE_NUMBER",
+            confidence=0.8,
+            start=0,
+            end=20,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "")
+        assert result.is_valid, f"Failed to validate number with extension: {result.reasons}"
+        assert any("extension" in reason.lower() for reason in result.reasons), \
+            "Missing extension validation reason"
+
+class TestEmailValidation(BaseValidationTest):
+    """Test validation rules for email addresses."""
+    
+    def test_email_validation(self, setup_validation):
+        """Test email validation with different cases."""
+        validator = setup_validation
         test_cases = self._load_test_cases("email_validation.json")["email_validation_tests"]
         
-        for test_case in test_cases:
-            text = test_case['text']
+        for case in test_cases:
             entity = Entity(
-                text=text,
+                text=case["text"],
                 entity_type="EMAIL_ADDRESS",
+                confidence=0.8,
                 start=0,
-                end=len(text),
-                confidence=0.7,
-                source="test"
+                end=len(case["text"]),
+                source="presidio"
             )
 
-            is_valid = detector._validate_email_address(entity, text)
+            initial_confidence = entity.confidence
+            result = validator.validate_entity(entity, case.get("context", ""))
             
-            if test_case['expected_valid']:
-                assert is_valid, f"Failed to validate valid email: {text}"
-                if 'min_confidence_adjustment' in test_case:
-                    assert entity.confidence >= test_case['min_confidence_adjustment'], \
-                        f"Confidence too low for {text}: {entity.confidence}"
-            else:
-                assert not is_valid, f"Failed to reject invalid email: {text}"
+            confidence_change = round(entity.confidence - initial_confidence, 2) if result.is_valid else 0.0
 
-    def test_email_context_boost(self, setup_detector):
-        """Test that email validation considers context"""
-        detector = setup_detector
-        text = "Contact: user@example.com"
+            assert result.is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, "
+                f"got {result.is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, "
+                f"Adjustments: {confidence_change}, "
+                f"Reasons: {result.reasons}"
+            )
+
+    def test_email_context_validation(self, setup_validation):
+        """Test email validation with different contexts."""
+        validator = setup_validation
+        
+        # Test with contact context
         entity = Entity(
             text="user@example.com",
             entity_type="EMAIL_ADDRESS",
-            start=9,
-            end=24,
-            confidence=0.7,
-            source="test"
+            confidence=0.8,
+            start=0,
+            end=16,
+            source="presidio"
         )
-
-        initial_confidence = entity.confidence
-        is_valid = detector._validate_email_address(entity, text)
-        assert is_valid
-        assert entity.confidence > initial_confidence, "Context boost not applied"
-
-
-class TestInternetReferenceValidation(BaseEntityValidationTest):
-    """Test validation rules for internet references"""
-    
-    def _get_detector(self):
-        return PresidioDetector(self.config_loader, self.logger)
+        result = validator.validate_entity(entity, "Contact: user@example.com")
+        assert result.is_valid, f"Failed to validate email with contact context: {result.reasons}"
+        assert any("context" in reason.lower() for reason in result.reasons), \
+            "Missing context validation reason"
         
-    def test_internet_reference_validation(self, setup_detector):
-        """Test internet reference validation with different cases"""
-        detector = setup_detector
+        # Test with known domain
+        entity = Entity(
+            text="user@gmail.com",
+            entity_type="EMAIL_ADDRESS",
+            confidence=0.8,
+            start=0,
+            end=14,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "")
+        assert result.is_valid, f"Failed to validate email with known domain: {result.reasons}"
+        assert any("known domain" in reason.lower() for reason in result.reasons), \
+            "Missing known domain validation reason"
+
+class TestInternetReferenceValidation(BaseValidationTest):
+    """Test validation rules for internet references."""
+    
+    def test_internet_reference_validation(self, setup_validation):
+        """Test internet reference validation with different cases."""
+        validator = setup_validation
         test_cases = self._load_test_cases("internet_reference_validation.json")["internet_reference_validation_tests"]
         
-        for test_case in test_cases:
-            text = test_case['text']
+        for case in test_cases:
             entity = Entity(
-                text=text,
+                text=case["text"],
                 entity_type="INTERNET_REFERENCE",
+                confidence=0.8,
                 start=0,
-                end=len(text),
-                confidence=0.7,
-                source="test"
+                end=len(case["text"]),
+                source="presidio"
             )
 
-            is_valid = detector._validate_internet_reference(entity, text)
+            initial_confidence = entity.confidence
+            result = validator.validate_entity(entity, case.get("context", ""))
             
-            if test_case['expected_valid']:
-                assert is_valid, f"Failed to validate valid reference: {text}"
-                if 'min_confidence_adjustment' in test_case:
-                    assert round(entity.confidence, 2) >= test_case['min_confidence_adjustment'], \
-                        f"Confidence too low for {text}: {round(entity.confidence, 2)}"
-            else:
-                assert not is_valid, f"Failed to reject invalid reference: {text}"
+            confidence_change = round(entity.confidence - initial_confidence, 2) if result.is_valid else 0.0
 
-    def test_social_handle_context(self, setup_detector):
-        """Test that social handle validation considers context"""
-        detector = setup_detector
-        text = "Follow me on Twitter: @username"
-        entity = Entity(
-            text="@username",
-            entity_type="INTERNET_REFERENCE",
-            start=20,
-            end=29,
-            confidence=0.7,
-            source="test"
-        )
+            assert result.is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, "
+                f"got {result.is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, "
+                f"Adjustments: {confidence_change}, "
+                f"Reasons: {result.reasons}"
+            )
 
-        initial_confidence = entity.confidence
-        is_valid = detector._validate_internet_reference(entity, text)
-        assert is_valid
-        assert entity.confidence > initial_confidence, "Context boost not applied"
-
-    def test_url_context(self, setup_detector):
-        """Test that URL validation considers context"""
-        detector = setup_detector
-        text = "Visit our website: https://example.com"
+    def test_internet_reference_formats(self, setup_validation):
+        """Test validation of different internet reference formats."""
+        validator = setup_validation
+        
+        # Test URL format
         entity = Entity(
             text="https://example.com",
             entity_type="INTERNET_REFERENCE",
-            start=17,
-            end=35,
-            confidence=0.7,
-            source="test"
-        )
-
-        initial_confidence = entity.confidence
-        is_valid = detector._validate_internet_reference(entity, text)
-        assert is_valid
-        assert entity.confidence > initial_confidence, "Context boost not applied"
-
-    def test_known_platform_boost(self, setup_detector):
-        """Test confidence boost for known platforms"""
-        detector = setup_detector
-        text = "github.com/username"
-        entity = Entity(
-            text=text,
-            entity_type="INTERNET_REFERENCE",
+            confidence=0.8,
             start=0,
-            end=len(text),
-            confidence=0.7,
-            source="test"
+            end=19,
+            source="presidio"
         )
-
-        initial_confidence = entity.confidence
-        is_valid = detector._validate_internet_reference(entity, text)
-        assert is_valid
-        assert entity.confidence > initial_confidence, "Known platform boost not applied"
-
-
-class TestProtectedClassValidation(BaseEntityValidationTest):
-    """Test validation rules for protected class entities"""
-    
-    def _get_detector(self):
-        return PresidioDetector(self.config_loader, self.logger)
+        result = validator.validate_entity(entity, "")
+        assert result.is_valid, f"Failed to validate URL format: {result.reasons}"
         
-    def test_protected_class_validation(self, setup_detector):
-        """Test protected class validation with different cases"""
-        detector = setup_detector
+        # Test social media handle
+        entity = Entity(
+            text="@username",
+            entity_type="INTERNET_REFERENCE",
+            confidence=0.8,
+            start=0,
+            end=9,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "Follow me on Twitter: @username")
+        assert result.is_valid, f"Failed to validate social media handle: {result.reasons}"
+        assert any("social" in reason.lower() for reason in result.reasons), \
+            "Missing social media validation reason"
+
+###############################################################################
+# SECTION 10: PROTECTED CLASS AND PHI VALIDATION TESTS
+###############################################################################
+
+class TestProtectedClassValidation(BaseValidationTest):
+    """Test validation rules for protected class entities."""
+    
+    def test_protected_class_validation(self, setup_validation):
+        """Test protected class validation with different cases."""
+        validator = setup_validation
         test_cases = self._load_test_cases("protected_class_validation.json")["protected_class_validation_tests"]
         
         for case in test_cases:
@@ -486,31 +661,56 @@ class TestProtectedClassValidation(BaseEntityValidationTest):
             )
 
             initial_confidence = entity.confidence
-            is_valid = detector.validate_detection(entity, case.get("context", ""))
-            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
-
-            assert is_valid == case["expected_valid"], (
-                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
-                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
-                f"Validation reasons: {detector.last_validation_reasons}"
-            )
+            result = validator.validate_entity(entity, case.get("context", ""))
             
-            if is_valid and "min_confidence_adjustment" in case:
-                assert confidence_change >= round(case["min_confidence_adjustment"], 2), (
-                    f"Insufficient confidence adjustment for: {case['description']}. "
-                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, got {confidence_change}. "
-                    f"Validation reasons: {detector.last_validation_reasons}"
-                )
+            confidence_change = round(entity.confidence - initial_confidence, 2) if result.is_valid else 0.0
 
-class TestPHIValidation(BaseEntityValidationTest):
-    """Test validation rules for PHI entities"""
-    
-    def _get_detector(self):
-        return PresidioDetector(self.config_loader, self.logger)
+            assert result.is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, "
+                f"got {result.is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, "
+                f"Adjustments: {confidence_change}, "
+                f"Reasons: {result.reasons}"
+            )
+
+    def test_protected_class_contexts(self, setup_validation):
+        """Test protected class validation with different contexts."""
+        validator = setup_validation
         
-    def test_phi_validation(self, setup_detector):
-        """Test PHI validation with different cases"""
-        detector = setup_detector
+        # Test with identity context
+        entity = Entity(
+            text="Muslim",
+            entity_type="PROTECTED_CLASS",
+            confidence=0.8,
+            start=0,
+            end=6,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "Religious identity: Muslim")
+        assert result.is_valid, f"Failed to validate protected class with identity context: {result.reasons}"
+        assert any("identity" in reason.lower() for reason in result.reasons), \
+            "Missing identity context validation reason"
+        
+        # Test with organizational context
+        entity = Entity(
+            text="Catholic",
+            entity_type="PROTECTED_CLASS",
+            confidence=0.8,
+            start=0,
+            end=8,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "Catholic Church organization")
+        assert result.is_valid, f"Failed to validate protected class with org context: {result.reasons}"
+        assert any("organization" in reason.lower() for reason in result.reasons), \
+            "Missing organizational context validation reason"
+
+class TestPHIValidation(BaseValidationTest):
+    """Test validation rules for PHI entities."""
+    
+    def test_phi_validation(self, setup_validation):
+        """Test PHI validation with different cases."""
+        validator = setup_validation
         test_cases = self._load_test_cases("phi_validation.json")["phi_validation_tests"]
         
         for case in test_cases:
@@ -529,144 +729,47 @@ class TestPHIValidation(BaseEntityValidationTest):
             )
 
             initial_confidence = entity.confidence
-            is_valid = detector.validate_detection(entity, case.get("context", ""))
-            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
-
-            assert is_valid == case["expected_valid"], (
-                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
-                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
-                f"Validation reasons: {detector.last_validation_reasons}"
-            )
+            result = validator.validate_entity(entity, case.get("context", ""))
             
-            if is_valid and "min_confidence_adjustment" in case:
-                assert confidence_change >= round(case["min_confidence_adjustment"], 2), (
-                    f"Insufficient confidence adjustment for: {case['description']}. "
-                    f"Expected at least {round(case['min_confidence_adjustment'], 2)}, got {confidence_change}. "
-                    f"Validation reasons: {detector.last_validation_reasons}"
-                )
+            confidence_change = round(entity.confidence - initial_confidence, 2) if result.is_valid else 0.0
 
-
-class TestSpacyProtectedClassValidation(BaseEntityValidationTest):
-    """Test spaCy validation for protected class entities"""
-    
-    def _get_detector(self):
-        return SpacyDetector(self.config_loader, self.logger)
-        
-    def test_spacy_protected_class_validation(self, setup_detector):
-        """Test protected class validation with spaCy context detection"""
-        detector = setup_detector
-        test_cases = self._load_test_cases("protected_class_validation.json")["protected_class_validation_tests"]
-        
-        for case in test_cases:
-            entity = Entity(
-                text=case["text"],
-                entity_type="PROTECTED_CLASS",
-                confidence=0.7,
-                start=0,
-                end=len(case["text"]),
-                source="spacy"
+            assert result.is_valid == case["expected_valid"], (
+                f"Failed: {case['description']} - Expected {case['expected_valid']}, "
+                f"got {result.is_valid}. "
+                f"Confidence: {round(entity.confidence, 2)}, "
+                f"Adjustments: {confidence_change}, "
+                f"Reasons: {result.reasons}"
             )
 
-            initial_confidence = entity.confidence
-            is_valid = detector.validate_detection(entity, case.get("context", ""))
-            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
-
-            assert is_valid == case["expected_valid"], (
-                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
-                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
-                f"Validation reasons: {detector.last_validation_reasons}"
-            )
-
-class TestSpacyPHIValidation(BaseEntityValidationTest):
-    """Test spaCy validation for PHI entities"""
-    
-    def _get_detector(self):
-        return SpacyDetector(self.config_loader, self.logger)
+    def test_phi_contexts(self, setup_validation):
+        """Test PHI validation with different medical contexts."""
+        validator = setup_validation
         
-    def test_spacy_phi_validation(self, setup_detector):
-        """Test PHI validation with spaCy context detection"""
-        detector = setup_detector
-        test_cases = self._load_test_cases("phi_validation.json")["phi_validation_tests"]
+        # Test with medical condition
+        entity = Entity(
+            text="Type 2 Diabetes",
+            entity_type="PHI",
+            confidence=0.8,
+            start=0,
+            end=15,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "Medical condition: Type 2 Diabetes")
+        assert result.is_valid, f"Failed to validate PHI with medical condition: {result.reasons}"
+        assert any("condition" in reason.lower() for reason in result.reasons), \
+            "Missing medical condition validation reason"
         
-        for case in test_cases:
-            entity = Entity(
-                text=case["text"],
-                entity_type="PHI",
-                confidence=0.7,
-                start=0,
-                end=len(case["text"]),
-                source="spacy"
-            )
+        # Test with disability context
+        entity = Entity(
+            text="30% disability rating",
+            entity_type="PHI",
+            confidence=0.8,
+            start=0,
+            end=20,
+            source="presidio"
+        )
+        result = validator.validate_entity(entity, "VA disability rating: 30%")
+        assert result.is_valid, f"Failed to validate PHI with disability context: {result.reasons}"
+        assert any("disability" in reason.lower() for reason in result.reasons), \
+            "Missing disability context validation reason"
 
-            initial_confidence = entity.confidence
-            is_valid = detector.validate_detection(entity, case.get("context", ""))
-            confidence_change = round(entity.confidence - initial_confidence, 2) if is_valid else 0.0
-
-            assert is_valid == case["expected_valid"], (
-                f"Failed: {case['description']} - Expected {case['expected_valid']}, got {is_valid}. "
-                f"Confidence: {round(entity.confidence, 2)}, Adjustments: {confidence_change}, "
-                f"Validation reasons: {detector.last_validation_reasons}"
-            )
-
-class TestEnsembleProtectedPHI(BaseEntityValidationTest):
-    """Test ensemble validation for protected class and PHI entities"""
-    
-    def _get_detector(self):
-        return EnsembleCoordinator(self.config_loader, self.logger)
-        
-    def test_ensemble_validation(self, setup_detector):
-        """Test ensemble validation combining Presidio and spaCy results"""
-        detector = setup_detector
-        
-        # Test protected class ensemble
-        protected_cases = self._load_test_cases("protected_class_validation.json")["protected_class_validation_tests"]
-        for case in protected_cases:
-            if case["expected_valid"]:
-                # Create matching detections from both sources
-                presidio_ent = Entity(
-                    text=case["text"],
-                    entity_type="PROTECTED_CLASS",
-                    confidence=0.75,
-                    start=0,
-                    end=len(case["text"]),
-                    source="presidio"
-                )
-                spacy_ent = Entity(
-                    text=case["text"],
-                    entity_type="PROTECTED_CLASS",
-                    confidence=0.8,
-                    start=0,
-                    end=len(case["text"]),
-                    source="spacy"
-                )
-                
-                combined = detector._combine_protected_phi_entities(presidio_ent, spacy_ent)
-                assert combined is not None, f"Failed to combine entities for: {case['description']}"
-                assert combined.confidence >= max(presidio_ent.confidence, spacy_ent.confidence), \
-                    f"Combined confidence not higher than individual for: {case['description']}"
-        
-        # Test PHI ensemble
-        phi_cases = self._load_test_cases("phi_validation.json")["phi_validation_tests"]
-        for case in phi_cases:
-            if case["expected_valid"]:
-                presidio_ent = Entity(
-                    text=case["text"],
-                    entity_type="PHI",
-                    confidence=0.75,
-                    start=0,
-                    end=len(case["text"]),
-                    source="presidio"
-                )
-                spacy_ent = Entity(
-                    text=case["text"],
-                    entity_type="PHI",
-                    confidence=0.8,
-                    start=0,
-                    end=len(case["text"]),
-                    source="spacy"
-                )
-                
-                combined = detector._combine_protected_phi_entities(presidio_ent, spacy_ent)
-                assert combined is not None, f"Failed to combine entities for: {case['description']}"
-                assert combined.confidence >= max(presidio_ent.confidence, spacy_ent.confidence), \
-                    f"Combined confidence not higher than individual for: {case['description']}"

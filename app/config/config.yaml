@@ -7,6 +7,7 @@ input_folder: "../data/redact_input"
 output_folder: "../data/redact_output"
 entity_routing_path: "./redactor/config/entity_routing.yaml"
 validation_params_path: "./redactor/config/validation_params.json"
+validation_config: "./redactor/config/validation_config.json"
 
 #remove later after integration back to prototype complete:
 #redaction_patterns_path: "./redactor/config/detection_patterns.yaml"

@@ -1,0 +1,188 @@
+{
+  "test_id": "jordan_patel",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0,
+      "recall": 0.0,
+      "f1_score": 0,
+      "partial_matches": 0,
+      "false_positives": 0,
+      "false_negatives": 17
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "LOCATION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 3,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "ADDRESS": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPA": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "INTERNET_REFERENCE": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PHONE_NUMBER": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "OTHER_ID": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "ensemble_detections": {
+        "PROTECTED_CLASS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PHI": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DATE_TIME": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 5,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [],
+      "partial": [],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [],
+      "no_match": [],
+      "unmatched_ground_truth": [
+        "Entity(text='2010-2016', entity_type='DATE_TIME', start_char=217, end_char=226, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Seattle, WA', entity_type='LOCATION', start_char=54, end_char=65, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='jordan.k.patel@cloudmail.com', entity_type='EMAIL_ADDRESS', start_char=103, end_char=131, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='jordanpatel.dev', entity_type='INTERNET_REFERENCE', start_char=142, end_char=157, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='3.8/4.0', entity_type='GPA', start_char=622, end_char=629, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='University of Washington', entity_type='EDUCATIONAL_INSTITUTION', start_char=556, end_char=580, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Seattle, WA 98101', entity_type='LOCATION', start_char=54, end_char=71, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Jordan K. Patel', entity_type='PERSON', start_char=0, end_char=15, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='January 2010 \u2013 January 2016', entity_type='DATE_TIME', start_char=537, end_char=564, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Seattle Community College', entity_type='EDUCATIONAL_INSTITUTION', start_char=689, end_char=714, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Accessibility Statement: Will require screen magnification tools for extended periods of computer work due to partial visual impairment', entity_type='PHI', start_char=221, end_char=356, confidence=1.0, page=3, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='July 2018 \u2013 Present', entity_type='DATE_TIME', start_char=75, end_char=94, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='June 2018', entity_type='DATE_TIME', start_char=606, end_char=615, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Bellevue, WA', entity_type='LOCATION', start_char=61, end_char=73, confidence=1.0, page=2, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='June 2016', entity_type='DATE_TIME', start_char=740, end_char=749, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='(206) 555-7890', entity_type='PHONE_NUMBER', start_char=80, end_char=94, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='22 Maplewood Drive, Unit B', entity_type='ADDRESS', start_char=26, end_char=52, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)"
+      ],
+      "unmatched_detected": []
+    },
+    "match_statistics": {
+      "exact_matches": 0,
+      "partial_matches": 0,
+      "sensitivity_mismatches": 0,
+      "type_mismatches": 0,
+      "unmatched_ground_truth": 17,
+      "unmatched_detected": 0
+    }
+  }
+}

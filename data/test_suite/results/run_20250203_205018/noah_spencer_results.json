@@ -1,0 +1,185 @@
+{
+  "test_id": "noah_spencer",
+  "summary": {
+    "overall_metrics": {
+      "precision": 0,
+      "recall": 0.0,
+      "f1_score": 0,
+      "partial_matches": 0,
+      "false_positives": 0,
+      "false_negatives": 14
+    },
+    "type_metrics": {
+      "presidio_detections": {
+        "LOCATION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 4,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "ADDRESS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "GPA": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "INTERNET_REFERENCE": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PHONE_NUMBER": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EMAIL_ADDRESS": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "OTHER_ID": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "spacy_detections": {
+        "PERSON": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 1,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      },
+      "ensemble_detections": {
+        "PROTECTED_CLASS": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "EDUCATIONAL_INSTITUTION": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 2,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "PHI": {
+          "precision": 0,
+          "recall": 0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "partial_matches": 0,
+          "total_detections": 0
+        },
+        "DATE_TIME": {
+          "precision": 0,
+          "recall": 0.0,
+          "f1_score": 0,
+          "exact_matches": 0,
+          "false_positives": 0,
+          "false_negatives": 5,
+          "partial_matches": 0,
+          "total_detections": 0
+        }
+      }
+    }
+  },
+  "details": {
+    "matches": {
+      "exact": [],
+      "partial": [],
+      "sensitivity_mismatch": [],
+      "type_mismatch": [],
+      "no_match": [],
+      "unmatched_ground_truth": [
+        "Entity(text='Rutgers, The State University of New Jersey', entity_type='EDUCATIONAL_INSTITUTION', start_char=511, end_char=554, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Riverside, CA', entity_type='LOCATION', start_char=39, end_char=52, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='(830) 555-3727', entity_type='PHONE_NUMBER', start_char=53, end_char=67, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='2019 - Present', entity_type='DATE_TIME', start_char=294, end_char=308, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2012 - 2015', entity_type='DATE_TIME', start_char=427, end_char=438, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='Greensboro, NC', entity_type='LOCATION', start_char=447, end_char=461, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='nspencer@example.com', entity_type='EMAIL_ADDRESS', start_char=68, end_char=88, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='2016 - 2019', entity_type='DATE_TIME', start_char=380, end_char=391, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='NOAH SPENCER', entity_type='PERSON', start_char=0, end_char=12, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='Beltsville, MD', entity_type='LOCATION', start_char=397, end_char=411, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2015 - 2016', entity_type='DATE_TIME', start_char=499, end_char=510, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='2009 - 2012', entity_type='DATE_TIME', start_char=603, end_char=614, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)",
+        "Entity(text='University of North Carolina at Greensboro', entity_type='EDUCATIONAL_INSTITUTION', start_char=615, end_char=657, confidence=1.0, page=1, sensitivity=<SensitivityLevel.HIGH: 'high'>)",
+        "Entity(text='New Brunswick, NJ', entity_type='LOCATION', start_char=555, end_char=572, confidence=1.0, page=1, sensitivity=<SensitivityLevel.MEDIUM: 'medium'>)"
+      ],
+      "unmatched_detected": []
+    },
+    "match_statistics": {
+      "exact_matches": 0,
+      "partial_matches": 0,
+      "sensitivity_mismatches": 0,
+      "type_mismatches": 0,
+      "unmatched_ground_truth": 14,
+      "unmatched_detected": 0
+    }
+  }
+}

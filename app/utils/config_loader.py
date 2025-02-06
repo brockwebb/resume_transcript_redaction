@@ -169,7 +169,9 @@ class ConfigLoader:
         # Define and load additional configurations from files
         config_files = {
             "entity_routing": main_config.get("entity_routing_path"),
-            "validation_params": main_config.get("validation_params_path")
+            "validation_params": main_config.get("validation_params_path"),
+            "validation_config": main_config.get("validation_config") 
+            
         }
     
         self.logger.debug("Config paths from main config:")

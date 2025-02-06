@@ -1,7 +1,7 @@
 {
     "EDUCATIONAL_INSTITUTION": {
         "core_terms": ["university", "college", "institute", "school"],
-        "known_acronyms": ["UCLA", "MIT", "NYU", "USC", "UCI", "UCSB", "UCB"],
+        "known_acronyms": ["UCLA", "CMU", "MIT", "NYU", "USC", "UCI", "UCSB", "UCB", "UVA", "VPI"],
         "confidence_boosts": {
             "full_name": 0.3,
             "known_acronym": 0.4
@@ -71,123 +71,128 @@
             "require_street_type": true
         }
     },
-    "LOCATION": {
-        "us_states": {
-            "full": [
-                "Alabama", "Alaska", "Arizona", "Arkansas", "California",
-                "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
-                "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
-                "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
-                "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri",
-                "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey",
-                "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio",
-                "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
-                "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
-                "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
-            ],
-            "abbrev": [
-                "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-                "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-                "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-                "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-                "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
-            ]
-        },
-        "confidence_boosts": {
-            "has_state": 0.2,
-            "has_zip": 0.1,
-            "known_format": 0.1,
-            "multi_word": 0.1,
-            "proper_case": 0.1
-        },
-        "confidence_penalties": {
-            "single_word": -0.2,
-            "lowercase": -0.3,
-            "no_context": -0.1
-        },
-        "validation_rules": {
-            "min_chars": 2,
-            "allow_single_word": true,
-            "require_capitalization": true,
-            "allow_all_caps": true,
-            "allow_hyphens": true
-        },
-        "format_patterns": {
-            "us_city_state": {
-                "regex": "^[A-Z][A-Za-z\\s-]+,\\s*(?:[A-Z]{2}|[A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)(?:\\s+\\d{5}(?:-\\d{4})?)?$",
-                "confidence": 0.9
-            },
-            "international": {
-                "regex": "^[A-Z][A-Za-z\\s-]+(?:,\\s*[A-Z][A-Za-z\\s-]+)?$",
-                "confidence": 0.7
-            },
-            "metro_area": {
-                "regex": "^[A-Z][A-Za-z\\s]*(?:-[A-Z][A-Za-z\\s]*)+$",
-                "confidence": 0.8
-            }
-        },
-        "context_words": [
-            "in", "at", "near", "from", "to",
-            "city", "town", "region", "area",
-            "north", "south", "east", "west",
-            "located", "based", "downtown"
-        ]
+  "LOCATION": {
+    "us_states": {
+      "full": [
+        "Alabama", "Alaska", "Arizona", "Arkansas", "California",
+        "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
+        "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
+        "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
+        "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri",
+        "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey",
+        "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio",
+        "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
+        "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+        "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+      ],
+      "abbrev": [
+        "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+        "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+        "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+        "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+        "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+      ]
     },
-    "DATE_TIME": {
-        "year_markers": [
-            "class of", "graduated", "grad.", "expected", "est.", "anticipated",
-            "since", "from", "in"
-        ],
-        "range_separators": [
-            "-", "–", "—", "to", "through", "until"
-        ],
-        "current_terms": [
-            "present", "current", "now", "ongoing"
-        ],
-        "month_formats": {
-            "full": [
-                "january", "february", "march", "april", "may", "june",
-                "july", "august", "september", "october", "november", "december"
-            ],
-            "abbrev": [
-                "jan", "feb", "mar", "apr", "may", "jun",
-                "jul", "aug", "sep", "oct", "nov", "dec"
-            ]
-        },
-        "patterns": {
-            "education_year": {
-                "regex": "\\b(?:class\\s+of|graduated|expected|anticipated)\\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?\\s+)?(?:19|20)\\d{2}\\b",
-                "confidence": 0.9
-            },
-            "single_year": {
-                "regex": "\\b(19|20)\\d{2}\\b",
-                "confidence": 0.7
-            },
-            "year_month": {
-                "regex": "(?:(?:19|20)\\d{2}[-./](?:0?[1-9]|1[0-2])|(?:0?[1-9]|1[0-2])[-./](?:19|20)\\d{2})",
-                "confidence": 0.8
-            },
-            "month_year": {
-                "regex": "(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?\\s*(?:19|20)\\d{2})",
-                "confidence": 0.9
-            },
-            "year_range": {
-                "regex": "(?:19|20)\\d{2}\\s*[-–—]\\s*(?:(?:19|20)\\d{2}|present|current|ongoing)",
-                "confidence": 0.85
-            }
-            
-        },
-        "false_positive_contexts": [
-            "hours", "credits", "points", "score", "gpa", "grade",
-            "course", "level", "version", "vol", "volume"
-        ],
-        "confidence_adjustments": {
-            "has_marker": 0.2,
-            "has_context": 0.1,
-            "ambiguous_format": -0.2,
-            "false_positive_context": -0.5
-        }
+    "confidence_boosts": {
+      "has_state": 0.2,
+      "has_zip": 0.1,
+      "known_format": 0.1,
+      "multi_word": 0.1,
+      "proper_case": 0.1,
+      "international": 0.1,
+      "metro_area": 0.2
     },
+    "confidence_penalties": {
+      "single_word": -0.2,
+      "lowercase": -0.3,
+      "no_context": -0.1
+    },
+    "validation_rules": {
+      "min_chars": 2,
+      "allow_single_word": true,
+      "require_capitalization": true,
+      "allow_all_caps": true,
+      "allow_hyphens": true
+    },
+    "format_patterns": {
+      "us_city_state": {
+        "regex": "^[A-Z][A-Za-z\\s-]+,\\s*(?:[A-Z]{2}|[A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*)(?:\\s+\\d{5}(?:-\\d{4})?)?$",
+        "confidence": 0.9
+      },
+      "international": {
+        "regex": "^[A-Z][A-Za-zÀ-ÿ\\s-]+(?:,\\s*[A-Z][A-Za-zÀ-ÿ\\s-]+)?$",
+        "confidence": 0.7
+      },
+      "metro_area": {
+        "regex": "^[A-Z][A-Za-z\\s]*(?:-[A-Z][A-Za-z\\s]*)+$",
+        "confidence": 0.8
+      }
+    },
+    "context_words": [
+      "in", "at", "near", "from", "to",
+      "city", "town", "region", "area",
+      "north", "south", "east", "west",
+      "located", "based", "downtown"
+    ]
+  },
+  "DATE_TIME": {
+    "year_markers": [
+      "class of", "graduated", "grad.", "expected", "est.", "anticipated",
+      "since", "from", "in"
+    ],
+    "range_separators": [
+      "-", "–", "—", "to", "through", "until"
+    ],
+    "current_terms": [
+      "present", "current", "now", "ongoing"
+    ],
+    "month_formats": {
+      "full": [
+        "january", "february", "march", "april", "may", "june",
+        "july", "august", "september", "october", "november", "december"
+      ],
+      "abbrev": [
+        "jan", "feb", "mar", "apr", "may", "jun",
+        "jul", "aug", "sep", "oct", "nov", "dec"
+      ]
+    },
+    "patterns": {
+      "education_year": {
+        "regex": "\\b(?:class\\s+of|graduated|expected|anticipated)\\s+(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?\\s+)?(?:19|20)\\d{2}\\b",
+        "confidence": 0.9
+      },
+      "single_year": {
+        "regex": "\\b(19|20)\\d{2}\\b",
+        "confidence": 0.7
+      },
+      "year_month": {
+        "regex": "(?:(?:19|20)\\d{2}[-./](?:0?[1-9]|1[0-2])|(?:0?[1-9]|1[0-2])[-./](?:19|20)\\d{2})",
+        "confidence": 0.8
+      },
+      "month_year": {
+        "regex": "(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?\\s*(?:19|20)\\d{2})",
+        "confidence": 0.9
+      },
+      "day_month_year": {
+        "regex": "\\b(?:(0[1-9]|[12]\\d|3[01])[-./](0[1-9]|1[0-2])[-./](19|20)\\d{2}|(0[1-9]|1[0-2])[-./](0[1-9]|[12]\\d|3[01])[-./](19|20)\\d{2})\\b",
+        "confidence": 0.85
+      },
+      "year_range": {
+        "regex": "(?:19|20)\\d{2}\\s*[-–—]\\s*(?:(?:19|20)\\d{2}|present|current|ongoing)",
+        "confidence": 0.85
+      }
+    },
+    "false_positive_contexts": [
+      "hours", "credits", "points", "score", "gpa", "grade",
+      "course", "level", "version", "vol", "volume"
+    ],
+    "confidence_adjustments": {
+      "has_marker": 0.2,
+      "has_context": 0.1,
+      "ambiguous_format": -0.2,
+      "false_positive_context": -0.5
+    }
+  },
     "GPA": {
         "validation_rules": {
             "min_value": 0.0,
@@ -261,15 +266,17 @@
         },
         "confidence_boosts": {
             "format_match": 0.2,
-            "standard_format": 0.1,
+            "proper_grouping": 0.1,
             "has_context": 0.1,
             "has_extension": 0.1,
-            "proper_grouping": 0.1,
-            "intl_format": 0.1    
+            "intl_format": 0.2
         },
-        "confidence_penalties": {
-            "invalid_format": -0.3,
-            "suspicious_pattern": -0.2
+        "patterns": {
+            "parentheses": "\\(\\d{3}\\)\\s*\\d{3}[-.]\\d{4}",
+            "standard": "\\d{3}[-.]\\d{3}[-.]\\d{4}",
+            "area_code": "1[-.]\\d{3}[-.]\\d{3}[-.]\\d{4}",
+            "full_intl": "\\+1[-.]\\d{3}[-.]\\d{3}[-.]\\d{4}",
+            "extension": "(ext\\.?|x)\\s*\\d+"
         },
         "context_words": [
             "phone",
@@ -321,7 +328,7 @@
     "INTERNET_REFERENCE": {
         "validation_rules": {
             "min_chars": 4,
-            "max_length": 2048,
+            "max_length": 512,
             "allow_fragments": true,
             "require_valid_format": true,
             "allow_non_ascii": true
@@ -337,6 +344,25 @@
             "suspicious_pattern": -0.2,
             "excessive_length": -0.2
         },
+        "validation_types": {
+            "url": {
+                "patterns": {
+                    "with_protocol": "^https?://(?:[\\w-]+\\.)+[\\w-]+(?:/[^\\s]*)?$",
+                    "without_protocol": "^(?:[\\w-]+\\.)+(?:com|org|edu|gov|net|io|co|us|uk)(?:/[^\\s]*)?$"
+                },
+                "require_tld": true,
+                "require_scheme": false,
+                "allowed_schemes": ["http", "https"]
+            },
+            "social_handle": {
+                "patterns": {
+                    "standard": "^@[A-Za-z0-9_-]+$"
+                },
+                "require_prefix": true,
+                "max_length": 30,
+                "allowed_chars": "A-Za-z0-9_-"
+            }
+        },
         "known_platforms": {
             "social": [
                 "twitter.com",
@@ -351,18 +377,6 @@
                 "apple.com",
                 "amazon.com"
             ]
-        },
-        "validation_types": {
-            "url": {
-                "require_tld": true,
-                "require_scheme": false,
-                "allowed_schemes": ["http", "https"]
-            },
-            "social_handle": {
-                "require_prefix": true,
-                "max_length": 30,
-                "allowed_chars": "A-Za-z0-9_-"
-            }
         }
     },
     "PROTECTED_CLASS": {
@@ -378,6 +392,7 @@
         "confidence_boosts": {
             "has_context": 0.2,
             "gender_context_match": 0.3,
+            "org_context_match": 0.3,
             "proper_format": 0.2,
             "multiple_words": 0.1,
             "gender_identity_match": 0.3,
@@ -510,9 +525,10 @@
                 "taking", "receiving", "using",  
                 "managing", "ongoing", "undergoing",  
                 "scheduled",  
-                "recovery", "recovering"
+                "recovery", "recovering",
+                "medication", "rating", "leave" 
             ],
-            "minimum_context_words": 2,
+            "minimum_context_words": 1,
             "context_window_size": 50
         },
         "confidence_boosts": {

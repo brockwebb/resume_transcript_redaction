@@ -1,0 +1,16 @@
+{
+    "validation_methods": {
+        "ADDRESS": "_validate_address",
+        "DATE_TIME": "_validate_date",
+        "EDUCATIONAL_INSTITUTION": "_validate_educational",
+        "EMAIL_ADDRESS": "_validate_email", 
+        "GPA": "_validate_gpa", 
+        "INTERNET_REFERENCE": "_validate_internet_reference",
+        "LOCATION": "_validate_location", 
+        "PERSON": "_validate_person",
+        "PHI": "_validate_phi",
+        "PHONE_NUMBER": "_validate_phone",   
+        "PROTECTED_CLASS": "_validate_protected_class" 
+        
+    }
+}
