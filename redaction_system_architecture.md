@@ -1,58 +1,80 @@
 # Resume Redaction System Architecture
 
 ## Overview
-The Resume Redaction System automatically detects and redacts sensitive information from resumes and professional documents while preserving important technical and professional content. The system combines Presidio's NLP capabilities with spaCy's contextual understanding, using a configuration-driven approach for entity detection and validation.
+The Resume Redaction System automatically detects and redacts sensitive information from resumes and professional documents while preserving important technical and professional content. The system leverages a sophisticated, configuration-driven approach to entity detection and validation, combining advanced natural language processing techniques with flexible validation rules.
+
+## System Design Principles
+- **Modular Architecture**: Easily extensible detection and validation components
+- **Configuration-Driven**: Validation and detection rules defined through JSON and YAML configurations
+- **Multi-Model Approach**: Combines multiple NLP models for comprehensive entity detection
+- **Contextual Intelligence**: Advanced context-aware validation of detected entities
+- **Configurable Confidence Scoring**: Flexible threshold and confidence management
+- **Privacy-Preserving**: Robust redaction of sensitive personal information
 
 ## System Components
 
 ### 1. Core Detection Framework
 
-#### BaseDetector Interface
-Base interface defining core detection and validation capabilities:
-- Common configuration validation logic
-- Shared text preparation utilities
-- Entity type validation rules
+#### Validation Architecture
+The system introduces a centralized `ValidationCoordinator` that revolutionizes entity validation:
+- Unifies validation logic across different detection systems
+- Provides a single, configuration-driven validation approach
+- Decouples validation rules from specific detectors
+- Enables complex, multi-stage validation for sensitive entities
+- Supports granular confidence adjustments based on contextual analysis
+
+#### Core Detection Interfaces
+
+##### BaseDetector
+Abstract base class defining core detection capabilities:
+- Shared configuration and logging mechanisms
+- Basic text preparation utilities
+- Foundational entity detection interface
+- Debug and logging support
 - Confidence threshold management
-Each detector implements these core methods while adding specialized detection capabilities.
 
-#### PresidioDetector
-Primary detector for pattern-based entities:
-- Direct validation using validation_params.json rules
-- Enhanced NLP recognition for structured data
-- Confidence scoring based on pattern matches and context
-- Specialized handling of addresses, emails, and structured identifiers
-- Strong validation rules for formatted data types
+##### Specialized Detectors
+1. **PresidioDetector**
+   - Pattern-based entity recognition
+   - Strong performance with structured data
+   - Specialized in detecting formatted identifiers
+   - Handles addresses, emails, and structured personal information
 
-#### SpacyDetector
-Context-aware named entity recognition:
-- Specialized in unstructured text analysis
-- Strong performance on person names and organizations
-- Contextual understanding for professional terms
-- Geographic and location entity detection
-- Enhanced validation for natural language entities
+2. **SpacyDetector**
+   - Context-aware named entity recognition
+   - Advanced linguistic analysis
+   - Strong performance with unstructured text
+   - Specializes in person names, organizations, and contextual entities
 
 #### EnsembleCoordinator
-Orchestrates multiple detection systems:
-- Routes entities based on entity_routing.yaml configuration
+Central orchestration component for entity detection:
+- Manages multiple detection systems
+- Routes entities based on configuration
 - Combines results using weighted confidence scores
-- Manages detector-specific validation rules
-- Resolves conflicts between detectors
-- Handles confidence thresholds at both detector and ensemble levels
-- Post-processes results to remove overlaps and duplicates
+- Resolves conflicts between different detectors
+- Applies post-processing to remove overlapping entities
 
-### 2. Configuration System
+### 2. Configuration Management System
 
-#### Core Configuration Files
-The system uses two primary configuration files:
+#### Configuration Files
 
-**validation_params.json**
-- Single source of truth for entity validation
-- Defines validation rules per entity type
-- Sets confidence adjustments and thresholds
-- Specifies context requirements
-- Provides pattern definitions where needed
+##### validation_params.json
+The central configuration for entity validation:
+- Defines comprehensive validation rules per entity type
+- Specifies confidence adjustment mechanisms
+- Provides detailed context requirements
+- Includes pattern definitions for complex validations
+- Supports fine-grained validation logic for sensitive entities
 
-**entity_routing.yaml**
+Key Configuration Sections:
+- Validation rules for each entity type
+- Confidence boost and penalty mechanisms
+- Context word and pattern definitions
+- Specialized validation requirements
+- Entity-specific detection strategies
+
+##### entity_routing.yaml
+Defines detection and routing strategies:
 ```yaml
 routing:
   presidio_primary:
@@ -88,122 +110,86 @@ routing:
         spacy_weight: 0.35
 ```
 
-#### Configuration Management
-ConfigLoader class provides:
-- Centralized configuration loading
+#### ConfigLoader
+Centralized configuration management:
+- Dynamic configuration loading
 - Environment-specific settings
-- Path resolution for config files
-- Config validation and error handling
+- Validation of configuration files
+- Error handling and logging
+- Path resolution for configuration resources
 
-### 3. Processing Pipeline
+### 3. Validation Framework
 
-#### Core Processing Components
+#### ValidationCoordinator
+Core validation orchestration component:
+- Centralizes validation logic for all entity types
+- Implements configuration-driven validation strategies
+- Provides unified validation interface
+- Manages complex validation workflows
+- Supports multi-stage validation processes
 
-**RedactionProcessor**
-- Main orchestration component
-- Manages entity detection workflow
-- Handles text normalization and filtering
-- Integrates with ensemble detection system
-- Applies redaction rules and filtering
+Validation Process:
+1. Receive detected entities from detectors
+2. Apply type-specific validation rules
+3. Analyze contextual information
+4. Adjust confidence scores
+5. Determine entity validity
+6. Provide detailed validation results
 
-**RedactFileProcessor**
-- Handles PDF file operations
-- Manages bounding boxes for redactions
-- Applies redaction styling
-- PDF validation and error handling
+#### Validation Strategies
+- **Rule-Based Validation**: Configuration-defined rules
+- **Contextual Analysis**: Deep linguistic and contextual examination
+- **Confidence Scoring**: Dynamic confidence adjustment
+- **Multi-Model Validation**: Cross-validation across detection systems
 
-#### Detection Flow
+### 4. Processing Pipeline
+
+#### Entity Detection Workflow
 ```mermaid
 graph TD
-    A[Input Text] --> B[RedactionProcessor]
-    B --> E[EnsembleCoordinator]
-    E --> F{Route by Type}
-    F -->|Presidio Primary| G[PresidioDetector]
-    F -->|Spacy Primary| H[SpacyDetector]
-    F -->|Ensemble Required| I[Combined Detection]
-    G --> J[Result Collection]
-    H --> J
-    I --> J
-    J --> K[Apply Redactions]
+    A[Input Document] --> B[Text Extraction]
+    B --> C[Initial Normalization]
+    C --> D[EnsembleCoordinator]
+    D --> E{Routing Rules}
+    E -->|Presidio Primary| F[PresidioDetector]
+    E -->|Spacy Primary| G[SpacyDetector]
+    E -->|Ensemble Required| H[Combined Detection]
+    F --> I[ValidationCoordinator]
+    G --> I
+    H --> I
+    I --> J[Confidence Filtering]
+    J --> K[Redaction Preparation]
+    K --> L[PDF Redaction]
 ```
 
-#### Process Stages
-
+#### Processing Stages
 1. **Input Processing**
    - Document text extraction
    - Initial text normalization
-   - Word list generation for PDF mapping
+   - Prepare for entity detection
 
 2. **Entity Detection**
-   - Primary detection based on entity routing rules
-   - Direct validation using validation_params.json rules
-   - Entity validation and confidence scoring
-   - Ensemble detection for complex entities
+   - Apply routing rules
+   - Detect entities using multiple models
+   - Validate detected entities
+   - Apply confidence thresholds
 
-3. **Result Processing**
-   - Combine detection results
-   - Apply keep_word filters
-   - Generate bounding boxes for redaction
-   - Resolve overlaps and conflicts
+3. **Redaction Preparation**
+   - Generate redaction bounding boxes
+   - Apply keep-word filters
+   - Resolve entity conflicts
 
-4. **Output Generation**
-   - Apply redactions to PDF
-   - Generate redaction statistics
-   - Handle output file creation
+4. **Redaction Application**
+   - Apply redactions to the document
+   - Generate processing report
+   - Preserve document structure
 
-### 4. Evaluation and Testing Framework
+### 5. Evaluation and Testing Framework
 
 #### Evaluation Components
 
-**EvaluationGUI**
-- Interactive testing interface
-- Entity-type specific analysis
-- Performance metrics visualization
-- Debug logging display
-- Configuration testing and validation
-
-**TestRunner**
-- Batch test execution
-- Statistical analysis
-- Performance metrics collection
-- Comparison between runs
-- Validation rule effectiveness testing
-
-#### Testing Infrastructure
-
-**StageOneEvaluator**
-- Entity detection analysis
-- Validation rule testing
-- Confidence score evaluation
-- Detection overlap analysis
-- Entity type coverage testing
-
-**EntityMatcher**
-- Ground truth comparison
-- Entity span matching
-- Confidence threshold testing
-- False positive/negative analysis
-- Context validation testing
-
-**EntityMetrics**
-- Precision/recall calculation
-- Type-based performance metrics
-- Confidence distribution analysis
-- Validation rule effectiveness measurement
-- Detection source analysis
-
-#### Test Suite Organization
-```
-data/
-  test_suite/
-    originals/       # Original test documents
-    annotations/     # Ground truth annotations
-    results/        # Test run results
-    test_manifest.yaml  # Test definitions
-```
-
-#### Evaluation Metrics
-Key metrics tracked by the system:
+##### Performance Metrics Tracking
+Key metrics for system assessment:
 - Entity detection accuracy by type
 - Validation rule effectiveness
 - Detector performance comparison
@@ -212,3 +198,98 @@ Key metrics tracked by the system:
 - Memory usage
 - Configuration coverage
 - False positive/negative rates
+
+##### TestRunner
+Comprehensive testing infrastructure:
+- Batch test execution
+- Statistical analysis
+- Performance metrics collection
+- Comparative testing between system versions
+- Validation rule effectiveness assessment
+
+#### Test Suite Organization
+```
+data/
+  test_suite/
+    originals/       # Original test documents
+    annotations/     # Ground truth annotations
+    results/         # Test run results
+    test_manifest.yaml  # Test definitions
+```
+
+#### Evaluation Strategies
+
+##### EntityMatcher
+Advanced entity validation system:
+- Ground truth comparison
+- Precise entity span matching
+- Confidence threshold testing
+- False positive/negative analysis
+- Contextual validation verification
+
+##### StageOneEvaluator
+Comprehensive detection analysis:
+- Detailed entity detection assessment
+- Validation rule verification
+- Confidence score evaluation
+- Detection overlap identification
+- Entity type coverage testing
+
+##### EntityMetrics
+Advanced performance analytics:
+- Precision and recall calculation
+- Granular performance metrics by entity type
+- Confidence distribution analysis
+- Validation rule effectiveness measurement
+- Detection source performance tracking
+
+### 6. Security and Privacy Considerations
+
+#### Privacy Protection Mechanisms
+- Strict entity validation rules
+- Configurable redaction strategies
+- Minimal information retention
+- Comprehensive sensitive data identification
+- Adaptive detection across document types
+
+#### Compliance Features
+- GDPR and CCPA alignment
+- Configurable redaction levels
+- Audit trail generation
+- Anonymization support
+- Minimal data exposure
+
+### 7. Advanced Features and Extensibility
+
+#### Customization Points
+- Pluggable detection models
+- Configurable validation rules
+- Custom entity type support
+- Extensible configuration system
+- Modular architecture for easy enhancement
+
+#### Future Development Roadmap
+- Machine learning-based validation improvements
+- Enhanced contextual understanding
+- Support for additional document types
+- Multilingual detection capabilities
+- Advanced anonymization techniques
+
+### 8. Performance Optimization
+
+#### Optimization Strategies
+- Efficient memory management
+- Parallel processing support
+- Caching mechanisms
+- Lazy loading of detection models
+- Configurable performance thresholds
+
+#### Scalability Considerations
+- Horizontal scaling support
+- Cloud-native architecture
+- Containerization readiness
+- Microservices compatibility
+- Dynamic resource allocation
+
+### Conclusion
+The Resume Redaction System represents a sophisticated, flexible approach to sensitive information detection and redaction. The system provides robust, adaptable privacy protection across various document types by combining advanced NLP techniques, configuration-driven validation, and comprehensive testing strategies.
