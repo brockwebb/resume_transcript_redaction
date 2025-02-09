@@ -14,7 +14,6 @@ routing:
       - INTERNET_REFERENCE 
       - LOCATION
       - GPA
-      - EDUCATIONAL_INSTITUTION
       - OTHER_ID
     thresholds:
       ADDRESS: 0.8

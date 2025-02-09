@@ -94,26 +94,34 @@ class SpacyDetector(BaseDetector):
                 if self.logger:
                     self.logger.error("Missing 'spacy_primary' configuration")
                 return False
-
-            # Load entity types and mappings
+    
+            # Dynamically load entity types from routing configuration
             self.entity_types = set(spacy_config.get("entities", []))
-            self.entity_mappings = spacy_config.get("mappings", {})
+            
+            # Default mapping and fallback to routing configuration
+            self.entity_mappings = spacy_config.get("mappings", {
+                "PERSON": "PERSON",
+                "DATE": "DATE_TIME",
+                # Add other default mappings as needed
+            })
             
             # Get confidence thresholds
             self.confidence_thresholds = spacy_config.get("thresholds", {})
-
+    
             if self.debug_mode:
                 if self.logger:
                     self.logger.debug(f"Loaded spaCy entity types: {self.entity_types}")
                     self.logger.debug(f"Entity mappings: {self.entity_mappings}")
                     self.logger.debug(f"Confidence thresholds: {self.confidence_thresholds}")
-
+    
             return True
-
+    
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Error validating spaCy config: {str(e)}")
             return False
+    
+
 
 ###############################################################################
 # SECTION 3: ENTITY DETECTION
@@ -131,21 +139,28 @@ class SpacyDetector(BaseDetector):
         """
         if not text:
             return []
-
+    
         try:
             doc = self.nlp(text)
             entities = []
-
+    
             for ent in doc.ents:
-                if ent.label_ in self.entity_types:
-                    mapped_type = self.entity_mappings.get(ent.label_, ent.label_)
+                # Check if the entity type is in our configured types or mappings
+                if (ent.label_ in self.entity_types or 
+                    ent.label_ in self.entity_mappings):
                     
-                    # Apply type-specific threshold
-                    confidence = self.confidence_thresholds.get(
+                    # Map entity type, with fallback to original label
+                    mapped_type = self.entity_mappings.get(
                         ent.label_, 
+                        ent.label_
+                    )
+                    
+                    # Apply type-specific threshold, with fallback to default
+                    confidence = self.confidence_thresholds.get(
+                        mapped_type, 
                         self.confidence_threshold
                     )
-
+    
                     entity = Entity(
                         text=ent.text,
                         entity_type=mapped_type,
@@ -154,7 +169,7 @@ class SpacyDetector(BaseDetector):
                         end=ent.end_char,
                         source="spacy",
                     )
-
+    
                     entities.append(entity)
                     
                     if self.debug_mode and self.logger:
@@ -162,9 +177,9 @@ class SpacyDetector(BaseDetector):
                             f"spaCy entity: {entity.entity_type} "
                             f"'{entity.text}' (Confidence: {entity.confidence:.2f})"
                         )
-
+    
             return entities
-
+    
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Error detecting entities with SpaCy: {e}")

@@ -1,0 +1,35 @@
+# Default word filter configuration
+# These lists can be modified through the GUI
+
+filters:
+  # Words/phrases that should never be redacted
+  keep_words:
+    # Technical skills
+    - "Python"
+    - "Java"
+    - "JavaScript"
+    - "SQL"
+    # Common professional terms
+    - "Senior"
+    - "Junior"
+    - "Lead"
+    - "Manager"
+    
+  # Words/phrases that should always be redacted
+  ignore_words: []
+  
+  # Configuration options
+  options:
+    case_sensitive: false
+    enable_partial_matches: true
+    require_exact_match: false
+
+# Metadata for GUI integration
+gui_config:
+  editable_sections:
+    - keep_words
+    - ignore_words
+  validation_rules:
+    min_word_length: 2
+    max_phrase_length: 50
+    disallowed_chars: ["*", "&", "$", "#"]

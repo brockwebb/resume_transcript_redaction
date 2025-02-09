@@ -9,10 +9,12 @@ entity_routing_path: "./redactor/config/entity_routing.yaml"
 validation_params_path: "./redactor/config/validation_params.json"
 validation_config: "./redactor/config/validation_config.json"
 
+word_filters_path: "./redactor/config/word_filters.yaml"
+
 #remove later after integration back to prototype complete:
 #redaction_patterns_path: "./redactor/config/detection_patterns.yaml"
 #confidential_terms_path: "./redactor/config/confidential_terms.yaml"
-#word_filters_path: "../redactor/config/custom_word_filters.yaml"
+
 #core_patterns_path: "./redactor/config/core_patterns.yaml"
 
 # Model Configuration (reserved for future use)

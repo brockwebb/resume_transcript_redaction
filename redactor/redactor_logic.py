@@ -155,7 +155,7 @@ class RedactionProcessor:
     def _init_word_filters(self) -> None:
         """Initialize word filter lists from configuration."""
         try:
-            filter_config = self.config_loader.get_config("word_filters")
+            filter_config = self.config_loader.get_config("word_filters_path")
             if not filter_config:
                 self.logger.warning("No word filter configuration found")
                 self.keep_words = set()
@@ -163,11 +163,11 @@ class RedactionProcessor:
                 return
                 
             self.keep_words = set(filter_config.get("keep_words", []))
-            self.trigger_words = set(filter_config.get("trigger_words", []))
+            #self.trigger_words = set(filter_config.get("trigger_words", []))
             
             if self.debug_mode:
                 self.logger.debug(f"Loaded {len(self.keep_words)} keep words")
-                self.logger.debug(f"Loaded {len(self.trigger_words)} trigger words")
+                #self.logger.debug(f"Loaded {len(self.trigger_words)} trigger words")
                 
         except Exception as e:
             self.logger.error(f"Error loading word filters: {str(e)}")
