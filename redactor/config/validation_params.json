@@ -1,6 +1,6 @@
 {
     "EDUCATIONAL_INSTITUTION": {
-        "core_terms": ["university", "college", "institute", "school"],
+        "core_terms": ["university", "college", "institute", "school", "academy"],
         "known_acronyms": ["UCLA", "CMU", "MIT", "NYU", "USC", "UCI", "UCSB", "UCB", "UVA", "VPI"],
         "confidence_boosts": {
             "full_name": 0.3,
@@ -13,7 +13,7 @@
             "generic_term": -1.0
         },
         "min_words": 2,
-        "generic_terms": ["academy of learning", "education center", "training facility"]
+        "generic_terms": ["academy of learning", "education center", "training facility", "state", "international"]
     },
     "PERSON": {
         "title_markers": [
@@ -347,20 +347,20 @@
         "validation_types": {
             "url": {
                 "patterns": {
-                    "with_protocol": "^https?://(?:[\\w-]+\\.)+[\\w-]+(?:/[^\\s]*)?$",
-                    "without_protocol": "^(?:[\\w-]+\\.)+(?:com|org|edu|gov|net|io|co|us|uk)(?:/[^\\s]*)?$"
+                    "with_protocol": "^(https?://)?(?:[\\w-]+\\.)+[\\w-]+(?:/[^\\s]*)?$",
+                    "without_protocol": "(?<![\\w@-])(?:[\\w-]+\\.)+(?:com|org|edu|gov|net|io|co|us|uk)(?:/[\\w/-]+)?(?![\\w@])",
+                    "linkedin": "linkedin\\.com/in/[\\w-]+(?:/[\\w-]+)?"
                 },
                 "require_tld": true,
-                "require_scheme": false,
-                "allowed_schemes": ["http", "https"]
+                "require_scheme": false
             },
             "social_handle": {
                 "patterns": {
-                    "standard": "^@[A-Za-z0-9_-]+$"
+                    "standard": "(?<![^ ])@[A-Za-z0-9._-]+(?:[-_][A-Za-z0-9]+)*"
                 },
-                "require_prefix": true,
-                "max_length": 30,
-                "allowed_chars": "A-Za-z0-9_-"
+                "require_prefix": false,
+                "max_length": 50,
+                "allowed_chars": "A-Za-z0-9._-"
             }
         },
         "known_platforms": {

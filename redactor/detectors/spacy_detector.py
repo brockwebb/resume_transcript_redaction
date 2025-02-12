@@ -102,6 +102,12 @@ class SpacyDetector(BaseDetector):
             self.entity_mappings = spacy_config.get("mappings", {
                 "PERSON": "PERSON",
                 "DATE": "DATE_TIME",
+                "ORG": "EDUCATIONAL_INSTITUTION",  # Universities, colleges
+                "DISEASES": "PHI",  # Medical conditions
+                "PROBLEM": "PHI",   # Medical issues/conditions
+                "TREATMENT": "PHI", # Medical procedures/treatments
+                "NORP": "PROTECTED_CLASS",  # Nationalities, religious, political groups
+                "RELIGION": "PROTECTED_CLASS"
                 # Add other default mappings as needed
             })
             

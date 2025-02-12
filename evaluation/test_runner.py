@@ -62,7 +62,52 @@ class TestRunner:
         
         # Ensure results directory exists
         self.results_dir.mkdir(parents=True, exist_ok=True)
-    
+
+    # OPTIONS AND PARAMETERS
+    def run_entity_evaluation(self, test_cases: List[TestCase], entity_type: str) -> TestRunResults:
+        """Run evaluation for a specific entity type."""
+        run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        run_dir = self._setup_results_dir(run_id)
+        redactor = self._initialize_processor()
+        metrics = EntityMetrics(config_loader=self.config_loader)
+        
+        results = {}
+        all_metrics = []
+        
+        for test_case in test_cases:
+            # Load ground truth and run detection
+            ground_truth = self._load_annotations(test_case.annotation_path)
+            detected = redactor.detect_entities(test_case.original_path)
+            
+            # Get specific entity metrics
+            detailed_metrics = metrics.analyze_entity_type_metrics(
+                ground_truth=ground_truth,
+                detected=detected,
+                entity_type=entity_type
+            )
+            
+            # Store results
+            results[test_case.test_id] = detailed_metrics
+            all_metrics.append(detailed_metrics)
+            
+            # Save individual test results
+            self._save_test_results(run_dir, test_case.test_id, detailed_metrics)
+        
+        # Calculate summary metrics
+        summary_metrics = self._calculate_summary_metrics(all_metrics)
+        
+        # Create run results
+        run_results = TestRunResults(
+            run_id=run_id,
+            timestamp=datetime.now().isoformat(),
+            results=results,
+            summary_metrics=summary_metrics
+        )
+        
+        self._save_run_summary(run_dir, run_results)
+        return run_results
+
+
     def load_test_cases(self) -> List[TestCase]:
         """
         Load test cases from test suite manifest.

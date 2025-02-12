@@ -60,9 +60,55 @@ class PresidioDetector(BaseDetector):
                         patterns=patterns,
                         context=gpa_config.get("context_words", [])
                     )
-                    
                     self.analyzer.registry.add_recognizer(gpa_recognizer)
 
+                # INTERNET_REFERENCE patterns
+                if "INTERNET_REFERENCE" in validation_params:
+                    web_config = validation_params["INTERNET_REFERENCE"]
+                    web_patterns = []
+                    
+                    if "validation_types" in web_config:
+                        # URL patterns
+                        url_config = web_config["validation_types"].get("url", {})
+                        if "patterns" in url_config:
+                            for pattern_name, pattern in url_config["patterns"].items():
+                                web_patterns.append(
+                                    Pattern(
+                                        name=f"url_{pattern_name}",
+                                        regex=pattern,
+                                        score=0.85
+                                    )
+                                )
+
+                        # Social handle patterns  
+                        social_config = web_config["validation_types"].get("social_handle", {})
+                        if "patterns" in social_config:
+                            for pattern_name, pattern in social_config["patterns"].items():
+                                web_patterns.append(
+                                    Pattern(
+                                        name=f"social_{pattern_name}", 
+                                        regex=pattern,
+                                        score=0.85
+                                    )
+                                )
+
+                    # Get context words from known platforms
+                    context_words = []
+                    if "known_platforms" in web_config:
+                        for platform_list in web_config["known_platforms"].values():
+                            context_words.extend([p.split('.')[0] for p in platform_list])
+
+                    web_recognizer = PatternRecognizer(
+                        supported_entity="INTERNET_REFERENCE",
+                        patterns=web_patterns,
+                        context=context_words
+                    )
+                    self.analyzer.registry.add_recognizer(web_recognizer)
+
+                    if self.debug_mode:
+                        self.logger.debug(f"Added INTERNET_REFERENCE recognizer with {len(web_patterns)} patterns")
+
+                
                 # PHONE_NUMBER patterns to enhance native detector
                 if "PHONE_NUMBER" in validation_params:
                     phone_config = validation_params["PHONE_NUMBER"]
@@ -147,6 +193,39 @@ class PresidioDetector(BaseDetector):
                     )
                     
                     self.analyzer.registry.add_recognizer(id_recognizer)
+
+                if "EDUCATIONAL_INSTITUTION" in validation_params:
+                    edu_config = validation_params["EDUCATIONAL_INSTITUTION"]
+                    patterns = []
+                    
+                    # Create pattern for each core term
+                    for term in edu_config.get("core_terms", []):
+                        patterns.append(
+                            Pattern(
+                                name=f"edu_{term}",
+                                regex=f"\\b[A-Z][A-Za-z\\s]*{term}\\b",
+                                score=0.85
+                            )
+                        )
+                    
+                    # Add pattern for known acronyms
+                    acronyms = "|".join(edu_config.get("known_acronyms", []))
+                    if acronyms:
+                        patterns.append(
+                            Pattern(
+                                name="edu_acronym",
+                                regex=f"\\b({acronyms})\\b",
+                                score=0.9
+                            )
+                        )
+                    
+                    edu_recognizer = PatternRecognizer(
+                        supported_entity="EDUCATIONAL_INSTITUTION",
+                        patterns=patterns,
+                        context=edu_config.get("core_terms", [])
+                    )
+                    
+                    self.analyzer.registry.add_recognizer(edu_recognizer)
             
             # Keep all recognizers - let ValidationCoordinator handle the complex validation
             if self.debug_mode:
@@ -184,7 +263,6 @@ class PresidioDetector(BaseDetector):
 ###############################################################################
 
     def detect_entities(self, text: str) -> List[Entity]:
-        """Detect entities using Presidio."""
         if not text or not self.analyzer:
             return []
             
@@ -197,6 +275,13 @@ class PresidioDetector(BaseDetector):
             
             entities = []
             for result in results:
+                # Optional debug logging
+                if self.debug_mode and self.logger:
+                    self.logger.debug(
+                        f"Detected {result.entity_type}: '{text[result.start:result.end]}' "
+                        f"(score: {result.score}, start: {result.start}, end: {result.end})"
+                    )
+    
                 # Apply threshold and create entity
                 threshold = self.confidence_thresholds.get(
                     result.entity_type, 
@@ -216,7 +301,7 @@ class PresidioDetector(BaseDetector):
                     
                     if self.debug_mode:
                         self.logger.debug(
-                            f"Detected {entity.entity_type}: '{entity.text}' "
+                            f"Validated {entity.entity_type}: '{entity.text}' "
                             f"(confidence: {entity.confidence:.2f})"
                         )
             

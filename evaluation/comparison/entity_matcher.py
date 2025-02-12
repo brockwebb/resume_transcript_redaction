@@ -127,100 +127,27 @@ class EntityMatcher:
        
         return matches
 
-    
-# In entity_matcher.py, modify find_matches method
-def find_matches(self, ground_truth: List[Entity], detected: List[Entity]) -> Dict[str, Set[Entity]]:
-    """
-    Enhanced match finding with comprehensive debugging
-    """
-    print("\n=== DETAILED MATCH DEBUGGING ===")
-    print(f"Ground Truth Entities: {len(ground_truth)}")
-    print(f"Detected Entities: {len(detected)}")
-    
-    matches = {
-        MatchType.EXACT.value: set(),
-        MatchType.PARTIAL.value: set(),
-        "unmatched_ground_truth": set(ground_truth),
-        "unmatched_detected": set(detected)
-    }
-    
-    # Debug each ground truth entity
-    for gt_entity in ground_truth:
-        print(f"\nAnalyzing Ground Truth Entity: {gt_entity}")
-        print(f"  Type: {gt_entity.entity_type}")
-        print(f"  Text: {gt_entity.text}")
-        print(f"  Position: {gt_entity.start_char}-{gt_entity.end_char}")
-        
-        # Check against each detected entity
-        match_found = False
-        for det_entity in detected:
-            print(f"\n  Comparing with Detected Entity: {det_entity}")
-            print(f"    Type: {det_entity.entity_type}")
-            print(f"    Text: {det_entity.text}")
-            print(f"    Position: {det_entity.start_char}-{det_entity.end_char}")
-            
-            # Perform match check
-            if self._is_match(gt_entity, det_entity):
-                print("    ✅ EXACT MATCH FOUND")
-                matches[MatchType.EXACT.value].add(det_entity)
-                matches["unmatched_ground_truth"].remove(gt_entity)
-                matches["unmatched_detected"].remove(det_entity)
-                match_found = True
-                break
-            elif self._is_partial_match(gt_entity, det_entity):
-                print("    🟨 PARTIAL MATCH FOUND")
-                matches[MatchType.PARTIAL.value].add(det_entity)
-                match_found = True
-                break
-        
-        if not match_found:
-            print("    ❌ NO MATCH FOUND")
-    
-    # Detailed summary
-    print("\nMATCH SUMMARY:")
-    print(f"Exact Matches: {len(matches[MatchType.EXACT.value])}")
-    print(f"Partial Matches: {len(matches[MatchType.PARTIAL.value])}")
-    print(f"Unmatched Ground Truth: {len(matches['unmatched_ground_truth'])}")
-    print(f"Unmatched Detected: {len(matches['unmatched_detected'])}")
-    
-    return matches
 
-# In _is_match method, add more verbose debugging
-def _is_match(self, gt: Entity, detected: Entity) -> bool:
-    print("\n--- DETAILED MATCH ANALYSIS ---")
-    print(f"Ground Truth:  {gt.text} (Type: {gt.entity_type}, Pos: {gt.start_char}-{gt.end_char})")
-    print(f"Detected:     {detected.text} (Type: {detected.entity_type}, Pos: {detected.start_char}-{detected.end_char})")
-    
-    # Normalize type and text
-    def normalize(text: str) -> str:
-        return ''.join(c.lower() for c in text if c.isalnum())
-    
-    # Type matching
-    norm_gt_type = normalize(gt.entity_type)
-    norm_det_type = normalize(detected.entity_type)
-    type_match = norm_gt_type == norm_det_type
-    print(f"Type Match: {type_match} ({norm_gt_type} vs {norm_det_type})")
-    if not type_match:
-        return False
-    
-    # Text matching
-    norm_gt_text = normalize(gt.text)
-    norm_det_text = normalize(detected.text)
-    text_match = norm_gt_text == norm_det_text
-    print(f"Text Match: {text_match} ({norm_gt_text} vs {norm_det_text})")
-    if not text_match:
-        return False
-    
-    # Overlap calculation
-    overlap_ratio = self._calculate_overlap_ratio(gt, detected)
-    print(f"Overlap Ratio: {overlap_ratio:.2f}")
-    print(f"Threshold: {self.exact_match_threshold}")
-    
-    match_result = overlap_ratio >= self.exact_match_threshold
-    print(f"Final Match Result: {match_result}")
-    
-    return match_result
-
+    def _is_match(self, gt: Entity, detected: Entity) -> bool:
+        """Determine if two entities match based on type and text."""
+        def normalize(text: str) -> str:
+            return ''.join(c.lower() for c in text if c.isalnum())
+        
+        # Match type
+        norm_gt_type = normalize(gt.entity_type)
+        norm_det_type = normalize(detected.entity_type)
+        if norm_gt_type != norm_det_type:
+            return False
+        
+        # Match text
+        norm_gt_text = normalize(gt.text)
+        norm_det_text = normalize(detected.text)
+        if norm_gt_text != norm_det_text:
+            return False
+        
+        # Calculate overlap
+        overlap_ratio = self._calculate_overlap_ratio(gt, detected)
+        return overlap_ratio >= self.exact_match_threshold
     
     def _is_partial_match(self, gt: Entity, detected: Entity) -> bool:
         """

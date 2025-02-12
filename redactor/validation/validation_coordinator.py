@@ -59,7 +59,7 @@ class ValidationCoordinator:
                 self.debug_mode = logger.getEffectiveLevel() == 10
             elif hasattr(logger, 'log_level'):
                 self.debug_mode = logger.log_level == "DEBUG"
-        
+                
         # Load configurations
         self.validation_params = self._load_validation_params()
         self.routing_config = self._load_routing_config()
@@ -1088,107 +1088,127 @@ class ValidationCoordinator:
            reasons=reasons
        )
 
-
-    def _validate_internet_reference(self, entity: Entity, text: str,
-                                       rules: Dict, source: str = None) -> ValidationResult:
-        """
-        Validate internet reference (URL, social media) using config rules.
-        
-        Args:
-            entity: Entity to validate
-            text: Original text context
-            rules: Validation rules from config
-            source: Optional detector source
-        """
-        validation_rules = rules.get("validation_rules", {})
-        confidence_boosts = rules.get("confidence_boosts", {})
-        validation_types = rules.get("validation_types", {})
-        known_platforms = rules.get("known_platforms", {})
-        
-        social_platforms = set(known_platforms.get("social", []))
-        common_domains = set(known_platforms.get("common_domains", []))
-        
-        reasons = []
-        confidence_adjustment = 0.0
-        
-        # Basic validation
-        if len(entity.text) < validation_rules.get("min_chars", 4):
-            reasons.append("Reference too short")
-            return ValidationResult(is_valid=False, reasons=reasons)
-            
-        if len(entity.text) > validation_rules.get("max_length", 2048):
-            reasons.append("Reference too long")
-            return ValidationResult(is_valid=False, reasons=reasons)
     
-        text_lower = entity.text.lower()
-        
-        # URL validation
-        url_config = validation_types.get("url", {})
-        url_patterns = url_config.get("patterns", {})
-        
-        is_url = any(re.match(pattern, text_lower) 
-                     for pattern in url_patterns.values())
-        
-        # Social handle validation
-        handle_config = validation_types.get("social_handle", {})
-        handle_patterns = handle_config.get("patterns", {})
-        max_handle_length = handle_config.get("max_length", 30)
-        
-        is_handle = (any(re.match(pattern, entity.text) 
-                        for pattern in handle_patterns.values()) 
-                    and len(entity.text) <= max_handle_length)
-        
-        # Validate URL format
-        if is_url:
-            if any(platform in text_lower for platform in social_platforms):
-                boost = confidence_boosts.get("known_platform", 0.2)
-                confidence_adjustment += boost
-                reasons.append(f"Known social platform URL: +{boost}")
-            elif any(domain in text_lower for domain in common_domains):
-                boost = confidence_boosts.get("known_platform", 0.1)
-                confidence_adjustment += boost
-                reasons.append(f"Known domain: +{boost}")
-            
-            if any(scheme + "://" in text_lower for scheme in url_config.get("allowed_schemes", [])):
-                boost = confidence_boosts.get("has_protocol", 0.1)
-                confidence_adjustment += boost
-                reasons.append(f"Valid URL protocol: +{boost}")
-            
-            return ValidationResult(
-                is_valid=True,
-                confidence_adjustment=confidence_adjustment,
-                reasons=reasons
-            )
-        
-        # Validate social media handle
-        elif is_handle:
-            # Look for social context in surrounding text
-            platform_names = [p.split('.')[0] for p in social_platforms]
-            has_social_context = any(platform in text.lower() for platform in platform_names)
-            
-            if has_social_context:
-                boost = confidence_boosts.get("known_platform", 0.2)
-                confidence_adjustment += boost
-                reasons.append(f"Social media context: +{boost}")
-                
-            return ValidationResult(
-                is_valid=True,
-                confidence_adjustment=confidence_adjustment,
-                reasons=reasons
-            )
-        
-        # If it starts with @ but doesn't match handle pattern, it's invalid
-        if entity.text.startswith('@'):
-            return ValidationResult(
-                is_valid=False,
-                reasons=["Invalid social media handle format"]
-            )
-            
-        return ValidationResult(
-            is_valid=False,
-            reasons=["Not a valid URL or social media handle"]
-        )
+    def _validate_internet_reference(self, entity: Entity, text: str,
+                                rules: Dict, source: str = None) -> ValidationResult:
+       if self.debug_mode and self.logger:
+           self.logger.debug(f"\n=== Internet Reference Validation ===")
+           self.logger.debug(f"Entity Text: '{entity.text}'")
+           self.logger.debug(f"Full Context Text Length: {len(text)}")
+    
+       validation_rules = rules.get("validation_rules", {})
+       confidence_boosts = rules.get("confidence_boosts", {})
+       validation_types = rules.get("validation_types", {})
+       known_platforms = rules.get("known_platforms", {})
+       
+       social_platforms = set(known_platforms.get("social", []))
+       common_domains = set(known_platforms.get("common_domains", []))
 
+        
+       reasons = []
+       confidence_adjustment = 0.0
+       
+       # Enhanced basic validation logging
+       if len(entity.text) < validation_rules.get("min_chars", 4):
+           reasons.append(f"Reference too short (< {validation_rules.get('min_chars', 4)} chars)")
+           return ValidationResult(is_valid=False, reasons=reasons)
+           
+       if len(entity.text) > validation_rules.get("max_length", 512):
+           reasons.append(f"Reference too long (> {validation_rules.get('max_length', 512)} chars)")
+           return ValidationResult(is_valid=False, reasons=reasons)
+    
+       text_lower = entity.text.lower()
+       
+       # URL validation
+       url_config = validation_types.get("url", {})
+       url_patterns = url_config.get("patterns", {})
+       
+       # Comprehensive pattern matching with detailed logging
+       url_match_results = {}
+       for name, pattern in url_patterns.items():
+           match = re.match(pattern, text_lower, re.IGNORECASE)
+           url_match_results[name] = bool(match)
+           if self.debug_mode and self.logger:
+               self.logger.debug(f"URL Pattern '{name}': {pattern}")
+               self.logger.debug(f"Match Result for '{entity.text}': {bool(match)}")
+    
+       is_url = any(url_match_results.values())
+       
+       # Social handle validation
+       handle_config = validation_types.get("social_handle", {})
+       handle_patterns = handle_config.get("patterns", {})
+       max_handle_length = handle_config.get("max_length", 30)
+       
+       # Comprehensive handle pattern matching with detailed logging
+       handle_match_results = {}
+       for name, pattern in handle_patterns.items():
+           match = re.match(pattern, entity.text, re.IGNORECASE)
+           handle_match_results[name] = bool(match)
+           if self.debug_mode and self.logger:
+               self.logger.debug(f"Handle Pattern '{name}': {pattern}")
+               self.logger.debug(f"Match Result for '{entity.text}': {bool(match)}")
+    
+       is_handle = (any(handle_match_results.values()) 
+                    and len(entity.text) <= max_handle_length)
+       
+       # Enhanced validation result logging
+       if self.debug_mode and self.logger:
+           self.logger.debug(f"URL Match Results: {url_match_results}")
+           self.logger.debug(f"Handle Match Results: {handle_match_results}")
+           self.logger.debug(f"Is URL: {is_url}")
+           self.logger.debug(f"Is Handle: {is_handle}")
+    
+       # Validate URL format
+       if is_url:
+           if any(platform in text_lower for platform in social_platforms):
+               boost = confidence_boosts.get("known_platform", 0.2)
+               confidence_adjustment += boost
+               reasons.append(f"Known social platform URL: +{boost}")
+           elif any(domain in text_lower for domain in common_domains):
+               boost = confidence_boosts.get("known_platform", 0.1)
+               confidence_adjustment += boost
+               reasons.append(f"Known domain: +{boost}")
+           
+           if any(scheme + "://" in text_lower for scheme in url_config.get("allowed_schemes", [])):
+               boost = confidence_boosts.get("has_protocol", 0.1)
+               confidence_adjustment += boost
+               reasons.append(f"Valid URL protocol: +{boost}")
+           
+           return ValidationResult(
+               is_valid=True,
+               confidence_adjustment=confidence_adjustment,
+               reasons=reasons
+           )
+       
+       # Validate social media handle
+       elif is_handle:
+           # Look for social context in surrounding text
+           platform_names = [p.split('.')[0] for p in social_platforms]
+           has_social_context = any(platform in text.lower() for platform in platform_names)
+           
+           if has_social_context:
+               boost = confidence_boosts.get("known_platform", 0.2)
+               confidence_adjustment += boost
+               reasons.append(f"Social media context: +{boost}")
+               
+           return ValidationResult(
+               is_valid=True,
+               confidence_adjustment=confidence_adjustment,
+               reasons=reasons
+           )
+       
+       # If it starts with @ but doesn't match handle pattern, it's invalid
+       if entity.text.startswith('@'):
+           return ValidationResult(
+               is_valid=False,
+               reasons=["Invalid social media handle format"]
+           )
+           
+       return ValidationResult(
+           is_valid=False,
+           reasons=["Not a valid URL or social media handle"]
+       )
+        
 ###############################################################################
 # SECTION 7: PROTECTED CLASS VALIDATION
 ###############################################################################

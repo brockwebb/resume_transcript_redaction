@@ -6,6 +6,8 @@
         "EMAIL_ADDRESS": "_validate_email", 
         "GPA": "_validate_gpa", 
         "INTERNET_REFERENCE": "_validate_internet_reference",
+        "URL": "_validate_internet_reference",
+        "IP_ADDRESS": "_validate_internet_reference",
         "LOCATION": "_validate_location", 
         "PERSON": "_validate_person",
         "PHI": "_validate_phi",

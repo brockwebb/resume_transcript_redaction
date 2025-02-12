@@ -28,6 +28,7 @@ class RedactionLogger:
     DEFAULT_LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     CONSOLE_FORMAT = '%(levelname)s: %(message)s'
 
+
 ###############################################################################
 # SECTION 3: INITIALIZATION AND SETUP
 ###############################################################################
@@ -61,6 +62,10 @@ class RedactionLogger:
             self._setup_console_handler()
 
         self.info(f"Logger initialized: {name} at {log_level} level")
+
+    @property
+    def level(self):
+        return self.logger.getEffectiveLevel()
 
 ###############################################################################
 # SECTION 4: HANDLER SETUP METHODS

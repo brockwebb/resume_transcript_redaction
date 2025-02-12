@@ -23,7 +23,6 @@ routing:
       INTERNET_REFERENCE: 0.7
       LOCATION: 0.8
       GPA: 0.9
-      EDUCATIONAL_INSTITUTION: 0.8
     validation:
       date_ignore_words:
         - "hours"
