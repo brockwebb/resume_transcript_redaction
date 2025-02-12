@@ -134,15 +134,7 @@ class SpacyDetector(BaseDetector):
 ###############################################################################
 
     def detect_entities(self, text: str) -> List[Entity]:
-        """
-        Detect entities in the provided text using SpaCy NLP.
-        
-        Args:
-            text: Text to analyze
-            
-        Returns:
-            List of detected entities
-        """
+        """Detect entities in the provided text using SpaCy NLP."""
         if not text:
             return []
     
@@ -151,17 +143,14 @@ class SpacyDetector(BaseDetector):
             entities = []
     
             for ent in doc.ents:
-                # Check if the entity type is in our configured types or mappings
                 if (ent.label_ in self.entity_types or 
                     ent.label_ in self.entity_mappings):
                     
-                    # Map entity type, with fallback to original label
                     mapped_type = self.entity_mappings.get(
                         ent.label_, 
                         ent.label_
                     )
                     
-                    # Apply type-specific threshold, with fallback to default
                     confidence = self.confidence_thresholds.get(
                         mapped_type, 
                         self.confidence_threshold
@@ -170,10 +159,14 @@ class SpacyDetector(BaseDetector):
                     entity = Entity(
                         text=ent.text,
                         entity_type=mapped_type,
+                        start_char=ent.start_char,
+                        end_char=ent.end_char,
                         confidence=confidence,
-                        start=ent.start_char,
-                        end=ent.end_char,
-                        source="spacy",
+                        detector_source="spacy",
+                        page=None,
+                        sensitivity=None,
+                        validation_rules=[],
+                        original_confidence=confidence
                     )
     
                     entities.append(entity)

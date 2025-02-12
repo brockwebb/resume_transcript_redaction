@@ -290,19 +290,18 @@ class EnsembleCoordinator(BaseDetector):
                     s_entity.confidence * spacy_weight
                 )
                 
-                # Create combined entity using Presidio's span
+                # Create combined entity using standardized fields
                 combined_entity = Entity(
                     text=p_entity.text,
                     entity_type=p_entity.entity_type,
+                    start_char=p_entity.start_char,
+                    end_char=p_entity.end_char,
                     confidence=combined_confidence,
-                    start=p_entity.start,
-                    end=p_entity.end,
-                    source="ensemble",
-                    metadata={
-                        "presidio_confidence": p_entity.confidence,
-                        "spacy_confidence": s_entity.confidence,
-                        "combined_confidence": combined_confidence
-                    }
+                    detector_source="ensemble",
+                    page=None,
+                    sensitivity=None,
+                    validation_rules=[],
+                    original_confidence=combined_confidence
                 )
                 combined.append(combined_entity)
                     
@@ -317,7 +316,13 @@ class EnsembleCoordinator(BaseDetector):
         text1 = self._normalize_text(entity1.text)
         text2 = self._normalize_text(entity2.text)
         
-        return text1 == text2
+        # Check position overlap using start_char/end_char
+        pos_overlap = (
+            entity1.start_char <= entity2.end_char and 
+            entity2.start_char <= entity1.end_char
+        )
+        
+        return text1 == text2 and pos_overlap
 
 ###############################################################################
 # SECTION 5: VALIDATION AND UTILITY METHODS
@@ -374,12 +379,13 @@ class EnsembleCoordinator(BaseDetector):
         self.logger.debug(
             f"{source} Entity: {entity.entity_type}\n"
             f"  Text: '{entity.text}'\n"
-            f"  Position: {entity.start}-{entity.end}\n"
+            f"  Position: {entity.start_char}-{entity.end_char}\n"
             f"  Confidence: {entity.confidence:.2f}"
         )
         
-        if entity.metadata:
-            self.logger.debug(f"  Metadata: {entity.metadata}")
+        if hasattr(entity, 'validation_rules') and entity.validation_rules:
+            self.logger.debug(f"  Validation Rules: {entity.validation_rules}")
+
 
     def _get_detection_stats(self) -> Dict[str, Dict[str, int]]:
         """Get detection statistics by detector and entity type."""

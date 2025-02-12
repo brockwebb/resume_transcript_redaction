@@ -12,24 +12,67 @@ from redactor.validation import ValidationCoordinator
 ###############################################################################
 # SECTION 2: CLASS DEFINITION AND INITIALIZATION
 ###############################################################################
-
+    
 class PresidioDetector(BaseDetector):
-    """Uses Presidio for base entity detection."""
+    """Uses Presidio for pattern-based entity recognition."""
     
     def __init__(self, 
                  config_loader: Any,
                  logger: Optional[Any] = None,
                  confidence_threshold: float = 0.7):
-        """Initialize detector with configuration."""
+        """Initialize PresidioDetector with configuration."""
         super().__init__(config_loader, logger, confidence_threshold)
         
         self.analyzer = None
         self.entity_types = set()
+        self.entity_mappings = {}  # Added this initialization
         self.confidence_thresholds = {}
+        
+        # Initialize core components
+        self._validate_config()
+        self._init_analyzer()
+        if self.debug_mode:
+            self.logger.debug("Initialized Presidio detector")
 
-        self._init_presidio()
-        self._load_config()
-        self.validator = ValidationCoordinator(config_loader, logger)
+    def _validate_config(self) -> bool:
+        """Validate routing configuration for PresidioDetector."""
+        try:
+            routing_config = self.config_loader.get_config("entity_routing")
+            if not routing_config or "routing" not in routing_config:
+                if self.logger:
+                    self.logger.error("Missing routing configuration for PresidioDetector")
+                return False
+    
+            presidio_config = routing_config["routing"].get("presidio_primary", {})
+            
+            # Validate required sections
+            if not presidio_config:
+                if self.logger:
+                    self.logger.error("Missing 'presidio_primary' configuration")
+                return False
+    
+            # Load entity types from routing configuration
+            self.entity_types = set(presidio_config.get("entities", []))
+            
+            # Initialize entity mappings (1:1 for Presidio)
+            self.entity_mappings = {
+                entity_type: entity_type 
+                for entity_type in self.entity_types
+            }
+            
+            # Get confidence thresholds
+            self.confidence_thresholds = presidio_config.get("thresholds", {})
+    
+            if self.debug_mode:
+                self.logger.debug(f"Loaded entity types: {self.entity_types}")
+                self.logger.debug(f"Loaded thresholds: {self.confidence_thresholds}")
+    
+            return True
+    
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error validating Presidio config: {str(e)}")
+            return False
 
     def _init_presidio(self) -> None:
         """Initialize Presidio analyzer."""
@@ -261,50 +304,62 @@ class PresidioDetector(BaseDetector):
 ###############################################################################
 # SECTION 4: ENTITY DETECTION
 ###############################################################################
-
+    def _init_analyzer(self) -> None:
+        """Initialize Presidio analyzer with custom recognizers."""
+        try:
+            from presidio_analyzer import AnalyzerEngine
+            
+            # Initialize analyzer (it will create its own NLP engine by default)
+            self.analyzer = AnalyzerEngine()
+            
+            if self.debug_mode:
+                self.logger.debug(f"Loaded Presidio analyzer")
+                recognizers = [r.__class__.__name__ for r in self.analyzer.registry.recognizers]
+                self.logger.debug(f"Loaded recognizers: {recognizers}")
+                
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error initializing Presidio analyzer: {str(e)}")
+            raise
+    
+        
     def detect_entities(self, text: str) -> List[Entity]:
-        if not text or not self.analyzer:
+        """Detect entities using Presidio analyzer."""
+        if not text:
             return []
             
         try:
-            results = self.analyzer.analyze(
+            analyzer_results = self.analyzer.analyze(
                 text=text,
                 language='en',
-                entities=list(self.entity_types)
+                entities=self.entity_types,
+                correlation_id=None
             )
             
             entities = []
-            for result in results:
-                # Optional debug logging
-                if self.debug_mode and self.logger:
-                    self.logger.debug(
-                        f"Detected {result.entity_type}: '{text[result.start:result.end]}' "
-                        f"(score: {result.score}, start: {result.start}, end: {result.end})"
-                    )
-    
-                # Apply threshold and create entity
-                threshold = self.confidence_thresholds.get(
-                    result.entity_type, 
-                    self.confidence_threshold
+            for result in analyzer_results:
+                # Create entity with standardized fields
+                entity = Entity(
+                    text=text[result.start:result.end],
+                    entity_type=self.entity_mappings.get(result.entity_type, result.entity_type),
+                    start_char=result.start,
+                    end_char=result.end,
+                    confidence=result.score,
+                    detector_source="presidio",
+                    page=None,
+                    sensitivity=None,
+                    validation_rules=[],
+                    original_confidence=result.score
                 )
                 
-                if result.score >= threshold:
-                    entity = Entity(
-                        text=text[result.start:result.end],
-                        entity_type=result.entity_type,
-                        confidence=result.score,
-                        start=result.start,
-                        end=result.end,
-                        source="presidio"
+                entities.append(entity)
+                
+                if self.debug_mode:
+                    self.logger.debug(
+                        f"Presidio entity: {entity.entity_type} "
+                        f"'{entity.text}' (Confidence: {entity.confidence:.2f})"
                     )
-                    entities.append(entity)
                     
-                    if self.debug_mode:
-                        self.logger.debug(
-                            f"Validated {entity.entity_type}: '{entity.text}' "
-                            f"(confidence: {entity.confidence:.2f})"
-                        )
-            
             return entities
             
         except Exception as e:
