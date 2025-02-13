@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 # Base components
-from .detectors.base_detector import Entity
+from evaluation.models import Entity
 from .detectors.ensemble_coordinator import EnsembleCoordinator
 from .redactor_file_processing import RedactFileProcessor
 

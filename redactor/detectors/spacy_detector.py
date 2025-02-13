@@ -8,8 +8,11 @@ from typing import List, Dict, Optional, Any, Set
 import spacy
 import re
 import json
-from .base_detector import BaseDetector, Entity
+from .base_detector import BaseDetector
+from evaluation.models import Entity, adjust_entity_confidence
 from redactor.validation import ValidationCoordinator
+from dataclasses import replace
+
 
 ###############################################################################
 # SECTION 2: CLASS DEFINITION AND INITIALIZATION
@@ -151,17 +154,17 @@ class SpacyDetector(BaseDetector):
                         ent.label_
                     )
                     
-                    confidence = self.confidence_thresholds.get(
+                    confidence = max(0.0, min(1.0, self.confidence_thresholds.get(
                         mapped_type, 
                         self.confidence_threshold
-                    )
+                    )))
     
                     entity = Entity(
                         text=ent.text,
                         entity_type=mapped_type,
                         start_char=ent.start_char,
                         end_char=ent.end_char,
-                        confidence=confidence,
+                        confidence=max(0,min(0.0,confidence)),
                         detector_source="spacy",
                         page=None,
                         sensitivity=None,
@@ -188,9 +191,12 @@ class SpacyDetector(BaseDetector):
 # SECTION 4: VALIDATION
 ###############################################################################
 
+
+
     def validate_detection(self, entity: Entity, text: str = "") -> bool:
         """
-        Validate entity using ValidationCoordinator.
+        Validate entity using ValidationCoordinator for SpaCy detection.
+        Uses standardized confidence adjustment.
         
         Args:
             entity: Entity to validate
@@ -199,15 +205,34 @@ class SpacyDetector(BaseDetector):
         Returns:
             bool indicating if entity is valid
         """
-        result = self.validator.validate_entity(
-            entity=entity,
-            text=text,
-            source="spacy"
-        )
-        
-        if result.confidence_adjustment:
-            entity.confidence += result.confidence_adjustment
+        try:
+            result = self.validator.validate_entity(
+                entity=entity,
+                text=text,
+                source="spacy"
+            )
             
-        self.last_validation_reasons = result.reasons
+            # Apply confidence adjustment using standalone function
+            if result.confidence_adjustment:
+                entity = adjust_entity_confidence(
+                    entity, 
+                    result.confidence_adjustment, 
+                    logger=self.logger
+                )
+            
+            # Track validation reasons
+            self.last_validation_reasons = result.reasons
+            
+            # Store applied validation rules
+            if hasattr(result, 'metadata') and result.metadata.get('applied_rules'):
+                entity = replace(entity, 
+                    validation_rules=list(entity.validation_rules or []) + 
+                    result.metadata['applied_rules']
+                )
+            
+            return result.is_valid
         
-        return result.is_valid
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Validation error in SpaCy detection: {str(e)}")
+            return False

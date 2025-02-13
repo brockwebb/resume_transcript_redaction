@@ -6,8 +6,17 @@
 
 from typing import List, Optional, Any
 from presidio_analyzer import AnalyzerEngine, PatternRecognizer, Pattern 
-from .base_detector import BaseDetector, Entity
+from .base_detector import BaseDetector
+from evaluation.models import Entity, adjust_entity_confidence
 from redactor.validation import ValidationCoordinator
+from dataclasses import replace
+
+
+###############################################################################
+# SECTION 2: CLASS DEFINITION AND INITIALIZATION
+###############################################################################
+    
+# redactor/detectors/presidio_detector.py
 
 ###############################################################################
 # SECTION 2: CLASS DEFINITION AND INITIALIZATION
@@ -25,7 +34,7 @@ class PresidioDetector(BaseDetector):
         
         self.analyzer = None
         self.entity_types = set()
-        self.entity_mappings = {}  # Added this initialization
+        self.entity_mappings = {}
         self.confidence_thresholds = {}
         
         # Initialize core components
@@ -74,12 +83,15 @@ class PresidioDetector(BaseDetector):
                 self.logger.error(f"Error validating Presidio config: {str(e)}")
             return False
 
-    def _init_presidio(self) -> None:
-        """Initialize Presidio analyzer."""
+    def _init_analyzer(self) -> None:
+        """Initialize Presidio analyzer with custom recognizers."""
         try:
+            from presidio_analyzer import AnalyzerEngine
+            
+            # Initialize analyzer
             self.analyzer = AnalyzerEngine()
             
-            # Load validation params for patterns
+            # Load custom recognizers
             validation_params = self.config_loader.get_config("validation_params")
             if validation_params:
                 # GPA custom recognizer (no native support)
@@ -104,6 +116,8 @@ class PresidioDetector(BaseDetector):
                         context=gpa_config.get("context_words", [])
                     )
                     self.analyzer.registry.add_recognizer(gpa_recognizer)
+
+ 
 
                 # INTERNET_REFERENCE patterns
                 if "INTERNET_REFERENCE" in validation_params:
@@ -304,23 +318,6 @@ class PresidioDetector(BaseDetector):
 ###############################################################################
 # SECTION 4: ENTITY DETECTION
 ###############################################################################
-    def _init_analyzer(self) -> None:
-        """Initialize Presidio analyzer with custom recognizers."""
-        try:
-            from presidio_analyzer import AnalyzerEngine
-            
-            # Initialize analyzer (it will create its own NLP engine by default)
-            self.analyzer = AnalyzerEngine()
-            
-            if self.debug_mode:
-                self.logger.debug(f"Loaded Presidio analyzer")
-                recognizers = [r.__class__.__name__ for r in self.analyzer.registry.recognizers]
-                self.logger.debug(f"Loaded recognizers: {recognizers}")
-                
-        except Exception as e:
-            if self.logger:
-                self.logger.error(f"Error initializing Presidio analyzer: {str(e)}")
-            raise
     
         
     def detect_entities(self, text: str) -> List[Entity]:
@@ -338,13 +335,15 @@ class PresidioDetector(BaseDetector):
             
             entities = []
             for result in analyzer_results:
-                # Create entity with standardized fields
+                # Create initial entity
+                mapped_type = self.entity_mappings.get(result.entity_type, result.entity_type)
+                
                 entity = Entity(
                     text=text[result.start:result.end],
-                    entity_type=self.entity_mappings.get(result.entity_type, result.entity_type),
+                    entity_type=mapped_type,
                     start_char=result.start,
                     end_char=result.end,
-                    confidence=result.score,
+                    confidence=max(0.0, min(1.0, result.score)),
                     detector_source="presidio",
                     page=None,
                     sensitivity=None,
@@ -367,10 +366,11 @@ class PresidioDetector(BaseDetector):
                 self.logger.error(f"Error in detection: {str(e)}")
             return []
 
+
     def validate_detection(self, entity: Entity, text: str = "") -> bool:
         """
         Validate detected entity using ValidationCoordinator.
-        Required implementation of abstract method from BaseDetector.
+        Uses standardized confidence adjustment.
         
         Args:
             entity: Entity to validate
@@ -379,8 +379,38 @@ class PresidioDetector(BaseDetector):
         Returns:
             bool indicating if entity is valid
         """
-        result = self.validator.validate_entity(entity, text, source="presidio")
-        return result.is_valid
+        try:
+            result = self.validator.validate_entity(
+                entity=entity,
+                text=text,
+                source="presidio"
+            )
+            
+            # Apply confidence adjustment using standalone function
+            if result.confidence_adjustment:
+                entity = adjust_entity_confidence(
+                    entity, 
+                    result.confidence_adjustment, 
+                    logger=self.logger
+                )
+            
+            # Track validation reasons and rules
+            self.last_validation_reasons = result.reasons
+            
+            # Store applied validation rules
+            if hasattr(result, 'metadata') and result.metadata.get('applied_rules'):
+                entity = replace(entity, 
+                    validation_rules=list(entity.validation_rules or []) + 
+                    result.metadata['applied_rules']
+                )
+            
+            return result.is_valid
+        
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Validation error in Presidio detection: {str(e)}")
+            return False
+
 
 ###############################################################################
 # END OF FILE

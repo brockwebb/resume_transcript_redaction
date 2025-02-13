@@ -7,20 +7,8 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
+from evaluation.models import Entity
 
-@dataclass
-class Entity:
-    """
-    Represents a detected entity with its metadata.
-    Core data structure for all entity detection results.
-    """
-    text: str
-    entity_type: str
-    confidence: float
-    start: int
-    end: int
-    source: str
-    metadata: Optional[Dict[str, Any]] = None
 
 ###############################################################################
 # SECTION 2: BASE DETECTOR CLASS
@@ -81,6 +69,7 @@ class BaseDetector(ABC):
 
     @abstractmethod
     def detect_entities(self, text: str) -> List[Entity]:
+
         """
         Detect entities in text.
         Must be implemented by each detector.

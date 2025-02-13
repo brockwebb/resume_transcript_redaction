@@ -7,11 +7,15 @@
 from typing import List, Dict, Optional, Any, Set, Tuple
 import logging
 from pathlib import Path
+from dataclasses import replace
 
-from .base_detector import BaseDetector, Entity
+from .base_detector import BaseDetector
+from evaluation.models import Entity, adjust_entity_confidence
 from .presidio_detector import PresidioDetector
 from .spacy_detector import SpacyDetector
 from redactor.validation import ValidationCoordinator
+
+
 
 ###############################################################################
 # SECTION 2: CLASS DEFINITION AND INITIALIZATION
@@ -147,7 +151,7 @@ class EnsembleCoordinator(BaseDetector):
             all_entities.extend(ensemble_entities)
             
             # Sort by position
-            all_entities.sort(key=lambda x: (x.start, x.end))
+            all_entities.sort(key=lambda x: (x.start_char, x.end_char)) 
             
             if self.debug_mode:
                 self.logger.debug(f"Total entities detected: {len(all_entities)}")
@@ -262,6 +266,10 @@ class EnsembleCoordinator(BaseDetector):
                 self.logger.error(f"Error in ensemble processing: {str(e)}")
             return []
 
+
+       
+
+    
     def _combine_matching_entities(
         self,
         presidio_entities: List[Entity],
@@ -284,19 +292,19 @@ class EnsembleCoordinator(BaseDetector):
             ]
             
             for s_entity in matches:
-                # Calculate combined confidence
-                combined_confidence = (
+                # Calculate combined confidence         return max(0.0, min(1.0, value))
+                combined_confidence = max(0.0, min(1.0,
                     p_entity.confidence * presidio_weight +
                     s_entity.confidence * spacy_weight
-                )
-                
+                ))
+                  
                 # Create combined entity using standardized fields
                 combined_entity = Entity(
                     text=p_entity.text,
                     entity_type=p_entity.entity_type,
                     start_char=p_entity.start_char,
                     end_char=p_entity.end_char,
-                    confidence=combined_confidence,
+                    confidence=max(0.0, min(1.0,combined_confidence)),
                     detector_source="ensemble",
                     page=None,
                     sensitivity=None,
@@ -330,7 +338,8 @@ class EnsembleCoordinator(BaseDetector):
 
     def validate_detection(self, entity: Entity, text: str = "") -> bool:
         """
-        Validate entity using ValidationCoordinator.
+        Validate entity using ensemble validation strategy.
+        Uses standalone confidence adjustment function to ensure proper bounds.
         
         Args:
             entity: Entity to validate
@@ -339,18 +348,38 @@ class EnsembleCoordinator(BaseDetector):
         Returns:
             bool indicating if entity is valid
         """
-        result = self.validator.validate_entity(
-            entity=entity,
-            text=text,
-            source="ensemble"
-        )
-        
-        if result.confidence_adjustment:
-            entity.confidence += result.confidence_adjustment
+        try:
+            # Validate the entity using the ValidationCoordinator
+            result = self.validator.validate_entity(
+                entity=entity,
+                text=text,
+                source="ensemble"
+            )
             
-        self.last_validation_reasons = result.reasons
-        
-        return result.is_valid
+            # Apply confidence adjustment using standalone function
+            if result.confidence_adjustment:
+                entity = adjust_entity_confidence(
+                    entity, 
+                    result.confidence_adjustment, 
+                    logger=self.logger
+                )
+            
+            # Track validation reasons
+            self.last_validation_reasons = result.reasons
+            
+            # Store applied validation rules if present
+            if hasattr(result, 'metadata') and result.metadata.get('applied_rules'):
+                entity = replace(entity, 
+                    validation_rules=list(entity.validation_rules or []) + 
+                    result.metadata['applied_rules']
+                )
+            
+            return result.is_valid
+            
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Validation error in Ensemble detection: {str(e)}")
+            return False
 
     def _normalize_text(self, text: str) -> str:
         """Normalize text for comparison."""

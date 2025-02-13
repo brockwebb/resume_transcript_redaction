@@ -53,17 +53,54 @@ class ConfigLoader:
             return None
 
     def _load_single_json_config(self, name: str, filepath: Path) -> None:
-        """Load a single JSON configuration file."""
+        """Load a single JSON configuration file with enhanced debugging."""
         try:
-            self.logger.debug(f"Loading {name} configuration from {filepath}")
+            self.logger.debug(f"\n=== Loading JSON Config: {name} ===")
+            self.logger.debug(f"Attempting to load from: {filepath}")
+            self.logger.debug(f"File exists: {filepath.exists()}")
+            self.logger.debug(f"Parent directory: {filepath.parent}")
+            self.logger.debug(f"File permissions: {oct(filepath.stat().st_mode)[-3:]}")
+            
+            if not filepath.exists():
+                searched_paths = [
+                    self.app_dir / filepath.name,
+                    self.redactor_config_dir / filepath.name,
+                    filepath
+                ]
+                self.logger.debug("Attempted paths:")
+                for path in searched_paths:
+                    self.logger.debug(f"  - {path} (exists: {path.exists()})")
+                raise FileNotFoundError(f"Config file not found: {filepath}")
+    
             with open(filepath, "r", encoding="utf-8") as file:
+                self.logger.debug("File opened successfully, attempting JSON parse")
                 config_data = json.load(file)
+                
+            # Log structure of loaded config
+            self.logger.debug(f"\nLoaded config structure for {name}:")
+            if isinstance(config_data, dict):
+                for key, value in config_data.items():
+                    self.logger.debug(f"  {key}: {type(value)}")
+                    if isinstance(value, dict):
+                        for subkey in value.keys():
+                            self.logger.debug(f"    - {subkey}")
+            
             self.configs[name] = config_data
             self.loaded_paths[name] = filepath
             self.logger.info(f"Successfully loaded {name} configuration")
-            self.logger.debug(f"Config structure for {name}: {type(config_data)}")
+            
+        except json.JSONDecodeError as e:
+            self.logger.error(f"JSON parsing error in {filepath}")
+            self.logger.debug(f"Error details: {str(e)}")
+            self.logger.debug(f"Error at line {e.lineno}, column {e.colno}")
+            
         except Exception as e:
-            self.logger.error(f"Failed to load {name} configuration from {filepath}: {e}")
+            self.logger.error(f"Failed to load {name} configuration from {filepath}")
+            self.logger.debug(f"Error type: {type(e).__name__}")
+            self.logger.debug(f"Error details: {str(e)}")
+            
+        finally:
+            self.logger.debug("=== JSON Config Load Complete ===\n")
 
     def _load_single_config(self, name: str, filepath: Path) -> None:
         """Load a single YAML configuration file."""
