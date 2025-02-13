@@ -128,13 +128,41 @@ Core validation orchestration component:
 - Manages complex validation workflows
 - Supports multi-stage validation processes
 
+#### Validation Methods
+The system uses a comprehensive, modular approach to entity validation:
+- Dedicated validation methods for each entity type
+- Configuration-driven validation rules
+- Flexible confidence adjustment mechanisms
+- Detailed reasoning and context analysis
+
 Validation Process:
 1. Receive detected entities from detectors
-2. Apply type-specific validation rules
-3. Analyze contextual information
-4. Adjust confidence scores
-5. Determine entity validity
-6. Provide detailed validation results
+2. Identify the appropriate validation method
+3. Apply type-specific validation rules
+4. Analyze contextual information
+5. Dynamically adjust confidence scores
+6. Determine entity validity
+7. Provide detailed validation results with reasoning
+
+#### Entity Validation Methods
+Specialized validation methods for various entity types:
+- Educational Institution
+- Person
+- Location
+- Address
+- Email Address
+- Phone Number
+- GPA
+- Internet Reference
+- Protected Class
+- Protected Health Information (PHI)
+
+Each validation method:
+- Checks basic format and requirements
+- Validates against configuration rules
+- Applies contextual analysis
+- Adjusts confidence dynamically
+- Provides detailed validation reasoning
 
 #### Validation Strategies
 - **Rule-Based Validation**: Configuration-defined rules
