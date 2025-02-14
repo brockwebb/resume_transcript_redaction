@@ -1,31 +1,141 @@
 # Resume Redaction System Architecture
 
 ## Overview
-The Resume Redaction System automatically detects and redacts sensitive information from resumes and professional documents while preserving important technical and professional content. The system leverages a sophisticated, configuration-driven approach to entity detection and validation, combining advanced natural language processing techniques with flexible validation rules.
+The Resume Redaction System automatically detects and redacts sensitive information from resumes and professional documents while preserving important technical and professional content. The system leverages a sophisticated, configuration-driven approach to entity detection and validation, combining advanced natural language processing techniques with flexible validation rules and comprehensive analysis capabilities.
 
 ## System Design Principles
-- **Modular Architecture**: Easily extensible detection and validation components
+- **Modular Architecture**: Easily extensible detection, validation, and analysis components
 - **Configuration-Driven**: Validation and detection rules defined through JSON and YAML configurations
 - **Multi-Model Approach**: Combines multiple NLP models for comprehensive entity detection
 - **Contextual Intelligence**: Advanced context-aware validation of detected entities
 - **Configurable Confidence Scoring**: Flexible threshold and confidence management
 - **Privacy-Preserving**: Robust redaction of sensitive personal information
+- **Analysis-Ready**: Built-in tools for detection analysis and system improvement
 
-## System Components
+## Directory Structure
+```
+resume_redaction/
+├── app/
+│   ├── config/
+│   │   └── config.yaml
+│   └── utils/
+│       ├── config_loader.py
+│       └── logger.py
+├── redactor/
+│   ├── config/
+│   │   ├── entity_routing.yaml
+│   │   ├── validation_params.json
+│   │   ├── validation_config.json
+│   │   └── word_filters.yaml
+│   ├── detectors/
+│   │   ├── base_detector.py
+│   │   ├── ensemble_coordinator.py
+│   │   ├── presidio_detector.py
+│   │   └── spacy_detector.py
+│   └── validation/
+│       └── entity_validation.py
+├── evaluation/
+│   ├── analysis/
+│   │   └── detection_analyzer.py
+│   ├── metrics/
+│   │   └── entity_metrics.py
+│   ├── comparison/
+│   │   └── entity_matcher.py
+│   ├── models.py
+│   ├── evaluate.py
+│   └── test_runner.py
+├── data/
+│   └── test_suite/
+│       ├── originals/
+│       ├── annotations/
+│       └── results/
+└── tests/
+    └── unit/
+```
 
-### 1. Core Detection Framework
+## System Architecture Diagrams
 
-#### Validation Architecture
-The system introduces a centralized `ValidationCoordinator` that revolutionizes entity validation:
-- Unifies validation logic across different detection systems
-- Provides a single, configuration-driven validation approach
-- Decouples validation rules from specific detectors
-- Enables complex, multi-stage validation for sensitive entities
-- Supports granular confidence adjustments based on contextual analysis
+### High-Level System Overview
+```mermaid
+graph TD
+    A[Input Document] --> B[Text Extraction]
+    B --> C[Initial Normalization]
+    C --> D[EnsembleCoordinator]
+    D --> E{Routing Rules}
+    E -->|Presidio Primary| F[PresidioDetector]
+    E -->|Spacy Primary| G[SpacyDetector]
+    E -->|Ensemble Required| H[Combined Detection]
+    F --> I[ValidationCoordinator]
+    G --> I
+    H --> I
+    I --> J[Confidence Filtering]
+    J --> K[Analysis Pipeline]
+    K --> L[Results/Reports]
+```
 
-#### Core Detection Interfaces
+### Detection and Analysis Flow
+```mermaid
+graph TD
+    A[Document] --> B[EnsembleCoordinator]
+    B --> C{Entity Type}
+    C -->|PERSON| D[SpacyDetector]
+    C -->|ADDRESS/EMAIL| E[PresidioDetector]
+    C -->|EDUCATIONAL_INSTITUTION| F[Ensemble Detection]
+    
+    D --> G[ValidationCoordinator]
+    E --> G
+    F --> G
+    
+    G --> H[DetectionAnalyzer]
+    H --> I{Analysis Type}
+    I -->|Context| J[Context Analysis]
+    I -->|Confidence| K[Confidence Trace]
+    I -->|Patterns| L[Pattern Analysis]
+    
+    J --> M[Analysis Report]
+    K --> M
+    L --> M
+```
 
-##### BaseDetector
+### Validation and Analysis Components
+```mermaid
+classDiagram
+    class BaseDetector {
+        +detect_entities()
+        +validate_detection()
+        #prepare_text()
+    }
+    
+    class EnsembleCoordinator {
+        -route_entity()
+        -combine_results()
+        +detect_entities()
+    }
+    
+    class DetectionAnalyzer {
+        +analyze_detection()
+        +analyze_batch()
+        +generate_report()
+    }
+    
+    class ValidationCoordinator {
+        +validate_entity()
+        -apply_rules()
+        -adjust_confidence()
+    }
+    
+    BaseDetector <|-- PresidioDetector
+    BaseDetector <|-- SpacyDetector
+    BaseDetector <|-- EnsembleCoordinator
+    EnsembleCoordinator --> DetectionAnalyzer
+    EnsembleCoordinator --> ValidationCoordinator
+```
+
+## Core Detection Framework
+
+### 1. Core Detection Interfaces
+
+#### BaseDetector
 Abstract base class defining core detection capabilities:
 - Shared configuration and logging mechanisms
 - Basic text preparation utilities
@@ -33,7 +143,7 @@ Abstract base class defining core detection capabilities:
 - Debug and logging support
 - Confidence threshold management
 
-##### Specialized Detectors
+#### Specialized Detectors
 1. **PresidioDetector**
    - Pattern-based entity recognition
    - Strong performance with structured data
@@ -54,6 +164,42 @@ Central orchestration component for entity detection:
 - Resolves conflicts between different detectors
 - Applies post-processing to remove overlapping entities
 
+### 2. Analysis Framework
+
+#### DetectionAnalyzer
+New component for comprehensive detection analysis:
+- Detailed analysis of detection decisions
+- Validation rule effectiveness tracking
+- Context pattern analysis
+- Confidence adjustment tracing
+- Batch analysis capabilities
+- Multiple report formats (text/JSON)
+
+Key Analysis Areas:
+1. **Detection Analysis**
+   - Raw detector signals
+   - Initial confidence scores
+   - Detection source decisions
+   - Pattern matching results
+
+2. **Validation Analysis**
+   - Rule application tracking
+   - Confidence adjustment traces
+   - Validation effectiveness metrics
+   - Rule impact analysis
+
+3. **Context Analysis**
+   - Surrounding text analysis
+   - Pattern recognition
+   - False positive indicators
+   - Contextual feature extraction
+
+4. **Batch Analysis**
+   - Aggregate statistics
+   - Pattern identification
+   - System-wide metrics
+   - Trend analysis
+
 ### 2. Configuration Management System
 
 #### Configuration Files
@@ -67,14 +213,45 @@ The central configuration for entity validation:
 - Supports fine-grained validation logic for sensitive entities
 
 Key Configuration Sections:
-- Validation rules for each entity type
-- Confidence boost and penalty mechanisms
-- Context word and pattern definitions
-- Specialized validation requirements
-- Entity-specific detection strategies
+```mermaid
+graph TD
+    A[validation_params.json] --> B[Entity Types]
+    B --> C[Rule Sets]
+    C --> D[Confidence Rules]
+    C --> E[Pattern Rules]
+    C --> F[Context Rules]
+    
+    D --> G[Boosts]
+    D --> H[Penalties]
+    
+    E --> I[Format Patterns]
+    E --> J[Detection Patterns]
+    
+    F --> K[Required Context]
+    F --> L[Prohibited Context]
+```
 
 ##### entity_routing.yaml
 Defines detection and routing strategies:
+```mermaid
+graph TD
+    A[entity_routing.yaml] --> B[Routing Rules]
+    B --> C[Presidio Primary]
+    B --> D[Spacy Primary]
+    B --> E[Ensemble Required]
+    
+    C --> F[Entity List]
+    C --> G[Thresholds]
+    
+    D --> H[Entity List]
+    D --> I[Thresholds]
+    
+    E --> J[Entity List]
+    E --> K[Combined Thresholds]
+    K --> L[Weights]
+```
+
+Example Configuration:
 ```yaml
 routing:
   presidio_primary:
@@ -82,10 +259,6 @@ routing:
       - ADDRESS
       - EMAIL_ADDRESS
       - PHONE_NUMBER
-      - INTERNET_REFERENCE
-      - LOCATION
-      - GPA
-      - EDUCATIONAL_INSTITUTION
     thresholds:
       ADDRESS: 0.8
       EMAIL_ADDRESS: 0.7
@@ -99,15 +272,14 @@ routing:
 
   ensemble_required:
     entities:
-      - DATE_TIME
       - EDUCATIONAL_INSTITUTION
       - PHI
       - PROTECTED_CLASS
     confidence_thresholds:
-      DATE_TIME:
-        minimum_combined: 0.7
-        presidio_weight: 0.65
-        spacy_weight: 0.35
+      EDUCATIONAL_INSTITUTION:
+        minimum_combined: 0.75
+        presidio_weight: 0.5
+        spacy_weight: 0.5
 ```
 
 #### ConfigLoader
@@ -118,6 +290,31 @@ Centralized configuration management:
 - Error handling and logging
 - Path resolution for configuration resources
 
+```mermaid
+classDiagram
+    class ConfigLoader {
+        +load_all_configs()
+        +get_config()
+        -_validate_config()
+        -_resolve_paths()
+    }
+    
+    class ValidationConfig {
+        +entity_rules: Dict
+        +confidence_rules: Dict
+        +pattern_rules: Dict
+    }
+    
+    class RoutingConfig {
+        +detector_rules: Dict
+        +thresholds: Dict
+        +weights: Dict
+    }
+    
+    ConfigLoader --> ValidationConfig
+    ConfigLoader --> RoutingConfig
+```
+
 ### 3. Validation Framework
 
 #### ValidationCoordinator
@@ -127,6 +324,23 @@ Core validation orchestration component:
 - Provides unified validation interface
 - Manages complex validation workflows
 - Supports multi-stage validation processes
+
+```mermaid
+graph TD
+    A[ValidationCoordinator] --> B[Rule Selection]
+    B --> C{Entity Type}
+    C --> D[Type-Specific Rules]
+    C --> E[Generic Rules]
+    
+    D --> F[Apply Rules]
+    E --> F
+    
+    F --> G[Confidence Adjustment]
+    G --> H[Validation Result]
+    
+    H --> I[Analysis Data]
+    H --> J[Final Decision]
+```
 
 #### Validation Methods
 The system uses a comprehensive, modular approach to entity validation:
@@ -146,29 +360,55 @@ Validation Process:
 
 #### Entity Validation Methods
 Specialized validation methods for various entity types:
-- Educational Institution
-- Person
-- Location
-- Address
-- Email Address
-- Phone Number
-- GPA
-- Internet Reference
-- Protected Class
-- Protected Health Information (PHI)
-
-Each validation method:
-- Checks basic format and requirements
-- Validates against configuration rules
-- Applies contextual analysis
-- Adjusts confidence dynamically
-- Provides detailed validation reasoning
+```mermaid
+classDiagram
+    class BaseValidation {
+        +validate()
+        #adjust_confidence()
+        #check_context()
+    }
+    
+    class PersonValidation {
+        -check_title_markers()
+        -validate_name_format()
+    }
+    
+    class AddressValidation {
+        -check_street_format()
+        -validate_components()
+    }
+    
+    class EmailValidation {
+        -validate_format()
+        -check_domain()
+    }
+    
+    BaseValidation <|-- PersonValidation
+    BaseValidation <|-- AddressValidation
+    BaseValidation <|-- EmailValidation
+```
 
 #### Validation Strategies
 - **Rule-Based Validation**: Configuration-defined rules
 - **Contextual Analysis**: Deep linguistic and contextual examination
 - **Confidence Scoring**: Dynamic confidence adjustment
 - **Multi-Model Validation**: Cross-validation across detection systems
+
+#### Integration with Analysis Framework
+```mermaid
+graph TD
+    A[Entity Detection] --> B[ValidationCoordinator]
+    B --> C[Validation Process]
+    C --> D[DetectionAnalyzer]
+    
+    D --> E[Rule Analysis]
+    D --> F[Confidence Analysis]
+    D --> G[Context Analysis]
+    
+    E --> H[Validation Report]
+    F --> H
+    G --> H
+```
 
 ### 4. Processing Pipeline
 
@@ -178,61 +418,117 @@ graph TD
     A[Input Document] --> B[Text Extraction]
     B --> C[Initial Normalization]
     C --> D[EnsembleCoordinator]
-    D --> E{Routing Rules}
-    E -->|Presidio Primary| F[PresidioDetector]
-    E -->|Spacy Primary| G[SpacyDetector]
-    E -->|Ensemble Required| H[Combined Detection]
+    D --> E{Entity Type Router}
+    
+    E -->|PERSON| F[SpacyDetector]
+    E -->|ADDRESS/EMAIL| G[PresidioDetector]
+    E -->|ENSEMBLE| H[Combined Detection]
+    
     F --> I[ValidationCoordinator]
     G --> I
     H --> I
-    I --> J[Confidence Filtering]
-    J --> K[Redaction Preparation]
-    K --> L[PDF Redaction]
+    
+    I --> J[DetectionAnalyzer]
+    J --> K[Analysis Results]
+    
+    I --> L[Confidence Filter]
+    L --> M[Entity List]
+    M --> N[Final Results]
 ```
 
 #### Processing Stages
-1. **Input Processing**
-   - Document text extraction
-   - Initial text normalization
-   - Prepare for entity detection
 
-2. **Entity Detection**
-   - Apply routing rules
-   - Detect entities using multiple models
-   - Validate detected entities
-   - Apply confidence thresholds
+##### 1. Input Processing
+- Document text extraction
+- Initial text normalization
+- Prepare for entity detection
 
-3. **Redaction Preparation**
-   - Generate redaction bounding boxes
-   - Apply keep-word filters
-   - Resolve entity conflicts
+##### 2. Entity Detection
+```mermaid
+sequenceDiagram
+    participant EC as EnsembleCoordinator
+    participant SD as SpacyDetector
+    participant PD as PresidioDetector
+    participant VC as ValidationCoordinator
+    participant DA as DetectionAnalyzer
 
-4. **Redaction Application**
-   - Apply redactions to the document
-   - Generate processing report
-   - Preserve document structure
+    EC->>EC: Route entity type
+    alt Spacy Primary
+        EC->>SD: Detect entities
+        SD->>VC: Validate entities
+    else Presidio Primary
+        EC->>PD: Detect entities
+        PD->>VC: Validate entities
+    else Ensemble Required
+        EC->>SD: Detect entities
+        EC->>PD: Detect entities
+        EC->>EC: Combine results
+        EC->>VC: Validate entities
+    end
+    VC->>DA: Analyze detection
+    DA->>EC: Return analysis
+```
 
-### 5. Evaluation and Testing Framework
+##### 3. Validation Process
+```mermaid
+sequenceDiagram
+    participant VC as ValidationCoordinator
+    participant VR as ValidationRules
+    participant CA as ContextAnalyzer
+    participant CF as ConfidenceFilter
+
+    VC->>VR: Load rules
+    VC->>CA: Analyze context
+    CA->>VC: Context results
+    VC->>VC: Apply rules
+    VC->>CF: Filter confidence
+    CF->>VC: Final entities
+```
+
+### 5. Evaluation and Analysis Framework
 
 #### Evaluation Components
 
 ##### Performance Metrics Tracking
+```mermaid
+classDiagram
+    class EntityMetrics {
+        +calculate_metrics()
+        +get_type_based_metrics()
+        +analyze_confidence_distribution()
+    }
+    
+    class DetectionAnalyzer {
+        +analyze_detection()
+        +analyze_batch()
+        +generate_report()
+    }
+    
+    class TestRunner {
+        +run_evaluation()
+        +compare_runs()
+        +generate_report()
+    }
+    
+    TestRunner --> EntityMetrics
+    TestRunner --> DetectionAnalyzer
+```
+
 Key metrics for system assessment:
 - Entity detection accuracy by type
 - Validation rule effectiveness
 - Detector performance comparison
 - Context validation success rate
-- Processing performance
-- Memory usage
-- Configuration coverage
-- False positive/negative rates
+- Processing performance metrics
+- Configuration coverage analysis
+- False positive/negative analysis
 
 ##### TestRunner
 Comprehensive testing infrastructure:
 - Batch test execution
 - Statistical analysis
 - Performance metrics collection
-- Comparative testing between system versions
+- Comparative testing between versions
 - Validation rule effectiveness assessment
 
 #### Test Suite Organization
@@ -241,7 +537,10 @@ data/
   test_suite/
     originals/       # Original test documents
     annotations/     # Ground truth annotations
-    results/         # Test run results
+    results/        # Test run results
+      run_20240214_120000/
+        alexis_rivera_results.json
+        summary.json
     test_manifest.yaml  # Test definitions
 ```
 
@@ -255,69 +554,78 @@ Advanced entity validation system:
 - False positive/negative analysis
 - Contextual validation verification
 
-##### StageOneEvaluator
-Comprehensive detection analysis:
-- Detailed entity detection assessment
-- Validation rule verification
-- Confidence score evaluation
-- Detection overlap identification
-- Entity type coverage testing
+##### Analysis Components
+```mermaid
+graph TD
+    A[DetectionAnalyzer] --> B[Context Analysis]
+    A --> C[Pattern Analysis]
+    A --> D[Confidence Analysis]
+    
+    B --> E[Context Features]
+    B --> F[Surrounding Text]
+    
+    C --> G[Detection Patterns]
+    C --> H[Error Patterns]
+    
+    D --> I[Confidence Trace]
+    D --> J[Adjustment Impact]
+```
 
-##### EntityMetrics
-Advanced performance analytics:
-- Precision and recall calculation
-- Granular performance metrics by entity type
-- Confidence distribution analysis
-- Validation rule effectiveness measurement
-- Detection source performance tracking
+### 6. Integration Points
 
-### 6. Security and Privacy Considerations
+#### Component Integration
+```mermaid
+graph TD
+    A[EnsembleCoordinator] --> B[Detectors]
+    A --> C[ValidationCoordinator]
+    A --> D[DetectionAnalyzer]
+    
+    B --> E[Entity Detection]
+    C --> F[Validation Process]
+    D --> G[Analysis Pipeline]
+    
+    E --> H[Results Integration]
+    F --> H
+    G --> H
+```
 
-#### Privacy Protection Mechanisms
-- Strict entity validation rules
-- Configurable redaction strategies
-- Minimal information retention
-- Comprehensive sensitive data identification
-- Adaptive detection across document types
+#### Data Flow
+```mermaid
+sequenceDiagram
+    participant Input
+    participant Detection
+    participant Validation
+    participant Analysis
+    participant Output
 
-#### Compliance Features
-- GDPR and CCPA alignment
-- Configurable redaction levels
-- Audit trail generation
-- Anonymization support
-- Minimal data exposure
+    Input->>Detection: Document text
+    Detection->>Validation: Raw entities
+    Validation->>Analysis: Validated entities
+    Analysis->>Output: Analysis results
+    Analysis->>Detection: Feedback loop
+```
 
-### 7. Advanced Features and Extensibility
+### 7. Execution and Command Interface
 
-#### Customization Points
-- Pluggable detection models
-- Configurable validation rules
-- Custom entity type support
-- Extensible configuration system
-- Modular architecture for easy enhancement
+#### Command Line Interface
+```bash
+# Basic detection
+python -m evaluation.evaluate detect --test <test_id> --entity <entity_type>
 
-#### Future Development Roadmap
-- Machine learning-based validation improvements
-- Enhanced contextual understanding
-- Support for additional document types
-- Multilingual detection capabilities
-- Advanced anonymization techniques
+# Batch analysis
+python -m evaluation.evaluate batch --test <test_ids> --entity <entity_type>
 
-### 8. Performance Optimization
+# Analysis mode
+python -m evaluation.evaluate analyze --test <test_id> --entity <entity_type> --format detailed
 
-#### Optimization Strategies
-- Efficient memory management
-- Parallel processing support
-- Caching mechanisms
-- Lazy loading of detection models
-- Configurable performance thresholds
+# Comparison
+python -m evaluation.evaluate compare --test <test_id> --compare-with <previous_run>
+```
 
-#### Scalability Considerations
-- Horizontal scaling support
-- Cloud-native architecture
-- Containerization readiness
-- Microservices compatibility
-- Dynamic resource allocation
-
-### Conclusion
-The Resume Redaction System represents a sophisticated, flexible approach to sensitive information detection and redaction. The system provides robust, adaptable privacy protection across various document types by combining advanced NLP techniques, configuration-driven validation, and comprehensive testing strategies.
+#### Analysis Options
+- Detection analysis
+- Validation analysis
+- Pattern analysis
+- Confidence analysis
+- Batch analysis
+- Comparative analysis
