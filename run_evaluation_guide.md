@@ -1,91 +1,129 @@
-# Focused Entity Testing
+# Entity Detection Evaluation Guide
 
 ## Overview
-The focused test runner allows you to evaluate specific entity types or test cases with minimal output. This is particularly useful for debugging entity detection issues or tuning confidence thresholds.
+The evaluation system provides tools for analyzing entity detection accuracy, validation effectiveness, and systematic patterns. This guide covers how to use the evaluation commands for different analysis needs.
 
-## Basic Usage
+## Basic Commands
 
-Test a specific entity type:
+### Single Test Analysis
+Test a specific file for a specific entity type:
 ```bash
-python -m evaluation.focused_test_runner --entity-type EMAIL_ADDRESS
+# Basic detection test
+python -m evaluation.evaluate detect --test alexis_rivera --entity PERSON
+
+# Detailed analysis mode
+python -m evaluation.evaluate detect --test alexis_rivera --entity PERSON --analyze
+
+# Analysis with pattern matching
+python -m evaluation.evaluate detect --test alexis_rivera --entity PERSON --analyze --pattern-report
 ```
 
-The output will show basic metrics for each test case:
-```
-Test ID: alexis_rivera
-Precision: 0.857
-Recall: 0.750
-F1 Score: 0.800
-```
-
-## Command Options
-
-- `--entity-type` or `-e`: Test specific entity type (e.g., EMAIL_ADDRESS, PERSON)
-- `--test-ids` or `-t`: Test specific test cases
-- `--confidence` or `-c`: Set confidence threshold
-- `--format` or `-f`: Output format (summary or detailed)
-- `--quiet` or `-q`: Minimize output
-
-## Common Testing Scenarios
-
-### Testing Specific Cases
-Test one or more specific test cases:
+### Batch Testing
+Test multiple files or entire test suite:
 ```bash
-python -m evaluation.focused_test_runner --test-ids alexis_rivera john_smith
+# Test all files for single entity type
+python -m evaluation.evaluate batch --test $(ls data/test_suite/originals/*.pdf | sed 's/.*\///' | sed 's/\.pdf//') --entity PERSON
+
+# Batch analysis with patterns
+python -m evaluation.evaluate batch --test $(ls data/test_suite/originals/*.pdf | sed 's/.*\///' | sed 's/\.pdf//') --entity PERSON --analyze
 ```
 
-### Confidence Threshold Testing
-Test with a specific confidence threshold:
+## Analysis Options
+
+### Output Formats
 ```bash
-python -m evaluation.focused_test_runner --entity-type PERSON --confidence 0.8
+# Default text output
+python -m evaluation.evaluate detect --test alexis_rivera --entity PERSON
+
+# JSON output
+python -m evaluation.evaluate detect --test alexis_rivera --entity PERSON --format json
+
+# Detailed analysis output
+python -m evaluation.evaluate detect --test alexis_rivera --entity PERSON --format detailed
 ```
 
-### Detailed Analysis
-Get detailed output including false positives/negatives:
+### Analysis Modes
 ```bash
-python -m evaluation.focused_test_runner --entity-type LOCATION --format detailed
+# Detection confidence analysis
+python -m evaluation.evaluate detect --test alexis_rivera --entity PERSON --analyze confidence
+
+# Context pattern analysis
+python -m evaluation.evaluate detect --test alexis_rivera --entity PERSON --analyze patterns
+
+# Validation rule analysis
+python -m evaluation.evaluate detect --test alexis_rivera --entity PERSON --analyze validation
 ```
 
-Example detailed output:
-```
-Test Case: alexis_rivera
-Metrics:
-  precision: 0.857
-  recall: 0.750
-  f1_score: 0.800
-
-Matches:
-  true_positives: 6
-  false_positives: 1
-    - "123 Main St" (0.82)
-  false_negatives: 2
-    - "456 Oak Ave" (0.00)
-```
-
-### Minimal Output
-For scripting or CI/CD pipelines:
+### Comparison
 ```bash
-python -m evaluation.focused_test_runner --entity-type EMAIL_ADDRESS --quiet
+# Compare with previous run
+python -m evaluation.evaluate compare --test alexis_rivera --compare-with previous_run --entity PERSON
+
+# Compare with baseline
+python -m evaluation.evaluate compare --test alexis_rivera --compare-with baseline --entity PERSON --analyze
 ```
 
-## Tips for Effective Testing
+## Common Analysis Scenarios
 
-1. Start with Individual Types
-   - Test one entity type at a time
-   - Use summary format for quick checks
-   - Switch to detailed format for debugging
+### Debug False Positives
+```bash
+# Get detailed analysis of false positives
+python -m evaluation.evaluate detect --test alexis_rivera --entity PERSON --analyze --focus false-positives
 
-2. Tune Confidence Thresholds
-   - Start with default thresholds
-   - Use --confidence flag to experiment
-   - Monitor precision/recall trade-offs
+# Example output:
+False Positive Analysis:
+- Entity: "Tableau"
+  Confidence: 0.60
+  Context: "...using Tableau for data visualization..."
+  Likely Reason: Software/tool context detected
+```
 
-3. Debug Specific Cases
-   - Use --test-ids for problematic cases
-   - Check detailed output
-   - Look for patterns in false positives/negatives
+### Validation Rule Effectiveness
+```bash
+# Analyze validation rule impact
+python -m evaluation.evaluate detect --test alexis_rivera --entity PERSON --analyze validation
 
-4. Batch Testing
-   - Use --quiet for automated testing
-   - Combine with other tools using shell scripting
-   - Process output programmatically
+# Example output:
+Validation Rule Analysis:
+- Rule: "title_markers"
+  Applications: 12
+  Average Impact: +0.2
+  False Positive Prevention: 3 cases
+```
+
+### Pattern Analysis
+```bash
+# Analyze detection patterns
+python -m evaluation.evaluate batch --test $(ls data/test_suite/originals/*.pdf | sed 's/.*\///' | sed 's/\.pdf//') --entity PERSON --analyze patterns
+
+# Example output:
+Pattern Analysis:
+- Common False Positives:
+  • Software Names: 8 instances
+  • Company Names: 5 instances
+- Context Indicators:
+  • Technology Terms: 15 occurrences
+  • Title Markers: 23 occurrences
+```
+
+## Tips for Effective Analysis
+
+1. Start with Basic Detection
+   - Use `detect` command first
+   - Check basic metrics before detailed analysis
+   - Note any obvious issues
+
+2. Drill Down with Analysis
+   - Use `--analyze` for deeper insights
+   - Focus on specific issues with analysis modes
+   - Compare results across multiple files
+
+3. Pattern Investigation
+   - Use batch analysis to find patterns
+   - Look for systematic issues
+   - Track validation rule effectiveness
+
+4. Iterative Improvement
+   - Compare results after changes
+   - Track improvements with comparison tools
+   - Document patterns and solutions
