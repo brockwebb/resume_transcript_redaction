@@ -164,7 +164,7 @@ class SpacyDetector(BaseDetector):
                         entity_type=mapped_type,
                         start_char=ent.start_char,
                         end_char=ent.end_char,
-                        confidence=max(0,min(0.0,confidence)),
+                        confidence=confidence,
                         detector_source="spacy",
                         page=None,
                         sensitivity=None,

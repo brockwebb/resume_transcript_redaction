@@ -214,14 +214,6 @@ class ValidationCoordinator:
 
         # Perform validation
         validation_result = validator(entity, text, validation_rules, self.logger)
-
-        # HERE - We need to clamp the confidence adjustment before creating ValidationResult
-        if validation_result.get('confidence_adjustment'):
-            # Calculate what adjustment would put us at 1.0
-            max_adjustment = max(0.0, 1.0 - entity.confidence)
-            # Clamp the adjustment
-            clamped_adjustment = min(max_adjustment, validation_result['confidence_adjustment'])
-            validation_result['confidence_adjustment'] = clamped_adjustment
         
         # Convert dict result to ValidationResult
         result = ValidationResult(
@@ -239,7 +231,7 @@ class ValidationCoordinator:
 
         # Create new entity with adjusted confidence if needed
         if result.is_valid and result.confidence_adjustment != 0:
-            entity = replace(entity, confidence=entity.confidence + result.confidence_adjustment)
+            entity = replace(entity, confidence=max(0.0, min(1.0, entity.confidence + result.confidence_adjustment)))
             result.metadata = {"updated_entity": entity}
 
         return result
