@@ -26,6 +26,7 @@ class RedactionLogger:
     """
 
     DEFAULT_LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    DEBUG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(pathname)s:%(lineno)d - %(message)s'
     CONSOLE_FORMAT = '%(levelname)s: %(message)s'
 
 
@@ -47,6 +48,11 @@ class RedactionLogger:
         self.logger.setLevel(numeric_level)
         self.logger.propagate = False  # Prevent duplicate logging
 
+        self._debug_formatter = logging.Formatter(self.DEBUG_FORMAT)
+        if numeric_level == logging.DEBUG:
+            self.file_formatter = self._debug_formatter
+            self.console_formatter = self._debug_formatter
+
         # Clear any existing handlers
         self.logger.handlers = []
 
@@ -66,6 +72,16 @@ class RedactionLogger:
     @property
     def level(self):
         return self.logger.getEffectiveLevel()
+        
+    @property
+    def debug_mode(self) -> bool:
+        """Return True if logger is in debug mode."""
+        return self.logger.getEffectiveLevel() == logging.DEBUG
+
+    @property
+    def log_level(self) -> str:
+        """Return current log level as string."""
+        return logging.getLevelName(self.logger.getEffectiveLevel())
 
 ###############################################################################
 # SECTION 4: HANDLER SETUP METHODS
