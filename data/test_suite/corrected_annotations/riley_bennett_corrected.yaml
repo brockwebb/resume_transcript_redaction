@@ -1,162 +1,262 @@
-file_name: riley_bennett_corrected
+file_name: riley_bennett
 entities:
 - text: Riley J. Bennett
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 92.654296875
+    x1: 212.01580810546875
+    y1: 114.998046875
     start_char: 0
     end_char: 16
   sensitivity: high
+  instance: 1
 - text: (they/them)
-  type: PRONOUNS
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 1
+    x0: 217.568115234375
+    y0: 92.654296875
+    x1: 318.673828125
+    y1: 114.998046875
     start_char: 17
     end_char: 28
   sensitivity: high
+  instance: 1
 - text: 'Pronouns: They/Them'
-  type: PRONOUNS
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
-    start_char: 626
-    end_char: 645
+    x0: 108.0
+    y0: 527.852294921875
+    x1: 221.60496520996094
+    y1: 540.141357421875
+    start_char: 1798
+    end_char: 1817
   sensitivity: high
+  instance: 1
 - text: (415) 678-1234
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
+    x0: 148.3029022216797
+    y0: 153.900146484375
+    x1: 223.47598266601562
+    y1: 166.189208984375
     start_char: 55
     end_char: 69
   sensitivity: high
+  instance: 1
 - text: riley.bennett.analytics@protonmail.com
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 144.04127502441406
+    y0: 168.4464111328125
+    x1: 335.23504638671875
+    y1: 180.7354736328125
     start_char: 79
     end_char: 117
   sensitivity: high
+  instance: 1
 - text: rileybennettdata.com
-  type: PORTFOLIO
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
+    x0: 159.89622497558594
+    y0: 182.99267578125
+    x1: 261.9454345703125
+    y1: 195.28173828125
     start_char: 131
     end_char: 151
   sensitivity: medium
+  instance: 1
 - text: "July 2018 \u2013 Present"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 565.7537841796875
+    x1: 169.16065979003906
+    y1: 578.0428466796875
     start_char: 767
     end_char: 786
   sensitivity: medium
+  instance: 1
 - text: "May 2017 \u2013 June 2018"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 50
-    end_char: 70
+    x0: 72.0
+    y0: 101.452392578125
+    x1: 183.84234619140625
+    y1: 113.741455078125
+    start_char: 1222
+    end_char: 1242
   sensitivity: medium
+  instance: 1
 - text: May 2018
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 334
-    end_char: 342
+    x0: 130.052490234375
+    y0: 262.980712890625
+    x1: 178.33013916015625
+    y1: 275.269775390625
+    start_char: 1506
+    end_char: 1514
   sensitivity: medium
+  instance: 1
 - text: May 2015
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 420
-    end_char: 428
+    x0: 130.052490234375
+    y0: 321.165771484375
+    x1: 178.33013916015625
+    y1: 333.454833984375
+    start_char: 1592
+    end_char: 1600
   sensitivity: medium
+  instance: 1
 - text: San Francisco, CA
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 164.26351928710938
+    y0: 551.20751953125
+    x1: 255.904296875
+    y1: 563.49658203125
     start_char: 749
     end_char: 766
   sensitivity: medium
+  instance: 1
 - text: University of California
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 2
-    start_char: 284
-    end_char: 308
+    x0: 72.0
+    y0: 248.4344482421875
+    x1: 181.9637908935547
+    y1: 260.7235107421875
+    start_char: 1456
+    end_char: 1480
   sensitivity: high
+  instance: 1
 - text: Berkeley, CA
   type: LOCATION
   should_redact: true
   location:
     page: 2
-    start_char: 310
-    end_char: 322
+    x0: 188.06741333007812
+    y0: 248.4344482421875
+    x1: 251.4005584716797
+    y1: 260.7235107421875
+    start_char: 1482
+    end_char: 1494
   sensitivity: medium
+  instance: 1
 - text: University of Oregon
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 2
-    start_char: 376
-    end_char: 396
+    x0: 72.0
+    y0: 306.6195068359375
+    x1: 172.19534301757812
+    y1: 318.9085693359375
+    start_char: 1548
+    end_char: 1568
   sensitivity: high
+  instance: 1
 - text: Eugene, OR
   type: LOCATION
   should_redact: true
   location:
     page: 2
-    start_char: 398
-    end_char: 408
+    x0: 178.29896545410156
+    y0: 306.6195068359375
+    x1: 238.79920959472656
+    y1: 318.9085693359375
+    start_char: 1570
+    end_char: 1580
   sensitivity: medium
+  instance: 1
 - text: LGBTQIA+
-  type: DEMOGRAPHIC
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 1
+    x0: 461.2350769042969
+    y0: 286.3359375
+    x1: 515.30419921875
+    y1: 298.625
     start_char: 343
     end_char: 351
   sensitivity: high
+  instance: 1
 - text: Queer
-  type: DEMOGRAPHIC
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 1
+    x0: 298.0177917480469
+    y0: 653.0313720703125
+    x1: 328.57098388671875
+    y1: 665.3204345703125
     start_char: 1113
     end_char: 1118
   sensitivity: high
+  instance: 1
 - text: LGBTQIA+
-  type: DEMOGRAPHIC
-  should_redact: true
-  location:
-    page: 1
-    start_char: 343
-    end_char: 351
-  sensitivity: high
-- text: 'Accessibility: Uses blue light glasses for prolonged screen time'
-  type: ACCESSIBILITY
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
-    start_char: 761
-    end_char: 825
+    x0: 157.4805145263672
+    y0: 409.9627685546875
+    x1: 211.5496826171875
+    y1: 422.2518310546875
+    start_char: 1639
+    end_char: 1647
   sensitivity: high
+  instance: 2
+- text: 'Accessibility: Uses blue light glasses for prolonged screen time'
+  type: PHI
+  should_redact: true
+  location:
+    page: 2
+    x0: 108.0
+    y0: 571.4910888671875
+    x1: 422.0492248535156
+    y1: 583.7801513671875
+    start_char: 1933
+    end_char: 1997
+  sensitivity: high
+  instance: 1
 - text: Queer-Friendly
-  type: DEMOGRAPHIC
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 1
+    x0: 298.0177917480469
+    y0: 653.0313720703125
+    x1: 371.1293029785156
+    y1: 665.3204345703125
     start_char: 1113
     end_char: 1127
   sensitivity: high
+  instance: 1

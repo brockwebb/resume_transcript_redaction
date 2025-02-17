@@ -111,12 +111,13 @@ class EnsembleCoordinator(BaseDetector):
 # SECTION 3: ENTITY DETECTION AND ROUTING
 ###############################################################################
 
-    def detect_entities(self, text: str) -> List[Entity]:
+    def detect_entities(self, text: str, target_entity_type: Optional[str] = None) -> List[Entity]:
         """
-        Detect entities using configured detection strategy.
+        Detect entities with optional type filtering.
         
         Args:
-            text: Input text to analyze
+            text: Text to analyze
+            target_entity_type: Optional entity type to filter for
             
         Returns:
             List of detected entities
@@ -128,41 +129,84 @@ class EnsembleCoordinator(BaseDetector):
             if self.debug_mode:
                 self.logger.debug("Starting ensemble entity detection")
                 
-            all_entities = []
+            entities = []
             
-            # Get Presidio primary detections
-            presidio_entities = self._get_presidio_entities(text)
+            # Early type filtering
+            if target_entity_type:
+                # For Presidio primary entities
+                if target_entity_type in self.presidio_entities:
+                    if self.debug_mode:
+                        self.logger.debug(f"Detecting Presidio primary entity: {target_entity_type}")
+                    detected = self.presidio_detector.detect_entities(text, target_entity_type)
+                    # Validate each entity before adding
+                    for entity in detected:
+                        is_valid, updated_entity = self.validate_detection(entity, text)
+                        if is_valid:
+                            entities.append(updated_entity)
+                    
+                # For spaCy primary entities    
+                if target_entity_type in self.spacy_entities:
+                    if self.debug_mode:
+                        self.logger.debug(f"Detecting spaCy primary entity: {target_entity_type}")
+                    detected = self.spacy_detector.detect_entities(text, target_entity_type)
+                    # Validate each entity before adding
+                    for entity in detected:
+                        is_valid, updated_entity = self.validate_detection(entity, text)
+                        if is_valid:
+                            entities.append(updated_entity)
+                    
+                # For ensemble required entities
+                if target_entity_type in self.ensemble_entities:
+                    if self.debug_mode:
+                        self.logger.debug(f"Detecting ensemble entity: {target_entity_type}")
+                    ensemble_entities = self._get_ensemble_entities(text, [target_entity_type])
+                    # Ensemble entities are already validated in _detect_ensemble_entities
+                    entities.extend(ensemble_entities)
+                    
+                return entities
+                
+            # If no target type, run full detection with validation
+            presidio_entities = self.presidio_detector.detect_entities(text)
+            validated_presidio = []
+            for entity in presidio_entities:
+                is_valid, updated_entity = self.validate_detection(entity, text)
+                if is_valid:
+                    validated_presidio.append(updated_entity)
+                    
             if self.debug_mode:
-                self.logger.debug(f"Found {len(presidio_entities)} Presidio primary entities")
-            
-            # Get spaCy primary detections
-            spacy_entities = self._get_spacy_entities(text)
+                self.logger.debug(f"Found {len(validated_presidio)} validated Presidio primary entities")
+                
+            spacy_entities = self.spacy_detector.detect_entities(text)
+            validated_spacy = []
+            for entity in spacy_entities:
+                is_valid, updated_entity = self.validate_detection(entity, text)
+                if is_valid:
+                    validated_spacy.append(updated_entity)
+                    
             if self.debug_mode:
-                self.logger.debug(f"Found {len(spacy_entities)} spaCy primary entities")
-            
-            # Get ensemble detections that require both
+                self.logger.debug(f"Found {len(validated_spacy)} validated spaCy primary entities")
+                
             ensemble_entities = self._get_ensemble_entities(text)
-            if self.debug_mode:
-                self.logger.debug(f"Found {len(ensemble_entities)} ensemble entities")
             
-            # Combine all detections
-            all_entities.extend(presidio_entities)
-            all_entities.extend(spacy_entities)
-            all_entities.extend(ensemble_entities)
+            # Combine all validated entities
+            entities.extend(validated_presidio)
+            entities.extend(validated_spacy)
+            entities.extend(ensemble_entities)
             
             # Sort by position
-            all_entities.sort(key=lambda x: (x.start_char, x.end_char)) 
+            entities.sort(key=lambda x: (x.start_char, x.end_char))
             
             if self.debug_mode:
-                self.logger.debug(f"Total entities detected: {len(all_entities)}")
+                self.logger.debug(f"Total entities detected and validated: {len(entities)}")
                 
-            return all_entities
-            
+            return entities
+                
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Error in ensemble detection: {str(e)}")
             return []
-
+    
+        
     def _get_presidio_entities(self, text: str) -> List[Entity]:
         """Get entities from Presidio for its primary types."""
         entities = []
@@ -217,7 +261,7 @@ class EnsembleCoordinator(BaseDetector):
 # SECTION 4: ENSEMBLE PROCESSING
 ###############################################################################
 
-    def _get_ensemble_entities(self, text: str) -> List[Entity]:
+    def _get_ensemble_entities(self, text: str, target_types: Optional[List[str]] = None) -> List[Entity]:
         """Get entities that require ensemble detection."""
         combined_entities = []
         
@@ -227,7 +271,8 @@ class EnsembleCoordinator(BaseDetector):
             spacy_results = self.spacy_detector.detect_entities(text)
             
             # Process each ensemble entity type
-            for entity_type in self.ensemble_entities:
+            types_to_process = target_types if target_types else self.ensemble_entities
+            for entity_type in types_to_process:
                 if self.debug_mode:
                     self.logger.debug(f"Processing ensemble type: {entity_type}")
                     
@@ -267,9 +312,6 @@ class EnsembleCoordinator(BaseDetector):
             return []
 
 
-       
-
-    
     def _combine_matching_entities(
         self,
         presidio_entities: List[Entity],
@@ -336,50 +378,31 @@ class EnsembleCoordinator(BaseDetector):
 # SECTION 5: VALIDATION AND UTILITY METHODS
 ###############################################################################
 
-    def validate_detection(self, entity: Entity, text: str = "") -> bool:
+    def validate_detection(self, entity: Entity, text: str = "") -> Tuple[bool, Entity]:
         """
-        Validate entity using ensemble validation strategy.
-        Uses standalone confidence adjustment function to ensure proper bounds.
+        Validate entity using ValidationCoordinator.
+        Returns validation status and possibly updated entity.
         
         Args:
             entity: Entity to validate
             text: Original text context
             
         Returns:
-            bool indicating if entity is valid
+            Tuple of (validation success, possibly updated entity)
         """
         try:
-            # Validate the entity using the ValidationCoordinator
-            result = self.validator.validate_entity(
+            result, updated_entity = self.validator.validate_entity(
                 entity=entity,
                 text=text,
                 source="ensemble"
             )
             
-            # Apply confidence adjustment using standalone function
-            if result.confidence_adjustment:
-                entity = adjust_entity_confidence(
-                    entity, 
-                    result.confidence_adjustment, 
-                    logger=self.logger
-                )
-            
-            # Track validation reasons
-            self.last_validation_reasons = result.reasons
-            
-            # Store applied validation rules if present
-            if hasattr(result, 'metadata') and result.metadata.get('applied_rules'):
-                entity = replace(entity, 
-                    validation_rules=list(entity.validation_rules or []) + 
-                    result.metadata['applied_rules']
-                )
-            
-            return result.is_valid
-            
+            return result.is_valid, updated_entity
+                
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Validation error in Ensemble detection: {str(e)}")
-            return False
+            return False, entity
 
     def _normalize_text(self, text: str) -> str:
         """Normalize text for comparison."""

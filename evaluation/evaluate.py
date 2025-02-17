@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 import argparse
 import logging  
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import List, Dict, Set, Any, Optional
 import yaml
 from tabulate import tabulate
@@ -52,28 +52,30 @@ ANALYSIS_PATTERNS = {
 ###############################################################################
 
 class StageOneEvaluator:
-    """
-    First stage evaluator for entity detection and analysis.
-    
-    Handles:
-    - Entity detection evaluation
-    - Validation analysis
-    - Pattern recognition
-    - Performance metrics
-    """
+    """First stage evaluator for entity detection and analysis."""
     
     def __init__(self) -> None:
         """Initialize evaluation components and configurations."""
+        # Set debug mode based on logger
+        self.debug_mode = False
+        
         # Validate environment
         self.test_suite_dir = self._validate_test_suite()
         
         # Initialize logging
         self.logger = RedactionLogger(
             name="evaluation",
-            log_level="INFO",
+            log_level="DEBUG",
             log_dir="logs",
             console_output=True
         )
+        
+        # Set debug mode based on logger configuration
+        if self.logger:
+            if hasattr(self.logger, 'level'):
+                self.debug_mode = self.logger.level == 10
+            elif hasattr(self.logger, 'getEffectiveLevel'):
+                self.debug_mode = self.logger.getEffectiveLevel() == 10
         
         # Load configurations
         self.config_loader = ConfigLoader()
@@ -131,25 +133,60 @@ class StageOneEvaluator:
             
         Returns:
             Comprehensive analysis results
-        
-        Raises:
-            FileNotFoundError: If test documents not found
-            ValueError: If invalid configuration
         """
         try:
             # Load test content
             text = self._load_test_document(test_id)
             ground_truth = self._load_ground_truth(test_id)
             
-            # Perform detection
+            if self.logger.debug_mode:
+                self.logger.debug(f"Loaded test document: {test_id}")
+                self.logger.debug(f"Ground truth entities: {len(ground_truth)}")
+            
+
+            # First get detected entities
+            target_entity_type = target_entities[0] if target_entities else None
             detected_entities = self._process_detected_entities(
                 self.ensemble.detect_entities(text),
-                target_entities
+                target_entity_type
             )
             
-            # Analyze detections
+            if self.debug_mode:
+                self.logger.debug(f"Detected entities: {len(detected_entities)}")
+                for entity in detected_entities:
+                    self.logger.debug(
+                        f"Entity: {entity.text}, Type: {entity.entity_type}, "
+                        f"Confidence: {entity.confidence}, Source: {entity.detector_source}"
+                    )
+
+            
+            # Validate and adjust entities based on analysis
+            validated_entities = []
+            for entity in detected_entities:
+                analysis_result = self.detection_analyzer.analyze_detection(
+                    entity=entity,
+                    original_text=text,
+                    truth_set=ground_truth
+                )
+                
+                # Get confidence adjustment from validation_info
+                confidence_adjustment = analysis_result.validation_info.get('confidence_adjustment', 0.0)
+                
+                # Create new entity with adjusted confidence using replace()
+                if confidence_adjustment != 0:
+                    adjusted_confidence = max(0.0, min(1.0, 
+                        entity.confidence + confidence_adjustment))
+                    entity = replace(
+                        entity,
+                        confidence=adjusted_confidence,
+                        validation_rules=list(entity.validation_rules or []) + 
+                            [f"confidence_adj_{confidence_adjustment}"]
+                    )
+                validated_entities.append(entity)
+            
+            # Analyze the validated entities
             analysis_results = self._analyze_entities(
-                detected_entities,
+                validated_entities,
                 text,
                 ground_truth
             )
@@ -157,55 +194,75 @@ class StageOneEvaluator:
             # Generate complete results
             return {
                 "detection_analysis": {
-                    "entities": detected_entities,
+                    "entities": validated_entities,
                     "analysis_results": analysis_results,
-                    "statistics": self._analyze_detections(ground_truth, detected_entities),
-                    "detector_performance": self._analyze_detector_performance(detected_entities)
+                    "statistics": self._analyze_detections(ground_truth, validated_entities),
+                    "detector_performance": self._analyze_detector_performance(validated_entities)
                 },
                 "validation_analysis": self._analyze_validation_results(analysis_results),
                 "context_analysis": self._analyze_context_patterns(analysis_results),
                 "ground_truth": ground_truth,
                 "original_text": text
             }
-            
+        
         except Exception as e:
             self.logger.error(f"Error in analyze_detection: {str(e)}")
             raise
 
     def _process_detected_entities(self, 
-                                 entities: EntityList,
-                                 target_entities: Optional[List[str]] = None) -> EntityList:
+                                 entities: List[Entity],
+                                 target_entity_type: Optional[str] = None) -> List[Entity]:
         """
         Process and filter detected entities.
         
         Args:
             entities: List of detected entities
-            target_entities: Optional list of entity types to filter for
+            target_entity_type: Optional entity type to filter for
             
         Returns:
-            Processed entity list
+            List of processed entities
         """
         processed = []
+        if self.debug_mode:
+            self.logger.debug(f"Processing {len(entities)} detected entities")
+            
         for entity in entities:
-            # Convert to standard Entity format
-            processed_entity = Entity(
+            if self.debug_mode:
+                self.logger.debug(f"Processing entity: {entity.text}")
+                self.logger.debug(f"Original attributes: {vars(entity)}")
+                
+            confidence = getattr(entity, 'confidence', 0.0)
+            
+            # Skip if entity doesn't match target type
+            if target_entity_type and entity.entity_type != target_entity_type:
+                continue
+                
+            # Create base entity
+            base_entity = Entity(
                 text=entity.text,
                 entity_type=entity.entity_type,
                 start_char=getattr(entity, 'start_char', 0),
                 end_char=getattr(entity, 'end_char', 
                                getattr(entity, 'start_char', 0) + len(entity.text)),
-                confidence=getattr(entity, 'confidence', 0.0),
-                sensitivity=getattr(entity, 'sensitivity', SensitivityLevel.LOW),
+                confidence=confidence,
+                page=None,
+                sensitivity=None,
                 detector_source=getattr(entity, 'detector_source', 'unknown'),
-                validation_rules=getattr(entity, 'validation_rules', [])
+                validation_rules=[],
+                original_confidence=confidence
             )
             
-            # Apply target filtering
-            if not target_entities or processed_entity.entity_type in target_entities:
-                processed.append(processed_entity)
-                
+            # Update with any additional attributes via replace
+            updated_entity = replace(
+                base_entity,
+                validation_rules=getattr(entity, 'validation_rules', []),
+                original_confidence=getattr(entity, 'original_confidence', confidence)
+            )
+            
+            processed.append(updated_entity)
+                    
         return processed
-
+        
 ###############################################################################
 # SECTION 5: DOCUMENT LOADING AND PREPROCESSING
 ###############################################################################
@@ -356,6 +413,7 @@ class StageOneEvaluator:
             
         return validation_stats
         
+
     def _analyze_detections(self,
                        truth: List[Entity],
                        detected: List[Entity]) -> Dict:
@@ -369,6 +427,20 @@ class StageOneEvaluator:
         Returns:
             Dict containing detection statistics
         """
+        if self.logger.debug_mode:
+            self.logger.debug("Starting detection analysis")
+            self.logger.debug(f"Ground truth entities: {len(truth)}")
+            self.logger.debug(f"Detected entities: {len(detected)}")
+            for d in detected:
+                # Use the final adjusted confidence, not original
+                adjusted_confidence = getattr(d, "confidence", 0.0)
+                original_confidence = getattr(d, "original_confidence", adjusted_confidence)
+                self.logger.debug(
+                    f"Detected entity confidence: {adjusted_confidence} "
+                    f"original: {original_confidence} "
+                    f"type: {type(adjusted_confidence)}"
+                )
+
         analysis = {
             "by_type": {},
             "by_detector": {},
@@ -387,7 +459,32 @@ class StageOneEvaluator:
         for d in detected:
             if d.entity_type in truth_by_type:
                 truth_by_type[d.entity_type]["detected"] += 1
-        
+            
+            # Handle None values safely and use adjusted confidence
+            original_conf = d.original_confidence if d.original_confidence is not None else d.confidence
+            current_conf = d.confidence if d.confidence is not None else 0.0
+            
+            conf_delta = current_conf - original_conf
+            
+            # Update detector stats 
+            detector = d.detector_source or "unknown"
+            if detector not in analysis["by_detector"]:
+                analysis["by_detector"][detector] = {
+                    "total": 0,
+                    "confidence_sum": 0.0,
+                    "validation_improvements": 0,
+                    "validation_reductions": 0
+                }
+            
+            det_stats = analysis["by_detector"][detector]
+            det_stats["total"] += 1
+            det_stats["confidence_sum"] += current_conf  # Use adjusted confidence
+            
+            if conf_delta > 0:
+                det_stats["validation_improvements"] += 1
+            elif conf_delta < 0:
+                det_stats["validation_reductions"] += 1
+                
         # Calculate detection rates
         for entity_type, counts in truth_by_type.items():
             detection_rate = counts["detected"] / counts["total"] if counts["total"] > 0 else 0
@@ -806,158 +903,6 @@ class StageOneEvaluator:
         else:
             print(f"Unknown analysis pattern: {pattern}")
 
-###############################################################################
-# SECTION 9: COMMAND LINE INTERFACE
-###############################################################################
-
-def main():
-    """Main entry point for evaluation tool."""
-    try:
-        args = parse_arguments()
-        configure_logging(args.quiet)
-        
-        evaluator = StageOneEvaluator()
-        handle_command(evaluator, args)
-        
-    except Exception as e:
-        print(f"Error: {str(e)}", file=sys.stderr)
-        sys.exit(1)
-
-def parse_arguments() -> argparse.Namespace:
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Redaction system evaluation tool",
-        usage="python -m evaluation.evaluate [args]"
-    )
-    
-    parser.add_argument(
-        "command",
-        choices=["detect", "analyze", "batch", "compare"],
-        help="Evaluation command to run"
-    )
-    
-    parser.add_argument(
-        "--test",
-        nargs='+',
-        required=True,
-        help="Test ID(s) to evaluate"
-    )
-    
-    parser.add_argument(
-        "--entity",
-        nargs='+',
-        choices=VALID_ENTITIES,
-        help="Target specific entity types"
-    )
-    
-    parser.add_argument(
-        "--pattern",
-        choices=list(ANALYSIS_PATTERNS.keys()),
-        help="Specific analysis pattern to run"
-    )
-    
-    parser.add_argument(
-        "--deep",
-        action="store_true",
-        help="Run deep analysis including all patterns"
-    )
-    
-    parser.add_argument(
-        "--format",
-        choices=["text", "json", "csv"],
-        default="text",
-        help="Output format"
-    )
-    
-    parser.add_argument(
-        "--output",
-        help="Output file path"
-    )
-    
-    parser.add_argument(
-        "--compare-with",
-        help="Previous test run ID to compare against"
-    )
-    
-    parser.add_argument(
-        "--quiet",
-        action="store_true",
-        help="Reduce output verbosity"
-    )
-    
-    return parser.parse_args()
-
-def handle_command(evaluator: StageOneEvaluator, args: argparse.Namespace) -> None:
-    """
-    Handle evaluation command execution.
-    
-    Args:
-        evaluator: Initialized evaluator instance
-        args: Parsed command line arguments
-    """
-    if args.command == "analyze":
-        results = evaluator.analyze_detection(args.test[0], args.entity)
-        
-        if args.pattern:
-            evaluator.display_focused_analysis(
-                results,
-                args.pattern,
-                args.entity[0] if args.entity else None
-            )
-        elif args.deep:
-            for pattern in ANALYSIS_PATTERNS:
-                print(f"\n{ANALYSIS_PATTERNS[pattern]}:")
-                print("=" * len(ANALYSIS_PATTERNS[pattern]))
-                evaluator.display_focused_analysis(
-                    results,
-                    pattern,
-                    args.entity[0] if args.entity else None
-                )
-        else:
-            evaluator.display_analysis(results, args.entity)
-            
-        if args.output:
-            save_results(results, args.output, args.format)
-            
-    elif args.command == "detect":
-        results = evaluator.analyze_detection(args.test[0], args.entity)
-        evaluator.display_analysis(results, args.entity)
-
-def configure_logging(quiet: bool) -> None:
-    """Configure logging based on verbosity level."""
-    log_level = logging.WARNING if quiet else logging.INFO
-    logging.basicConfig(level=log_level)
-    
-    # Reduce noise from other loggers
-    logging.getLogger('config_loader').setLevel(logging.WARNING)
-    logging.getLogger('presidio-analyzer').setLevel(logging.WARNING)
-    logging.getLogger('evaluation').setLevel(log_level)
-
-def save_results(results: Dict, 
-                output_path: str, 
-                format: str = "json") -> None:
-    """
-    Save analysis results to file.
-    
-    Args:
-        results: Analysis results to save
-        output_path: Output file path
-        format: Output format
-    """
-    try:
-        if format == "json":
-            with open(output_path, 'w') as f:
-                json.dump(results, f, indent=2)
-        elif format == "csv":
-            # TODO: Implement CSV output
-            pass
-            
-    except Exception as e:
-        print(f"Error saving results: {str(e)}", file=sys.stderr)
-
-if __name__ == "__main__":
-    main()
-
     def _display_overview(self, entities: EntityList) -> None:
         """Display overview of detected entities."""
         # Entity type breakdown
@@ -1183,3 +1128,156 @@ if __name__ == "__main__":
                     print(f"  - {indicator}")
         else:
             print("\nNo clear false positives detected")
+
+###############################################################################
+# SECTION 9: COMMAND LINE INTERFACE
+###############################################################################
+
+def main():
+    """Main entry point for evaluation tool."""
+    try:
+        args = parse_arguments()
+        configure_logging(args.quiet)
+        
+        evaluator = StageOneEvaluator()
+        handle_command(evaluator, args)
+        
+    except Exception as e:
+        print(f"Error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
+def parse_arguments() -> argparse.Namespace:
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Redaction system evaluation tool",
+        usage="python -m evaluation.evaluate [args]"
+    )
+    
+    parser.add_argument(
+        "command",
+        choices=["detect", "analyze", "batch", "compare"],
+        help="Evaluation command to run"
+    )
+    
+    parser.add_argument(
+        "--test",
+        nargs='+',
+        required=True,
+        help="Test ID(s) to evaluate"
+    )
+    
+    parser.add_argument(
+        "--entity",
+        nargs='+',
+        choices=VALID_ENTITIES,
+        help="Target specific entity types"
+    )
+    
+    parser.add_argument(
+        "--pattern",
+        choices=list(ANALYSIS_PATTERNS.keys()),
+        help="Specific analysis pattern to run"
+    )
+    
+    parser.add_argument(
+        "--deep",
+        action="store_true",
+        help="Run deep analysis including all patterns"
+    )
+    
+    parser.add_argument(
+        "--format",
+        choices=["text", "json", "csv"],
+        default="text",
+        help="Output format"
+    )
+    
+    parser.add_argument(
+        "--output",
+        help="Output file path"
+    )
+    
+    parser.add_argument(
+        "--compare-with",
+        help="Previous test run ID to compare against"
+    )
+    
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Reduce output verbosity"
+    )
+    
+    return parser.parse_args()
+
+def handle_command(evaluator: StageOneEvaluator, args: argparse.Namespace) -> None:
+    """
+    Handle evaluation command execution.
+    
+    Args:
+        evaluator: Initialized evaluator instance
+        args: Parsed command line arguments
+    """
+    if args.command == "analyze":
+        results = evaluator.analyze_detection(args.test[0], args.entity)
+        
+        if args.pattern:
+            evaluator.display_focused_analysis(
+                results,
+                args.pattern,
+                args.entity[0] if args.entity else None
+            )
+        elif args.deep:
+            for pattern in ANALYSIS_PATTERNS:
+                print(f"\n{ANALYSIS_PATTERNS[pattern]}:")
+                print("=" * len(ANALYSIS_PATTERNS[pattern]))
+                evaluator.display_focused_analysis(
+                    results,
+                    pattern,
+                    args.entity[0] if args.entity else None
+                )
+        else:
+            evaluator.display_analysis(results, args.entity)
+            
+        if args.output:
+            save_results(results, args.output, args.format)
+            
+    elif args.command == "detect":
+        results = evaluator.analyze_detection(args.test[0], args.entity)
+        evaluator.display_analysis(results, args.entity)
+
+def configure_logging(quiet: bool) -> None:
+    """Configure logging based on verbosity level."""
+    log_level = logging.WARNING if quiet else logging.INFO
+    logging.basicConfig(level=log_level)
+    
+    # Reduce noise from other loggers
+    logging.getLogger('config_loader').setLevel(logging.WARNING)
+    logging.getLogger('presidio-analyzer').setLevel(logging.WARNING)
+    logging.getLogger('evaluation').setLevel(log_level)
+
+def save_results(results: Dict, 
+                output_path: str, 
+                format: str = "json") -> None:
+    """
+    Save analysis results to file.
+    
+    Args:
+        results: Analysis results to save
+        output_path: Output file path
+        format: Output format
+    """
+    try:
+        if format == "json":
+            with open(output_path, 'w') as f:
+                json.dump(results, f, indent=2)
+        elif format == "csv":
+            # TODO: Implement CSV output
+            pass
+            
+    except Exception as e:
+        print(f"Error saving results: {str(e)}", file=sys.stderr)
+
+if __name__ == "__main__":
+    main()
+

@@ -1,122 +1,197 @@
-file_name: noah_spencer_corrected
+file_name: noah_spencer
 entities:
 - text: NOAH SPENCER
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
+    x0: 206.5500030517578
+    y0: 29.761457443237305
+    x1: 405.40716552734375
+    y1: 53.017459869384766
     start_char: 0
     end_char: 12
   sensitivity: high
+  instance: 1
 - text: (830) 555-3727
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
+    x0: 50.183998107910156
+    y0: 190.92462158203125
+    x1: 112.14655303955078
+    y1: 199.4926300048828
     start_char: 53
     end_char: 67
   sensitivity: high
+  instance: 1
 - text: nspencer@example.com
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 50.183998107910156
+    y0: 215.4046173095703
+    x1: 155.358642578125
+    y1: 223.97262573242188
     start_char: 68
     end_char: 88
   sensitivity: high
+  instance: 1
 - text: 2019 - Present
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 522.6480102539062
+    y0: 165.83262634277344
+    x1: 582.4306030273438
+    y1: 174.400634765625
     start_char: 294
     end_char: 308
   sensitivity: medium
+  instance: 1
 - text: 2016 - 2019
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 536.7239990234375
+    y0: 346.984619140625
+    x1: 582.3338623046875
+    y1: 355.5526123046875
     start_char: 380
     end_char: 391
   sensitivity: medium
+  instance: 1
 - text: 2012 - 2015
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 537.947998046875
+    y0: 540.9886474609375
+    x1: 582.5774536132812
+    y1: 549.556640625
     start_char: 427
     end_char: 438
   sensitivity: medium
+  instance: 1
 - text: 2015 - 2016
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 537.3359985351562
+    y0: 687.86865234375
+    x1: 582.3338623046875
+    y1: 696.4366455078125
     start_char: 499
     end_char: 510
   sensitivity: medium
+  instance: 1
 - text: 2009 - 2012
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 534.8880004882812
+    y0: 727.03662109375
+    x1: 582.5946044921875
+    y1: 735.6046142578125
     start_char: 603
     end_char: 614
   sensitivity: medium
+  instance: 1
 - text: Riverside, CA
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 50.183998107910156
+    y0: 166.4446258544922
+    x1: 105.89925384521484
+    y1: 175.01263427734375
     start_char: 39
     end_char: 52
   sensitivity: medium
+  instance: 1
 - text: Beltsville, MD
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 235.4383087158203
+    y0: 359.83660888671875
+    x1: 293.9234924316406
+    y1: 368.40460205078125
     start_char: 397
     end_char: 411
   sensitivity: medium
+  instance: 1
 - text: Greensboro, NC
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 240.94630432128906
+    y0: 553.8406372070312
+    x1: 308.30670166015625
+    y1: 562.4086303710938
     start_char: 447
     end_char: 461
   sensitivity: medium
+  instance: 1
 - text: Rutgers, The State University of New Jersey
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
+    x0: 197.4943084716797
+    y0: 700.7206420898438
+    x1: 383.90216064453125
+    y1: 709.2886352539062
     start_char: 511
     end_char: 554
   sensitivity: high
+  instance: 1
 - text: New Brunswick, NJ
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 396.3943176269531
+    y0: 700.7206420898438
+    x1: 478.410888671875
+    y1: 709.2886352539062
     start_char: 555
     end_char: 572
   sensitivity: medium
+  instance: 1
 - text: University of North Carolina at Greensboro
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
+    x0: 197.4943084716797
+    y0: 739.888671875
+    x1: 380.95843505859375
+    y1: 748.4566650390625
     start_char: 615
     end_char: 657
   sensitivity: high
+  instance: 1
 - text: Greensboro, NC
   type: LOCATION
   should_redact: true
   location:
     page: 1
-    start_char: 447
-    end_char: 461
+    x0: 393.3343200683594
+    y0: 739.888671875
+    x1: 460.6947021484375
+    y1: 748.4566650390625
+    start_char: 658
+    end_char: 672
   sensitivity: medium
+  instance: 2

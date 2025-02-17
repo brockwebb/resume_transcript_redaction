@@ -1,122 +1,197 @@
-file_name: jennifer_price_corrected
+file_name: jennifer_price
 entities:
 - text: JENNIFER PRICE
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
+    x0: 202.69630432128906
+    y0: 32.286109924316406
+    x1: 408.3173522949219
+    y1: 55.542110443115234
     start_char: 0
     end_char: 14
   sensitivity: high
+  instance: 1
 - text: (690) 555-0897
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
+    x0: 57.52799987792969
+    y0: 163.12738037109375
+    x1: 119.45138549804688
+    y1: 172.02096557617188
     start_char: 44
     end_char: 58
   sensitivity: high
+  instance: 1
 - text: jprice@example.com
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 57.52799987792969
+    y0: 190.0553741455078
+    x1: 140.42095947265625
+    y1: 198.94895935058594
     start_char: 59
     end_char: 77
   sensitivity: high
-- text: 2011 - Present
-  type: DATE
+  instance: 1
+- text: '2011'
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 512.8560180664062
+    y0: 293.4833679199219
+    x1: 530.59912109375
+    y1: 302.376953125
     start_char: 102
-    end_char: 116
+    end_char: 106
   sensitivity: medium
+  instance: 1
 - text: 2001 - 2011
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 523.8720092773438
+    y0: 451.9913635253906
+    x1: 569.1550903320312
+    y1: 460.88494873046875
     start_char: 690
     end_char: 701
   sensitivity: medium
+  instance: 1
 - text: 1999 - 2000
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 521.4240112304688
+    y0: 600.7073974609375
+    x1: 569.0926513671875
+    y1: 609.6009521484375
     start_char: 1229
     end_char: 1240
   sensitivity: medium
+  instance: 1
 - text: 2000 - 2001
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 163
-    end_char: 174
+    x0: 520.2000122070312
+    y0: 209.6394500732422
+    x1: 569.1550903320312
+    y1: 218.5330352783203
+    start_char: 1618
+    end_char: 1629
   sensitivity: medium
+  instance: 1
 - text: 1996 - 1999
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 269
-    end_char: 280
+    x0: 524.4840087890625
+    y0: 244.52342224121094
+    x1: 569.3447875976562
+    y1: 253.41700744628906
+    start_char: 1724
+    end_char: 1735
   sensitivity: medium
+  instance: 1
 - text: Rocky Mount, NC
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 57.52799987792969
+    y0: 136.19937133789062
+    x1: 123.8222885131836
+    y1: 145.09295654296875
     start_char: 28
     end_char: 43
   sensitivity: medium
+  instance: 1
 - text: Rocky Mount, NC
   type: LOCATION
   should_redact: true
   location:
     page: 1
-    start_char: 28
-    end_char: 43
+    x0: 69.76799774169922
+    y0: 307.5593566894531
+    x1: 136.06228637695312
+    y1: 316.45294189453125
+    start_char: 127
+    end_char: 142
   sensitivity: medium
+  instance: 2
 - text: Philadelphia, PA
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 85.06800079345703
+    y0: 614.7833862304688
+    x1: 147.72454833984375
+    y1: 623.6769409179688
     start_char: 1254
     end_char: 1270
   sensitivity: medium
+  instance: 1
 - text: Rutgers, The State University of New Jersey
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 2
-    start_char: 175
-    end_char: 218
+    x0: 30.599998474121094
+    y0: 223.71543884277344
+    x1: 203.62095642089844
+    y1: 232.60902404785156
+    start_char: 1630
+    end_char: 1673
   sensitivity: high
+  instance: 1
 - text: New Brunswick, NJ
   type: LOCATION
   should_redact: true
   location:
     page: 2
-    start_char: 221
-    end_char: 238
+    x0: 212.9759979248047
+    y0: 223.71543884277344
+    x1: 288.17608642578125
+    y1: 232.60902404785156
+    start_char: 1676
+    end_char: 1693
   sensitivity: medium
+  instance: 1
 - text: New York University
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 2
-    start_char: 281
-    end_char: 300
+    x0: 30.599998474121094
+    y0: 258.5994567871094
+    x1: 108.76097106933594
+    y1: 267.4930419921875
+    start_char: 1736
+    end_char: 1755
   sensitivity: high
+  instance: 1
 - text: New York, NY
   type: LOCATION
   should_redact: true
   location:
     page: 2
-    start_char: 303
-    end_char: 315
+    x0: 118.11599731445312
+    y0: 258.5994567871094
+    x1: 170.17149353027344
+    y1: 267.4930419921875
+    start_char: 1758
+    end_char: 1770
   sensitivity: medium
+  instance: 1

@@ -1,0 +1,78 @@
+graph TD
+node0["test_import.py"]
+node1["app/redactor_gui.py"]
+node2["app/evaluation_gui.py"]
+node3["app/utils/config_loader.py"]
+node4["app/utils/logger.py"]
+node5["app/utils/singleton.py"]
+node6["redactor/redactor_logic.py"]
+node7["redactor/redactor_file_processing.py"]
+node8["redactor/detectors/ensemble_coordinator.py"]
+node9["redactor/detectors/base_detector.py"]
+node10["redactor/detectors/spacy_detector.py"]
+node11["redactor/detectors/presidio_detector.py"]
+node12["redactor/validation/validation_coordinator.py"]
+node13["redactor/validation/entity_validation.py"]
+node14["redactor/validation/__init__.py"]
+node15["evaluation/test_validation.py"]
+node16["evaluation/models.py"]
+node17["evaluation/__init__.py"]
+node18["evaluation/wrappers.py"]
+node19["evaluation/test_runner.py"]
+node20["evaluation/evaluate.py"]
+node21["evaluation/metrics/entity_metrics.py"]
+node22["evaluation/analysis/detection_analyzer.py"]
+node23["evaluation/comparison/entity_matcher.py"]
+node24["app/config/config.yaml"]
+node25["redactor/config/entity_routing.yaml"]
+node26["redactor/config/validation_params.json"]
+node27["redactor/config/word_filters.yaml"]
+node0 --> node6
+node1 --> node4
+node1 --> node6
+node1 --> node3
+node1 --> node25
+node2 --> node4
+node2 --> node19
+node2 --> node20
+node2 --> node3
+node3 --> node4
+node6 --> node4
+node6 --> node16
+node6 --> node3
+node8 --> node13
+node8 --> node16
+node8 --> node12
+node8 --> node14
+node9 --> node16
+node10 --> node13
+node10 --> node16
+node10 --> node12
+node10 --> node14
+node11 --> node13
+node11 --> node16
+node11 --> node12
+node11 --> node14
+node12 --> node3
+node13 --> node16
+node15 --> node4
+node15 --> node13
+node15 --> node9
+node15 --> node3
+node15 --> node14
+node15 --> node12
+node18 --> node16
+node19 --> node6
+node19 --> node16
+node19 --> node21
+node20 --> node4
+node20 --> node8
+node20 --> node22
+node20 --> node16
+node20 --> node3
+node20 --> node21
+node21 --> node16
+node21 --> node3
+node21 --> node23
+node22 --> node16
+node23 --> node16

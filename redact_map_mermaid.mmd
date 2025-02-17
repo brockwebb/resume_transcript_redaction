@@ -1,0 +1,89 @@
+graph TD
+node0["test_import.py"]
+node1["app/evaluation_gui1.py"]
+node2["app/redactor_gui.py"]
+node3["app/evaluation_gui.py"]
+node4["app/evaluation_gui2.py"]
+node5["app/utils/config_loader.py"]
+node6["app/utils/logger.py"]
+node7["app/utils/singleton.py"]
+node8["redactor/redactor_logic.py"]
+node9["redactor/redactor_file_processing.py"]
+node10["redactor/detectors/ensemble_coordinator.py"]
+node11["redactor/detectors/base_detector.py"]
+node12["redactor/detectors/spacy_detector.py"]
+node13["redactor/detectors/presidio_detector.py"]
+node14["redactor/validation/validation_coordinator.py"]
+node15["redactor/validation/entity_validation.py"]
+node16["redactor/validation/__init__.py"]
+node17["evaluation/test_validation.py"]
+node18["evaluation/models.py"]
+node19["evaluation/__init__.py"]
+node20["evaluation/wrappers.py"]
+node21["evaluation/test_runner.py"]
+node22["evaluation/evaluate.py"]
+node23["evaluation/focused_test_runner.py"]
+node24["evaluation/metrics/entity_metrics.py"]
+node25["evaluation/analysis/detection_analyzer.py"]
+node26["evaluation/comparison/entity_matcher.py"]
+node27["app/config/config.yaml"]
+node28["redactor/config/entity_routing.yaml"]
+node29["redactor/config/validation_config.json"]
+node30["redactor/config/validation_params.json"]
+node31["redactor/config/word_filters.yaml"]
+node0 --> node8
+node1 --> node5
+node1 --> node6
+node1 --> node22
+node2 --> node5
+node2 --> node6
+node2 --> node8
+node2 --> node28
+node3 --> node21
+node3 --> node5
+node3 --> node6
+node3 --> node22
+node4 --> node5
+node4 --> node6
+node4 --> node22
+node5 --> node6
+node8 --> node6
+node8 --> node5
+node8 --> node18
+node10 --> node16
+node10 --> node18
+node10 --> node15
+node10 --> node14
+node11 --> node18
+node12 --> node16
+node12 --> node18
+node12 --> node15
+node12 --> node14
+node13 --> node16
+node13 --> node18
+node13 --> node15
+node13 --> node14
+node14 --> node5
+node15 --> node18
+node17 --> node15
+node17 --> node5
+node17 --> node6
+node17 --> node14
+node17 --> node16
+node17 --> node11
+node20 --> node18
+node21 --> node24
+node21 --> node18
+node21 --> node8
+node22 --> node18
+node22 --> node5
+node22 --> node6
+node22 --> node10
+node22 --> node25
+node22 --> node24
+node23 --> node5
+node24 --> node5
+node24 --> node18
+node24 --> node26
+node25 --> node18
+node26 --> node18

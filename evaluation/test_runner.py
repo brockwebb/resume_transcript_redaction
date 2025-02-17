@@ -75,9 +75,12 @@ class TestRunner:
         all_metrics = []
         
         for test_case in test_cases:
-            # Load ground truth and run detection
+            # Load ground truth and run detection with entity filtering
             ground_truth = self._load_annotations(test_case.annotation_path)
-            detected = redactor.detect_entities(test_case.original_path)
+            detected = redactor.detect_entities(
+                test_case.original_path, 
+                target_entity_type=entity_type
+            )
             
             # Get specific entity metrics
             detailed_metrics = metrics.analyze_entity_type_metrics(
@@ -106,7 +109,6 @@ class TestRunner:
         
         self._save_run_summary(run_dir, run_results)
         return run_results
-
 
     def load_test_cases(self) -> List[TestCase]:
         """

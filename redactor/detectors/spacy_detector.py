@@ -136,7 +136,7 @@ class SpacyDetector(BaseDetector):
 # SECTION 3: ENTITY DETECTION
 ###############################################################################
 
-    def detect_entities(self, text: str) -> List[Entity]:
+    def detect_entities(self, text: str, target_entity_type: Optional[str] = None) -> List[Entity]:
         """Detect entities in the provided text using SpaCy NLP."""
         if not text:
             return []
@@ -154,22 +154,27 @@ class SpacyDetector(BaseDetector):
                         ent.label_
                     )
                     
-                    confidence = max(0.0, min(1.0, self.confidence_thresholds.get(
+                    # Skip if we have a target type and this doesn't match
+                    if target_entity_type and mapped_type != target_entity_type:
+                        continue
+                    
+                    # Just use the threshold directly - don't clamp
+                    base_confidence = self.confidence_thresholds.get(
                         mapped_type, 
                         self.confidence_threshold
-                    )))
+                    )
     
                     entity = Entity(
                         text=ent.text,
                         entity_type=mapped_type,
                         start_char=ent.start_char,
                         end_char=ent.end_char,
-                        confidence=confidence,
+                        confidence=base_confidence,  # Let validation adjust this freely
                         detector_source="spacy",
                         page=None,
                         sensitivity=None,
                         validation_rules=[],
-                        original_confidence=confidence
+                        original_confidence=base_confidence
                     )
     
                     entities.append(entity)
@@ -192,11 +197,10 @@ class SpacyDetector(BaseDetector):
 ###############################################################################
 
 
-
     def validate_detection(self, entity: Entity, text: str = "") -> bool:
         """
-        Validate entity using ValidationCoordinator for SpaCy detection.
-        Uses standardized confidence adjustment.
+        Validate entity using ValidationCoordinator.
+        Lets confidence adjustments happen freely during validation.
         
         Args:
             entity: Entity to validate
@@ -212,7 +216,7 @@ class SpacyDetector(BaseDetector):
                 source="spacy"
             )
             
-            # Apply confidence adjustment using standalone function
+            # Apply confidence adjustment without clamping
             if result.confidence_adjustment:
                 entity = adjust_entity_confidence(
                     entity, 
@@ -220,18 +224,16 @@ class SpacyDetector(BaseDetector):
                     logger=self.logger
                 )
             
-            # Track validation reasons
+            # Track validation info
             self.last_validation_reasons = result.reasons
-            
-            # Store applied validation rules
             if hasattr(result, 'metadata') and result.metadata.get('applied_rules'):
                 entity = replace(entity, 
                     validation_rules=list(entity.validation_rules or []) + 
                     result.metadata['applied_rules']
                 )
             
-            return result.is_valid
-        
+            return True  # Let validation happen, filter confidences later
+            
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Validation error in SpaCy detection: {str(e)}")

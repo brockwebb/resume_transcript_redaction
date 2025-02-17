@@ -21,17 +21,63 @@
         ],
         "confidence_boosts": {
             "has_title": 0.2,
-            "proper_case": 0.1,
-            "multiple_words": 0.1
+            "proper_case": 0.2,
+            "multiple_words": 0.2,
+            "name_first": 0.3,
+            "full_name": 0.2
         },
         "confidence_penalties": {
             "single_word": -0.3,
-            "lowercase": -0.2
+            "lowercase": -0.2,
+            "technical_context": -0.5,
+            "address_context": -0.3
         },
         "validation_rules": {
             "min_chars": 2,
             "min_words": 1,
-            "allow_all_caps": true
+            "allow_all_caps": true,
+            "require_initial_cap": true
+        },
+        "technical_context": {
+            "software_terms": [
+                "library", "package", "module", "import", "framework", 
+                "tool", "version", "release", "documentation", "api",
+                "dependency", "plugin", "runtime", "sdk", "interface"
+            ],
+            "development_terms": [
+                "python", "javascript", "java", "ruby", "php", "npm",
+                "pip", "pypi", "maven", "gradle", "compiler", "interpreter"
+            ],
+            "visualization_terms": [
+                "chart", "plot", "graph", "visualization", "renderer",
+                "canvas", "drawing", "graphics", "display", "dashboard"
+            ]
+        },
+        "address_context": {
+            "min_indicators": 2,
+            "location_patterns": [
+                "\\b(?:Suite|Apt|Unit)\\s+\\d+\\b",
+                "\\b\\d{5}(?:-\\d{4})?\\b"    
+            ],
+            "address_indicators": [
+                "street address",
+                "mailing address",
+                "located at",
+                "directions to",
+                "intersection of",
+                "corner of"
+            ],
+            "common_abbreviations": [
+                "St\\.", "Ave\\.", "Rd\\.", "Ln\\.", "Dr\\.", 
+                "Blvd\\.", "Ct\\.", "Cir\\.", "Pl\\."
+            ],
+            "numerical_context": [
+                "\\b\\d+\\s+(?:[A-Z][a-z]+\\s+)+(?:St|Street|Ave|Avenue|Road|Rd|Lane|Ln|Drive|Dr|Boulevard|Blvd|Court|Ct|Circle|Cir|Way|Place|Pl)\\b"
+            ],
+            "exclude_from_penalty": [
+                "Lane", "Park", "Banks", "Hill", "Woods", "Rivers",
+                "Brooks", "Fields", "Stone", "Lake", "Bridge"
+            ]
         }
     },
     "ADDRESS": {

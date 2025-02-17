@@ -1,74 +1,184 @@
-file_name: taylor_simms_corrected
+file_name: taylor_simms
 entities:
 - text: Taylor Simms
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 92.654296875
+    x1: 191.96592712402344
+    y1: 114.998046875
     start_char: 0
     end_char: 12
   sensitivity: high
+  instance: 1
 - text: 555-123-4567
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
+    x0: 88.77664184570312
+    y0: 157.321044921875
+    x1: 157.23526000976562
+    y1: 169.610107421875
     start_char: 72
     end_char: 84
   sensitivity: high
+  instance: 1
 - text: taylorsimms@example.com
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 88.77664184570312
+    y0: 186.41357421875
+    x1: 223.9365997314453
+    y1: 198.70263671875
     start_char: 119
     end_char: 142
   sensitivity: high
+  instance: 1
 - text: linkedin.com/in/taylorsimms
-  type: LINKEDIN
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
+    x0: 88.77664184570312
+    y0: 171.8673095703125
+    x1: 223.16647338867188
+    y1: 184.1563720703125
     start_char: 88
     end_char: 115
   sensitivity: medium
-- text: "2014-09 \u2013 2021-05"
-  type: DATE
+  instance: 1
+- text: 2014-09
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 380.455322265625
+    x1: 112.34481811523438
+    y1: 392.744384765625
     start_char: 472
+    end_char: 479
+  sensitivity: medium
+  instance: 1
+- text: 2021-05
+  type: DATE_TIME
+  should_redact: true
+  location:
+    page: 1
+    x0: 124.561767578125
+    y0: 380.455322265625
+    x1: 164.90658569335938
+    y1: 392.744384765625
+    start_char: 482
     end_char: 489
   sensitivity: medium
-- text: "2013-01 \u2013 2014-08"
-  type: DATE
+  instance: 1
+- text: 2013-01
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 535.3388671875
+    x1: 112.34481811523438
+    y1: 547.6279296875
     start_char: 892
+    end_char: 899
+  sensitivity: medium
+  instance: 1
+- text: 2014-08
+  type: DATE_TIME
+  should_redact: true
+  location:
+    page: 1
+    x0: 124.561767578125
+    y0: 535.3388671875
+    x1: 164.90658569335938
+    y1: 547.6279296875
+    start_char: 902
     end_char: 909
   sensitivity: medium
-- text: "2011-06 \u2013 2013-01"
-  type: DATE
+  instance: 1
+- text: 2011-06
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 675.6761474609375
+    x1: 111.52840423583984
+    y1: 687.9652099609375
     start_char: 1231
+    end_char: 1238
+  sensitivity: medium
+  instance: 1
+- text: 2013-01
+  type: DATE_TIME
+  should_redact: true
+  location:
+    page: 1
+    x0: 123.74535369873047
+    y0: 675.6761474609375
+    x1: 164.0901641845703
+    y1: 687.9652099609375
+    start_char: 1241
     end_char: 1248
   sensitivity: medium
-- text: "2008 \u2013 2012"
-  type: DATE
+  instance: 2
+- text: '2008'
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 371
-    end_char: 382
+    x0: 72.0
+    y0: 280.9478759765625
+    x1: 96.45767211914062
+    y1: 293.2369384765625
+    start_char: 1623
+    end_char: 1627
   sensitivity: medium
-- text: Westfield University
-  type: EDUCATION
+  instance: 1
+- text: '2012'
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 349
-    end_char: 369
+    x0: 108.67462158203125
+    y0: 280.9478759765625
+    x1: 133.13229370117188
+    y1: 293.2369384765625
+    start_char: 1630
+    end_char: 1634
+  sensitivity: medium
+  instance: 1
+- text: '2030'
+  type: DATE_TIME
+  should_redact: true
+  location:
+    page: 2
+    x0: 323.4959716796875
+    y0: 553.720947265625
+    x1: 347.95361328125
+    y1: 566.010009765625
+    start_char: 2172
+    end_char: 2176
+  sensitivity: medium
+  instance: 1
+- text: Westfield University
+  type: EDUCATIONAL_INSTITUTION
+  should_redact: true
+  location:
+    page: 2
+    x0: 72.0
+    y0: 266.401611328125
+    x1: 176.87010192871094
+    y1: 278.690673828125
+    start_char: 1601
+    end_char: 1621
   sensitivity: high
+  instance: 1

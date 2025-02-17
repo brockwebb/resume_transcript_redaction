@@ -177,7 +177,7 @@ class ValidationCoordinator:
 # SECTION 5: VALIDATION LOGIC
 ###############################################################################
 
-    def validate_entity(self, entity: Entity, text: str, source: str = None) -> ValidationResult:
+    def validate_entity(self, entity: Entity, text: str, source: str = None) -> Tuple[ValidationResult, Entity]:
         """
         Validate entity using configuration-driven rules.
         
@@ -187,31 +187,28 @@ class ValidationCoordinator:
             source: Optional detector source
         
         Returns:
-            ValidationResult with validation outcome
+            Tuple of (ValidationResult, updated Entity) with validation outcome and potentially modified entity
         """
         if not entity or not entity.text:
-            return ValidationResult(is_valid=False, reasons=["Empty entity"])
-
+            return ValidationResult(is_valid=False, reasons=["Empty entity"]), entity
+    
         if self.debug_mode:
             self.logger.debug(f"\n=== Starting Validation ===")
             self.logger.debug(f"Entity: {entity.text} ({entity.entity_type})")
-            self.logger.debug(f"Initial confidence: {entity.confidence}")
-
+            self.logger.debug(f"Original confidence: {entity.original_confidence}")
+            self.logger.debug(f"Current confidence: {entity.confidence}")
+    
         # Get validation method
         validator = self.get_validation_method(entity.entity_type)
         
         if not validator:
             if self.debug_mode:
                 self.logger.debug(f"No validator found for {entity.entity_type}")
-            return ValidationResult(is_valid=True)
-
+            return ValidationResult(is_valid=True), entity
+    
         # Get validation rules for this entity type
         validation_rules = self.validation_params.get(entity.entity_type, {})
-
-        if self.debug_mode:
-            self.logger.debug(f"Using validator for {entity.entity_type}")
-            self.logger.debug(f"Validation rules: {validation_rules}")
-
+    
         # Perform validation
         validation_result = validator(entity, text, validation_rules, self.logger)
         
@@ -219,22 +216,42 @@ class ValidationCoordinator:
         result = ValidationResult(
             is_valid=validation_result['is_valid'],
             confidence_adjustment=validation_result.get('confidence_adjustment', 0.0),
-            reasons=validation_result.get('reasons', [])
+            reasons=validation_result.get('reasons', []),
+            metadata={
+                'applied_rules': validation_result.get('validation_rules', []),
+                'original_confidence': entity.confidence,
+                'confidence_trace': {
+                    'original': entity.original_confidence or entity.confidence,
+                    'before_validation': entity.confidence,
+                    'adjustment': validation_result.get('confidence_adjustment', 0.0)
+                }
+            }
         )
-
-        
+    
+        # Create updated entity with adjusted confidence if needed
+        updated_entity = entity
+        if result.is_valid and result.confidence_adjustment != 0:
+            # Store original confidence if not already set
+            if entity.original_confidence is None:
+                updated_entity = replace(entity, original_confidence=entity.confidence)
+            
+            # Apply confidence adjustment
+            new_confidence = updated_entity.confidence + result.confidence_adjustment
+            updated_entity = replace(
+                updated_entity,
+                confidence=new_confidence,
+                validation_rules=list(updated_entity.validation_rules or []) + 
+                    [f"confidence_adj_{result.confidence_adjustment:+.2f}"]
+            )
+    
         if self.debug_mode:
             self.logger.debug(f"\n=== Validation Complete ===")
             self.logger.debug(f"Valid: {result.is_valid}")
             self.logger.debug(f"Adjustment: {result.confidence_adjustment}")
+            self.logger.debug(f"Confidence trace: {result.metadata.get('confidence_trace')}")
             self.logger.debug(f"Reasons: {result.reasons}")
-
-        # Create new entity with adjusted confidence if needed
-        if result.is_valid and result.confidence_adjustment != 0:
-            entity = replace(entity, confidence=max(0.0, min(1.0, entity.confidence + result.confidence_adjustment)))
-            result.metadata = {"updated_entity": entity}
-
-        return result
+    
+        return result, updated_entity
 
 ###############################################################################
 # END OF FILE

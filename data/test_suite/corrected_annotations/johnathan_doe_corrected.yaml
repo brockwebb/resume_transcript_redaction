@@ -1,154 +1,249 @@
 file_name: johnathan_doe_corrected
 entities:
 - text: Johnathan A. Doe
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 92.654296875
+    x1: 232.05899047851562
+    y1: 114.998046875
     start_char: 0
     end_char: 16
   sensitivity: high
+  instance: 1
 - text: 1234 Elm Street, Apt. 56
-  type: STREET_ADDRESS
+  type: ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 122.6993179321289
+    y0: 124.8076171875
+    x1: 242.46376037597656
+    y1: 137.0966796875
     start_char: 26
     end_char: 50
   sensitivity: high
+  instance: 1
 - text: Springfield, IL 62704
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 248.5673828125
+    y0: 124.8076171875
+    x1: 349.4068298339844
+    y1: 137.0966796875
     start_char: 52
     end_char: 73
   sensitivity: medium
+  instance: 1
 - text: (555) 123-4567
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
+    x0: 112.30290222167969
+    y0: 139.3538818359375
+    x1: 187.47598266601562
+    y1: 151.6429443359375
     start_char: 81
     end_char: 95
   sensitivity: high
+  instance: 1
 - text: johnathan.doe@example.com
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 108.04127502441406
+    y0: 153.900146484375
+    x1: 254.25784301757812
+    y1: 166.189208984375
     start_char: 103
     end_char: 128
   sensitivity: high
+  instance: 1
 - text: linkedin.com/in/johndoe123
-  type: LINKEDIN
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
+    x0: 123.90695190429688
+    y0: 168.4464111328125
+    x1: 257.1325378417969
+    y1: 180.7354736328125
     start_char: 139
     end_char: 165
   sensitivity: medium
+  instance: 1
 - text: 123-45-6789
   type: SSN
   should_redact: true
   location:
     page: 1
+    x0: 101.31607818603516
+    y0: 182.99267578125
+    x1: 163.661376953125
+    y1: 195.28173828125
     start_char: 171
     end_char: 182
   sensitivity: high
+  instance: 1
 - text: "June 2018 \u2013 Present"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 654.55078125
+    x1: 173.44911193847656
+    y1: 666.83984375
     start_char: 846
     end_char: 865
   sensitivity: medium
+  instance: 1
 - text: "May 2017 \u2013 August 2017"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 317
-    end_char: 339
+    x0: 72.0
+    y0: 188.72998046875
+    x1: 194.22802734375
+    y1: 201.01904296875
+    start_char: 1292
+    end_char: 1314
   sensitivity: medium
+  instance: 1
 - text: May 2018
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 130.052490234375
+    y0: 360.586669921875
+    x1: 178.33013916015625
+    y1: 372.875732421875
     start_char: 500
     end_char: 508
   sensitivity: medium
+  instance: 1
 - text: May 2015
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 130.052490234375
+    y0: 433.3179931640625
+    x1: 178.33013916015625
+    y1: 445.6070556640625
     start_char: 606
     end_char: 614
   sensitivity: medium
+  instance: 1
 - text: 3.9/4.0
   type: GPA
   should_redact: true
   location:
     page: 1
+    x0: 100.50503540039062
+    y0: 375.1329345703125
+    x1: 134.12464904785156
+    y1: 387.4219970703125
     start_char: 514
     end_char: 521
   sensitivity: high
+  instance: 1
 - text: 3.8/4.0
   type: GPA
   should_redact: true
   location:
     page: 1
+    x0: 100.50503540039062
+    y0: 447.8642578125
+    x1: 134.12464904785156
+    y1: 460.1533203125
     start_char: 620
     end_char: 627
   sensitivity: high
+  instance: 1
 - text: University of Illinois at Urbana-Champaign
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 346.0404052734375
+    x1: 277.28131103515625
+    y1: 358.3294677734375
     start_char: 434
     end_char: 476
   sensitivity: medium
+  instance: 1
 - text: Urbana, IL
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 283.3849182128906
+    y0: 346.0404052734375
+    x1: 334.716552734375
+    y1: 358.3294677734375
     start_char: 478
     end_char: 488
   sensitivity: medium
+  instance: 1
 - text: Illinois State University
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 418.771728515625
+    x1: 182.57522583007812
+    y1: 431.060791015625
     start_char: 557
     end_char: 582
   sensitivity: medium
+  instance: 1
 - text: Normal, IL
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 187.8628692626953
+    y0: 418.771728515625
+    x1: 238.5665283203125
+    y1: 431.060791015625
     start_char: 584
     end_char: 594
   sensitivity: medium
+  instance: 1
 - text: Chicago, IL
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 178.9376678466797
+    y0: 640.0045166015625
+    x1: 234.54702758789062
+    y1: 652.2935791015625
     start_char: 834
     end_char: 845
   sensitivity: medium
+  instance: 1
 - text: Urbana, IL
   type: LOCATION
   should_redact: true
   location:
-    page: 1
-    start_char: 478
-    end_char: 488
+    page: 2
+    x0: 163.034423828125
+    y0: 174.1837158203125
+    x1: 214.36605834960938
+    y1: 186.4727783203125
+    start_char: 1281
+    end_char: 1291
   sensitivity: medium
+  instance: 2

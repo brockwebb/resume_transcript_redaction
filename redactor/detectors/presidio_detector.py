@@ -320,16 +320,19 @@ class PresidioDetector(BaseDetector):
 ###############################################################################
     
         
-    def detect_entities(self, text: str) -> List[Entity]:
+    def detect_entities(self, text: str, target_entity_type: Optional[str] = None) -> List[Entity]:
         """Detect entities using Presidio analyzer."""
         if not text:
             return []
             
         try:
+            # If target type specified, only detect that type
+            entity_types = {target_entity_type} if target_entity_type else self.entity_types
+            
             analyzer_results = self.analyzer.analyze(
                 text=text,
                 language='en',
-                entities=self.entity_types,
+                entities=entity_types,
                 correlation_id=None
             )
             
@@ -338,6 +341,10 @@ class PresidioDetector(BaseDetector):
                 # Create initial entity
                 mapped_type = self.entity_mappings.get(result.entity_type, result.entity_type)
                 
+                # Skip if we have a target type and this doesn't match
+                if target_entity_type and mapped_type != target_entity_type:
+                    continue
+                    
                 entity = Entity(
                     text=text[result.start:result.end],
                     entity_type=mapped_type,
@@ -365,12 +372,12 @@ class PresidioDetector(BaseDetector):
             if self.logger:
                 self.logger.error(f"Error in detection: {str(e)}")
             return []
-
-
+    
+        
     def validate_detection(self, entity: Entity, text: str = "") -> bool:
         """
-        Validate detected entity using ValidationCoordinator.
-        Uses standardized confidence adjustment.
+        Validate entity using ValidationCoordinator.
+        Lets confidence adjustments happen freely during validation.
         
         Args:
             entity: Entity to validate
@@ -386,7 +393,7 @@ class PresidioDetector(BaseDetector):
                 source="presidio"
             )
             
-            # Apply confidence adjustment using standalone function
+            # Apply confidence adjustment without clamping
             if result.confidence_adjustment:
                 entity = adjust_entity_confidence(
                     entity, 
@@ -394,23 +401,20 @@ class PresidioDetector(BaseDetector):
                     logger=self.logger
                 )
             
-            # Track validation reasons and rules
+            # Track validation info
             self.last_validation_reasons = result.reasons
-            
-            # Store applied validation rules
             if hasattr(result, 'metadata') and result.metadata.get('applied_rules'):
                 entity = replace(entity, 
                     validation_rules=list(entity.validation_rules or []) + 
                     result.metadata['applied_rules']
                 )
             
-            return result.is_valid
-        
+            return True  # Let validation happen, filter confidences later
+            
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Validation error in Presidio detection: {str(e)}")
             return False
-
 
 ###############################################################################
 # END OF FILE

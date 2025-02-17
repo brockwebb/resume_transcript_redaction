@@ -121,9 +121,15 @@ class DetectionAnalyzer:
 ###############################################################################
 # SECTION 6: DETECTOR-SPECIFIC ANALYSIS
 ###############################################################################
-    def _analyze_detector_output(self, 
-                               entity: Entity, 
-                               text: str) -> Dict:
+    def _analyze_detector_output(self, entity: Entity, text: str) -> Dict:
+ 
+        if self.debug_mode:
+            self.logger.debug(f"Analyzing detector output for: {entity.text}")
+            self.logger.debug(f"Detector source: {entity.detector_source}")
+            self.logger.debug(f"Confidence: {entity.confidence}")
+            self.logger.debug(f"Original confidence: {getattr(entity, 'original_confidence', None)}")
+    
+
         """
         Analyze raw detector output based on detection source.
         
@@ -363,15 +369,12 @@ class DetectionAnalyzer:
         return len(matching_rules) > 0
 
     def _build_confidence_trace(self, entity: Entity) -> List[Dict]:
-        """
-        Build complete trace of confidence adjustments.
-        
-        Args:
-            entity: Entity to analyze confidence changes
-            
-        Returns:
-            List of confidence adjustment steps
-        """
+        """Build complete trace of confidence adjustments."""
+        if self.debug_mode:
+            self.logger.debug(f"Building confidence trace for entity: {entity.text}")
+            self.logger.debug(f"Initial confidence: {entity.confidence}")
+            self.logger.debug(f"Original confidence: {entity.original_confidence}")
+    
         trace = [{
             "stage": "initial",
             "confidence": entity.original_confidence or entity.confidence,
@@ -389,6 +392,11 @@ class DetectionAnalyzer:
                         adj_str = rule.split("_")[-1]
                         adjustment = float(adj_str)
                         
+                        if self.debug_mode:
+                            self.logger.debug(f"Processing rule: {rule}")
+                            self.logger.debug(f"Current confidence: {current_confidence}")
+                            self.logger.debug(f"Adjustment: {adjustment}")
+                        
                         current_confidence = min(1.0, max(0.0, current_confidence + adjustment))
                         
                         trace.append({
@@ -397,7 +405,9 @@ class DetectionAnalyzer:
                             "adjustment": adjustment,
                             "reason": rule
                         })
-                    except ValueError:
+                    except ValueError as e:
+                        if self.debug_mode:
+                            self.logger.debug(f"Error processing rule {rule}: {str(e)}")
                         continue
         
         # Add final confidence if different from last trace entry

@@ -1,0 +1,860 @@
+{
+    "directory_tree": {
+        "name": "resume_transcript_redaction",
+        "path": "../resume_transcript_redaction",
+        "type": "directory",
+        "children": [
+            {
+                "name": ".gitignore",
+                "path": "../resume_transcript_redaction/.gitignore",
+                "type": "other"
+            },
+            {
+                "name": "LICENSE",
+                "path": "../resume_transcript_redaction/LICENSE",
+                "type": "other"
+            },
+            {
+                "name": "README.md",
+                "path": "../resume_transcript_redaction/README.md",
+                "type": "other"
+            },
+            {
+                "name": "app",
+                "path": "../resume_transcript_redaction/app",
+                "type": "directory",
+                "children": [
+                    {
+                        "name": "config",
+                        "path": "../resume_transcript_redaction/app/config",
+                        "type": "directory",
+                        "children": [
+                            {
+                                "name": "config.yaml",
+                                "path": "../resume_transcript_redaction/app/config/config.yaml",
+                                "type": "config"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "evaluation_gui.py",
+                        "path": "../resume_transcript_redaction/app/evaluation_gui.py",
+                        "type": "code"
+                    },
+                    {
+                        "name": "redactor_gui.py",
+                        "path": "../resume_transcript_redaction/app/redactor_gui.py",
+                        "type": "code"
+                    },
+                    {
+                        "name": "utils",
+                        "path": "../resume_transcript_redaction/app/utils",
+                        "type": "directory",
+                        "children": [
+                            {
+                                "name": "config_loader.py",
+                                "path": "../resume_transcript_redaction/app/utils/config_loader.py",
+                                "type": "code"
+                            },
+                            {
+                                "name": "logger.py",
+                                "path": "../resume_transcript_redaction/app/utils/logger.py",
+                                "type": "code"
+                            },
+                            {
+                                "name": "singleton.py",
+                                "path": "../resume_transcript_redaction/app/utils/singleton.py",
+                                "type": "code"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "change_log.md",
+                "path": "../resume_transcript_redaction/change_log.md",
+                "type": "other"
+            },
+            {
+                "name": "core_implementation_details.md",
+                "path": "../resume_transcript_redaction/core_implementation_details.md",
+                "type": "other"
+            },
+            {
+                "name": "evaluation",
+                "path": "../resume_transcript_redaction/evaluation",
+                "type": "directory",
+                "children": [
+                    {
+                        "name": "__init__.py",
+                        "path": "../resume_transcript_redaction/evaluation/__init__.py",
+                        "type": "code"
+                    },
+                    {
+                        "name": "analysis",
+                        "path": "../resume_transcript_redaction/evaluation/analysis",
+                        "type": "directory",
+                        "children": [
+                            {
+                                "name": "detection_analyzer.py",
+                                "path": "../resume_transcript_redaction/evaluation/analysis/detection_analyzer.py",
+                                "type": "code"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "comparison",
+                        "path": "../resume_transcript_redaction/evaluation/comparison",
+                        "type": "directory",
+                        "children": [
+                            {
+                                "name": "entity_matcher.py",
+                                "path": "../resume_transcript_redaction/evaluation/comparison/entity_matcher.py",
+                                "type": "code"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "evaluate.py",
+                        "path": "../resume_transcript_redaction/evaluation/evaluate.py",
+                        "type": "code"
+                    },
+                    {
+                        "name": "metrics",
+                        "path": "../resume_transcript_redaction/evaluation/metrics",
+                        "type": "directory",
+                        "children": [
+                            {
+                                "name": "entity_metrics.py",
+                                "path": "../resume_transcript_redaction/evaluation/metrics/entity_metrics.py",
+                                "type": "code"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "models.py",
+                        "path": "../resume_transcript_redaction/evaluation/models.py",
+                        "type": "code"
+                    },
+                    {
+                        "name": "reporting",
+                        "path": "../resume_transcript_redaction/evaluation/reporting",
+                        "type": "directory",
+                        "children": []
+                    },
+                    {
+                        "name": "test_runner.py",
+                        "path": "../resume_transcript_redaction/evaluation/test_runner.py",
+                        "type": "code"
+                    },
+                    {
+                        "name": "test_validation.py",
+                        "path": "../resume_transcript_redaction/evaluation/test_validation.py",
+                        "type": "code"
+                    },
+                    {
+                        "name": "wrappers.py",
+                        "path": "../resume_transcript_redaction/evaluation/wrappers.py",
+                        "type": "code"
+                    }
+                ]
+            },
+            {
+                "name": "logs",
+                "path": "../resume_transcript_redaction/logs",
+                "type": "directory",
+                "children": [
+                    {
+                        "name": "redaction.log",
+                        "path": "../resume_transcript_redaction/logs/redaction.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250119.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250119.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250120.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250120.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250121.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250121.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250130.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250130.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250131.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250131.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250201.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250201.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250202.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250202.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250203.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250203.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250207.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250207.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250208.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250208.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250209.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250209.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250210.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250210.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250211.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250211.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250212.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250212.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250213.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250213.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250214.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250214.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250215.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250215.log",
+                        "type": "other"
+                    },
+                    {
+                        "name": "redaction_20250216.log",
+                        "path": "../resume_transcript_redaction/logs/redaction_20250216.log",
+                        "type": "other"
+                    }
+                ]
+            },
+            {
+                "name": "models",
+                "path": "../resume_transcript_redaction/models",
+                "type": "directory",
+                "children": [
+                    {
+                        "name": ".keep",
+                        "path": "../resume_transcript_redaction/models/.keep",
+                        "type": "other"
+                    }
+                ]
+            },
+            {
+                "name": "proposed_inc2_architecture.md",
+                "path": "../resume_transcript_redaction/proposed_inc2_architecture.md",
+                "type": "other"
+            },
+            {
+                "name": "redaction_system_architecture.md",
+                "path": "../resume_transcript_redaction/redaction_system_architecture.md",
+                "type": "other"
+            },
+            {
+                "name": "redaction_system_project_plan.md",
+                "path": "../resume_transcript_redaction/redaction_system_project_plan.md",
+                "type": "other"
+            },
+            {
+                "name": "redactor",
+                "path": "../resume_transcript_redaction/redactor",
+                "type": "directory",
+                "children": [
+                    {
+                        "name": "config",
+                        "path": "../resume_transcript_redaction/redactor/config",
+                        "type": "directory",
+                        "children": [
+                            {
+                                "name": "entity_routing.yaml",
+                                "path": "../resume_transcript_redaction/redactor/config/entity_routing.yaml",
+                                "type": "config"
+                            },
+                            {
+                                "name": "validation_params.json",
+                                "path": "../resume_transcript_redaction/redactor/config/validation_params.json",
+                                "type": "config"
+                            },
+                            {
+                                "name": "word_filters.yaml",
+                                "path": "../resume_transcript_redaction/redactor/config/word_filters.yaml",
+                                "type": "config"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "detectors",
+                        "path": "../resume_transcript_redaction/redactor/detectors",
+                        "type": "directory",
+                        "children": [
+                            {
+                                "name": "base_detector.py",
+                                "path": "../resume_transcript_redaction/redactor/detectors/base_detector.py",
+                                "type": "code"
+                            },
+                            {
+                                "name": "ensemble_coordinator.py",
+                                "path": "../resume_transcript_redaction/redactor/detectors/ensemble_coordinator.py",
+                                "type": "code"
+                            },
+                            {
+                                "name": "presidio_detector.py",
+                                "path": "../resume_transcript_redaction/redactor/detectors/presidio_detector.py",
+                                "type": "code"
+                            },
+                            {
+                                "name": "spacy_detector.py",
+                                "path": "../resume_transcript_redaction/redactor/detectors/spacy_detector.py",
+                                "type": "code"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "redactor_file_processing.py",
+                        "path": "../resume_transcript_redaction/redactor/redactor_file_processing.py",
+                        "type": "code"
+                    },
+                    {
+                        "name": "redactor_logic.py",
+                        "path": "../resume_transcript_redaction/redactor/redactor_logic.py",
+                        "type": "code"
+                    },
+                    {
+                        "name": "validation",
+                        "path": "../resume_transcript_redaction/redactor/validation",
+                        "type": "directory",
+                        "children": [
+                            {
+                                "name": "__init__.py",
+                                "path": "../resume_transcript_redaction/redactor/validation/__init__.py",
+                                "type": "code"
+                            },
+                            {
+                                "name": "entity_validation.py",
+                                "path": "../resume_transcript_redaction/redactor/validation/entity_validation.py",
+                                "type": "code"
+                            },
+                            {
+                                "name": "validation_coordinator.py",
+                                "path": "../resume_transcript_redaction/redactor/validation/validation_coordinator.py",
+                                "type": "code"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "requirements.txt",
+                "path": "../resume_transcript_redaction/requirements.txt",
+                "type": "data"
+            },
+            {
+                "name": "run_evaluation_guide.md",
+                "path": "../resume_transcript_redaction/run_evaluation_guide.md",
+                "type": "other"
+            },
+            {
+                "name": "scripts",
+                "path": "../resume_transcript_redaction/scripts",
+                "type": "directory",
+                "children": [
+                    {
+                        "name": "setup_environment.sh",
+                        "path": "../resume_transcript_redaction/scripts/setup_environment.sh",
+                        "type": "other"
+                    }
+                ]
+            },
+            {
+                "name": "test_import.py",
+                "path": "../resume_transcript_redaction/test_import.py",
+                "type": "code"
+            }
+        ]
+    },
+    "dependency_graph": {
+        "../resume_transcript_redaction/test_import.py": {
+            "internal": [
+                "redactor.redactor_logic"
+            ],
+            "external": [
+                "os",
+                "sys"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/app/redactor_gui.py": {
+            "internal": [
+                "app.utils.logger",
+                "redactor.redactor_logic",
+                "app.utils.config_loader"
+            ],
+            "external": [
+                "yaml",
+                "streamlit",
+                "sys",
+                "os",
+                "pathlib"
+            ],
+            "configs": [
+                "redactor/config/confidential_terms.yaml",
+                "redactor/config/core_patterns.yaml",
+                "redactor/config/custom_word_filters.yaml",
+                "redactor/config/entity_routing.yaml",
+                "redactor/config/detection_patterns.yaml"
+            ]
+        },
+        "../resume_transcript_redaction/app/evaluation_gui.py": {
+            "internal": [
+                "app.utils.logger",
+                "evaluation.test_runner",
+                "evaluation.evaluate",
+                "app.utils.config_loader"
+            ],
+            "external": [
+                "numpy",
+                "yaml",
+                "streamlit",
+                "logging",
+                "io",
+                "sys",
+                "pathlib",
+                "pandas",
+                "matplotlib.pyplot",
+                "json"
+            ],
+            "configs": [
+                "data/test_suite/test_manifest.yaml"
+            ]
+        },
+        "../resume_transcript_redaction/app/utils/config_loader.py": {
+            "internal": [
+                "app.utils.logger"
+            ],
+            "external": [
+                "pathlib",
+                "json",
+                "yaml",
+                "typing"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/app/utils/logger.py": {
+            "internal": [],
+            "external": [
+                "datetime",
+                "logging",
+                "sys",
+                "typing",
+                "pathlib",
+                "logging.handlers"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/app/utils/singleton.py": {
+            "internal": [],
+            "external": [],
+            "configs": []
+        },
+        "../resume_transcript_redaction/redactor/redactor_logic.py": {
+            "internal": [
+                "app.utils.logger",
+                "evaluation.models",
+                "app.utils.config_loader"
+            ],
+            "external": [
+                "re",
+                "yaml",
+                "redactor_file_processing",
+                "typing",
+                "dataclasses",
+                "pathlib",
+                "detectors.ensemble_coordinator",
+                "fitz"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/redactor/redactor_file_processing.py": {
+            "internal": [],
+            "external": [
+                "pathlib",
+                "fitz",
+                "typing"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/redactor/detectors/ensemble_coordinator.py": {
+            "internal": [
+                "redactor.validation.entity_validation",
+                "evaluation.models",
+                "redactor.validation.validation_coordinator",
+                "redactor.validation.__init__"
+            ],
+            "external": [
+                "base_detector",
+                "logging",
+                "spacy_detector",
+                "typing",
+                "dataclasses",
+                "presidio_detector",
+                "pathlib"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/redactor/detectors/base_detector.py": {
+            "internal": [
+                "evaluation.models"
+            ],
+            "external": [
+                "dataclasses",
+                "abc",
+                "typing"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/redactor/detectors/spacy_detector.py": {
+            "internal": [
+                "redactor.validation.entity_validation",
+                "evaluation.models",
+                "redactor.validation.validation_coordinator",
+                "redactor.validation.__init__"
+            ],
+            "external": [
+                "re",
+                "base_detector",
+                "spacy",
+                "typing",
+                "dataclasses",
+                "json"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/redactor/detectors/presidio_detector.py": {
+            "internal": [
+                "redactor.validation.entity_validation",
+                "evaluation.models",
+                "redactor.validation.validation_coordinator",
+                "redactor.validation.__init__"
+            ],
+            "external": [
+                "dataclasses",
+                "base_detector",
+                "presidio_analyzer",
+                "typing"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/redactor/validation/validation_coordinator.py": {
+            "internal": [
+                "app.utils.config_loader"
+            ],
+            "external": [
+                "re",
+                "detectors.base_detector",
+                "logging",
+                "typing",
+                "dataclasses",
+                "entity_validation",
+                "pathlib",
+                "json"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/redactor/validation/entity_validation.py": {
+            "internal": [
+                "evaluation.models"
+            ],
+            "external": [
+                "re",
+                "unicodedata",
+                "logging",
+                "typing",
+                "json"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/redactor/validation/__init__.py": {
+            "internal": [],
+            "external": [
+                "validation_coordinator"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/evaluation/test_validation.py": {
+            "internal": [
+                "app.utils.logger",
+                "redactor.validation.entity_validation",
+                "redactor.detectors.base_detector",
+                "app.utils.config_loader",
+                "redactor.validation.__init__",
+                "redactor.validation.validation_coordinator"
+            ],
+            "external": [
+                "pathlib",
+                "json",
+                "pytest"
+            ],
+            "configs": [
+                "gpa_validation.json",
+                "location_validation.json",
+                "phi_validation.json",
+                "email_validation.json",
+                "educational_validation.json",
+                "date_validation.json",
+                "person_validation.json",
+                "phone_validation.json",
+                "internet_reference_validation.json",
+                "protected_class_validation.json",
+                "address_validation.json"
+            ]
+        },
+        "../resume_transcript_redaction/evaluation/models.py": {
+            "internal": [],
+            "external": [
+                "dataclasses",
+                "logging",
+                "enum",
+                "typing"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/evaluation/__init__.py": {
+            "internal": [],
+            "external": [
+                "pathlib"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/evaluation/wrappers.py": {
+            "internal": [
+                "evaluation.models"
+            ],
+            "external": [
+                "dataclasses",
+                "pathlib",
+                "fitz",
+                "typing"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/evaluation/test_runner.py": {
+            "internal": [
+                "redactor.redactor_logic",
+                "evaluation.models",
+                "evaluation.metrics.entity_metrics"
+            ],
+            "external": [
+                "datetime",
+                "comparison.entity_matcher",
+                "yaml",
+                "typing",
+                "dataclasses",
+                "os",
+                "pathlib",
+                "wrappers",
+                "json"
+            ],
+            "configs": [
+                "*_results.json"
+            ]
+        },
+        "../resume_transcript_redaction/evaluation/evaluate.py": {
+            "internal": [
+                "app.utils.logger",
+                "redactor.detectors.ensemble_coordinator",
+                "evaluation.analysis.detection_analyzer",
+                "evaluation.models",
+                "app.utils.config_loader",
+                "evaluation.metrics.entity_metrics"
+            ],
+            "external": [
+                "datetime",
+                "test_runner",
+                "yaml",
+                "logging",
+                "sys",
+                "typing",
+                "dataclasses",
+                "pathlib",
+                "fitz",
+                "argparse",
+                "tabulate"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/evaluation/metrics/entity_metrics.py": {
+            "internal": [
+                "evaluation.models",
+                "app.utils.config_loader",
+                "evaluation.comparison.entity_matcher"
+            ],
+            "external": [
+                "dataclasses",
+                "enum",
+                "typing"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/evaluation/analysis/detection_analyzer.py": {
+            "internal": [
+                "evaluation.models"
+            ],
+            "external": [
+                "logging",
+                "dataclasses",
+                "json",
+                "typing"
+            ],
+            "configs": []
+        },
+        "../resume_transcript_redaction/evaluation/comparison/entity_matcher.py": {
+            "internal": [
+                "evaluation.models"
+            ],
+            "external": [
+                "logging",
+                "collections",
+                "typing",
+                "dataclasses",
+                "enum",
+                "json"
+            ],
+            "configs": []
+        }
+    },
+    "environment": {
+        "declared_external_libs": [
+            "pymupdf",
+            "pdf2image",
+            "streamlit",
+            "tqdm",
+            "pytesseract",
+            "presidio_anonymizer",
+            "transformers",
+            "spacy",
+            "https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.7.1/en_core_web_lg-3.7.1-py3-none-any.whl",
+            "presidio_analyzer",
+            "matplotlib",
+            "pillow"
+        ],
+        "used_external_libs": [
+            "comparison.entity_matcher",
+            "unicodedata",
+            "spacy_detector",
+            "redactor_file_processing",
+            "collections",
+            "typing",
+            "os",
+            "abc",
+            "fitz",
+            "matplotlib.pyplot",
+            "re",
+            "base_detector",
+            "test_runner",
+            "streamlit",
+            "io",
+            "validation_coordinator",
+            "enum",
+            "detectors.ensemble_coordinator",
+            "wrappers",
+            "tabulate",
+            "logging.handlers",
+            "detectors.base_detector",
+            "numpy",
+            "yaml",
+            "sys",
+            "spacy",
+            "presidio_detector",
+            "pathlib",
+            "pandas",
+            "pytest",
+            "datetime",
+            "logging",
+            "entity_validation",
+            "dataclasses",
+            "presidio_analyzer",
+            "argparse",
+            "json"
+        ],
+        "missing_declaration": [
+            "comparison.entity_matcher",
+            "unicodedata",
+            "spacy_detector",
+            "redactor_file_processing",
+            "collections",
+            "typing",
+            "os",
+            "abc",
+            "fitz",
+            "matplotlib.pyplot",
+            "re",
+            "base_detector",
+            "test_runner",
+            "io",
+            "validation_coordinator",
+            "enum",
+            "detectors.ensemble_coordinator",
+            "wrappers",
+            "tabulate",
+            "logging.handlers",
+            "detectors.base_detector",
+            "numpy",
+            "yaml",
+            "sys",
+            "presidio_detector",
+            "pathlib",
+            "pandas",
+            "pytest",
+            "datetime",
+            "logging",
+            "entity_validation",
+            "dataclasses",
+            "argparse",
+            "json"
+        ],
+        "unused_declaration": [
+            "pymupdf",
+            "pdf2image",
+            "tqdm",
+            "pytesseract",
+            "presidio_anonymizer",
+            "transformers",
+            "https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.7.1/en_core_web_lg-3.7.1-py3-none-any.whl",
+            "matplotlib",
+            "pillow"
+        ]
+    }
+}

@@ -49,16 +49,7 @@ class Entity:
     def __post_init__(self):
         """
         Validate entity attributes during initialization.
-        
-        Ensures:
-        - Confidence is within valid range
-        - Start/end characters are non-negative
-        - Text is not empty
         """
-        # Validate confidence
-        if not (0.0 <= self.confidence <= 1.0):
-            raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
-        
         # Validate character positions
         if self.start_char < 0 or self.end_char < 0:
             raise ValueError(f"Character positions must be non-negative, got start={self.start_char}, end={self.end_char}")
@@ -172,7 +163,6 @@ class Entity:
         )
 
 
-# Add this function at the module level, after the Entity class definition
 def adjust_entity_confidence(
     entity: Entity, 
     adjustment: float, 
@@ -181,30 +171,29 @@ def adjust_entity_confidence(
     """
     Standalone function for adjusting entity confidence.
     
-    Adjusts the entity's confidence value by the given adjustment,
-    capping the result so that it stays within the range [0.0, 1.0].
-    This approach is consistent with the Entity class's immutability.
+    Adjusts the entity's confidence value by the given adjustment.
+    Maintains strict immutability by using replace().
     
     Args:
-        entity: Original Entity instance to adjust.
-        adjustment: Confidence score adjustment (positive or negative).
-        logger: Optional logger for tracking confidence changes.
+        entity: Original Entity instance to adjust
+        adjustment: Confidence score adjustment (positive or negative)
+        logger: Optional logger for tracking confidence changes
     
     Returns:
-        New Entity instance with the adjusted (and capped) confidence.
+        New Entity instance with adjusted confidence
     """
-    # Calculate new confidence and clamp to [0.0, 1.0]
-    new_confidence = max(0.0, min(1.0, entity.confidence + adjustment))
+    # Apply adjustment without clamping
+    new_confidence = entity.confidence + adjustment
     
     if logger:
         logger.debug(
             f"Confidence Adjustment: {entity.confidence:.2f} -> {new_confidence:.2f} "
-            f"(+{adjustment:.2f}) for '{entity.text}'"
+            f"({adjustment:+.2f}) for '{entity.text}'"
         )
     
     return replace(
         entity, 
         confidence=new_confidence,
         original_confidence=entity.original_confidence or entity.confidence,
-        validation_rules=list(entity.validation_rules or []) + [f"confidence_adj_{adjustment:.2f}"]
+        validation_rules=list(entity.validation_rules or []) + [f"confidence_adj_{adjustment:+.2f}"]
     )

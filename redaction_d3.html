@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Project Map D3 Visualization</title>
+  <style>
+    body { font-family: sans-serif; }
+    .controls {
+      margin-bottom: 10px;
+    }
+    .controls button {
+      margin-right: 10px;
+      padding: 5px 10px;
+    }
+    .link {
+      stroke: #999;
+      stroke-opacity: 0.6;
+    }
+    .node {
+      stroke: #fff;
+      stroke-width: 1.5px;
+    }
+    text {
+      font-size: 10px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button id="zoomInBtn">Zoom In</button>
+    <button id="zoomOutBtn">Zoom Out</button>
+    <button id="freezeBtn">Unfreeze</button>
+    <button id="releaseBtn">Release All Nodes</button>
+    <button id="linksToggleBtn">Disable Connections</button>
+    <button id="arrowsToggleBtn">Disable Arrows</button>
+  </div>
+  <svg id="svgCanvas"></svg>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script>
+    // Set SVG dimensions to 80% of the window's width and height.
+    var svgWidth = window.innerWidth * 0.8;
+    var svgHeight = window.innerHeight * 0.8;
+    var svg = d3.select("#svgCanvas")
+                .attr("width", svgWidth)
+                .attr("height", svgHeight);
+    
+    var graph = {"nodes": [{"id": "test_import.py", "label": "test_import.py", "type": "code", "group": "root"}, {"id": "app/redactor_gui.py", "label": "app/redactor_gui.py", "type": "code", "group": "app"}, {"id": "app/evaluation_gui.py", "label": "app/evaluation_gui.py", "type": "code", "group": "app"}, {"id": "app/utils/config_loader.py", "label": "app/utils/config_loader.py", "type": "code", "group": "app"}, {"id": "app/utils/logger.py", "label": "app/utils/logger.py", "type": "code", "group": "app"}, {"id": "app/utils/singleton.py", "label": "app/utils/singleton.py", "type": "code", "group": "orphans"}, {"id": "redactor/redactor_logic.py", "label": "redactor/redactor_logic.py", "type": "code", "group": "redactor"}, {"id": "redactor/redactor_file_processing.py", "label": "redactor/redactor_file_processing.py", "type": "code", "group": "orphans"}, {"id": "redactor/detectors/ensemble_coordinator.py", "label": "redactor/detectors/ensemble_coordinator.py", "type": "code", "group": "redactor"}, {"id": "redactor/detectors/base_detector.py", "label": "redactor/detectors/base_detector.py", "type": "code", "group": "redactor"}, {"id": "redactor/detectors/spacy_detector.py", "label": "redactor/detectors/spacy_detector.py", "type": "code", "group": "redactor"}, {"id": "redactor/detectors/presidio_detector.py", "label": "redactor/detectors/presidio_detector.py", "type": "code", "group": "redactor"}, {"id": "redactor/validation/validation_coordinator.py", "label": "redactor/validation/validation_coordinator.py", "type": "code", "group": "redactor"}, {"id": "redactor/validation/entity_validation.py", "label": "redactor/validation/entity_validation.py", "type": "code", "group": "redactor"}, {"id": "redactor/validation/__init__.py", "label": "redactor/validation/__init__.py", "type": "code", "group": "redactor"}, {"id": "evaluation/test_validation.py", "label": "evaluation/test_validation.py", "type": "code", "group": "evaluation"}, {"id": "evaluation/models.py", "label": "evaluation/models.py", "type": "code", "group": "evaluation"}, {"id": "evaluation/__init__.py", "label": "evaluation/__init__.py", "type": "code", "group": "orphans"}, {"id": "evaluation/wrappers.py", "label": "evaluation/wrappers.py", "type": "code", "group": "evaluation"}, {"id": "evaluation/test_runner.py", "label": "evaluation/test_runner.py", "type": "code", "group": "evaluation"}, {"id": "evaluation/evaluate.py", "label": "evaluation/evaluate.py", "type": "code", "group": "evaluation"}, {"id": "evaluation/metrics/entity_metrics.py", "label": "evaluation/metrics/entity_metrics.py", "type": "code", "group": "evaluation"}, {"id": "evaluation/analysis/detection_analyzer.py", "label": "evaluation/analysis/detection_analyzer.py", "type": "code", "group": "evaluation"}, {"id": "evaluation/comparison/entity_matcher.py", "label": "evaluation/comparison/entity_matcher.py", "type": "code", "group": "evaluation"}, {"id": "app/config/config.yaml", "label": "app/config/config.yaml", "type": "config", "group": "orphans"}, {"id": "redactor/config/entity_routing.yaml", "label": "redactor/config/entity_routing.yaml", "type": "config", "group": "config:redactor"}, {"id": "redactor/config/validation_params.json", "label": "redactor/config/validation_params.json", "type": "config", "group": "orphans"}, {"id": "redactor/config/word_filters.yaml", "label": "redactor/config/word_filters.yaml", "type": "config", "group": "orphans"}, {"id": "data/test_suite/test_manifest.yaml", "label": "data/test_suite/test_manifest.yaml", "type": "config", "group": "config:data"}, {"id": "evaluation/test_cases/gpa_validation.json", "label": "evaluation/test_cases/gpa_validation.json", "type": "config", "group": "config:evaluation"}, {"id": "evaluation/test_cases/location_validation.json", "label": "evaluation/test_cases/location_validation.json", "type": "config", "group": "config:evaluation"}, {"id": "evaluation/test_cases/phi_validation.json", "label": "evaluation/test_cases/phi_validation.json", "type": "config", "group": "config:evaluation"}, {"id": "evaluation/test_cases/email_validation.json", "label": "evaluation/test_cases/email_validation.json", "type": "config", "group": "config:evaluation"}, {"id": "evaluation/test_cases/educational_validation.json", "label": "evaluation/test_cases/educational_validation.json", "type": "config", "group": "config:evaluation"}, {"id": "evaluation/test_cases/date_validation.json", "label": "evaluation/test_cases/date_validation.json", "type": "config", "group": "config:evaluation"}, {"id": "evaluation/test_cases/person_validation.json", "label": "evaluation/test_cases/person_validation.json", "type": "config", "group": "config:evaluation"}, {"id": "evaluation/test_cases/phone_validation.json", "label": "evaluation/test_cases/phone_validation.json", "type": "config", "group": "config:evaluation"}, {"id": "evaluation/test_cases/internet_reference_validation.json", "label": "evaluation/test_cases/internet_reference_validation.json", "type": "config", "group": "config:evaluation"}, {"id": "evaluation/test_cases/protected_class_validation.json", "label": "evaluation/test_cases/protected_class_validation.json", "type": "config", "group": "config:evaluation"}, {"id": "evaluation/test_cases/address_validation.json", "label": "evaluation/test_cases/address_validation.json", "type": "config", "group": "config:evaluation"}, {"id": "orphans", "label": "Orphans", "type": "meta", "group": "orphans"}], "links": [{"source": "redactor/redactor_logic.py", "target": "test_import.py", "type": "import"}, {"source": "app/utils/logger.py", "target": "app/redactor_gui.py", "type": "import"}, {"source": "redactor/redactor_logic.py", "target": "app/redactor_gui.py", "type": "import"}, {"source": "app/utils/config_loader.py", "target": "app/redactor_gui.py", "type": "import"}, {"source": "redactor/config/entity_routing.yaml", "target": "app/redactor_gui.py", "type": "config"}, {"source": "app/utils/logger.py", "target": "app/evaluation_gui.py", "type": "import"}, {"source": "evaluation/test_runner.py", "target": "app/evaluation_gui.py", "type": "import"}, {"source": "evaluation/evaluate.py", "target": "app/evaluation_gui.py", "type": "import"}, {"source": "app/utils/config_loader.py", "target": "app/evaluation_gui.py", "type": "import"}, {"source": "data/test_suite/test_manifest.yaml", "target": "app/evaluation_gui.py", "type": "config"}, {"source": "app/utils/logger.py", "target": "app/utils/config_loader.py", "type": "import"}, {"source": "app/utils/logger.py", "target": "redactor/redactor_logic.py", "type": "import"}, {"source": "evaluation/models.py", "target": "redactor/redactor_logic.py", "type": "import"}, {"source": "app/utils/config_loader.py", "target": "redactor/redactor_logic.py", "type": "import"}, {"source": "redactor/validation/entity_validation.py", "target": "redactor/detectors/ensemble_coordinator.py", "type": "import"}, {"source": "evaluation/models.py", "target": "redactor/detectors/ensemble_coordinator.py", "type": "import"}, {"source": "redactor/validation/validation_coordinator.py", "target": "redactor/detectors/ensemble_coordinator.py", "type": "import"}, {"source": "redactor/validation/__init__.py", "target": "redactor/detectors/ensemble_coordinator.py", "type": "import"}, {"source": "evaluation/models.py", "target": "redactor/detectors/base_detector.py", "type": "import"}, {"source": "redactor/validation/entity_validation.py", "target": "redactor/detectors/spacy_detector.py", "type": "import"}, {"source": "evaluation/models.py", "target": "redactor/detectors/spacy_detector.py", "type": "import"}, {"source": "redactor/validation/validation_coordinator.py", "target": "redactor/detectors/spacy_detector.py", "type": "import"}, {"source": "redactor/validation/__init__.py", "target": "redactor/detectors/spacy_detector.py", "type": "import"}, {"source": "redactor/validation/entity_validation.py", "target": "redactor/detectors/presidio_detector.py", "type": "import"}, {"source": "evaluation/models.py", "target": "redactor/detectors/presidio_detector.py", "type": "import"}, {"source": "redactor/validation/validation_coordinator.py", "target": "redactor/detectors/presidio_detector.py", "type": "import"}, {"source": "redactor/validation/__init__.py", "target": "redactor/detectors/presidio_detector.py", "type": "import"}, {"source": "app/utils/config_loader.py", "target": "redactor/validation/validation_coordinator.py", "type": "import"}, {"source": "evaluation/models.py", "target": "redactor/validation/entity_validation.py", "type": "import"}, {"source": "app/utils/logger.py", "target": "evaluation/test_validation.py", "type": "import"}, {"source": "redactor/validation/entity_validation.py", "target": "evaluation/test_validation.py", "type": "import"}, {"source": "redactor/detectors/base_detector.py", "target": "evaluation/test_validation.py", "type": "import"}, {"source": "app/utils/config_loader.py", "target": "evaluation/test_validation.py", "type": "import"}, {"source": "redactor/validation/__init__.py", "target": "evaluation/test_validation.py", "type": "import"}, {"source": "redactor/validation/validation_coordinator.py", "target": "evaluation/test_validation.py", "type": "import"}, {"source": "evaluation/test_cases/gpa_validation.json", "target": "evaluation/test_validation.py", "type": "config"}, {"source": "evaluation/test_cases/location_validation.json", "target": "evaluation/test_validation.py", "type": "config"}, {"source": "evaluation/test_cases/phi_validation.json", "target": "evaluation/test_validation.py", "type": "config"}, {"source": "evaluation/test_cases/email_validation.json", "target": "evaluation/test_validation.py", "type": "config"}, {"source": "evaluation/test_cases/educational_validation.json", "target": "evaluation/test_validation.py", "type": "config"}, {"source": "evaluation/test_cases/date_validation.json", "target": "evaluation/test_validation.py", "type": "config"}, {"source": "evaluation/test_cases/person_validation.json", "target": "evaluation/test_validation.py", "type": "config"}, {"source": "evaluation/test_cases/phone_validation.json", "target": "evaluation/test_validation.py", "type": "config"}, {"source": "evaluation/test_cases/internet_reference_validation.json", "target": "evaluation/test_validation.py", "type": "config"}, {"source": "evaluation/test_cases/protected_class_validation.json", "target": "evaluation/test_validation.py", "type": "config"}, {"source": "evaluation/test_cases/address_validation.json", "target": "evaluation/test_validation.py", "type": "config"}, {"source": "evaluation/models.py", "target": "evaluation/wrappers.py", "type": "import"}, {"source": "redactor/redactor_logic.py", "target": "evaluation/test_runner.py", "type": "import"}, {"source": "evaluation/models.py", "target": "evaluation/test_runner.py", "type": "import"}, {"source": "evaluation/metrics/entity_metrics.py", "target": "evaluation/test_runner.py", "type": "import"}, {"source": "app/utils/logger.py", "target": "evaluation/evaluate.py", "type": "import"}, {"source": "redactor/detectors/ensemble_coordinator.py", "target": "evaluation/evaluate.py", "type": "import"}, {"source": "evaluation/analysis/detection_analyzer.py", "target": "evaluation/evaluate.py", "type": "import"}, {"source": "evaluation/models.py", "target": "evaluation/evaluate.py", "type": "import"}, {"source": "app/utils/config_loader.py", "target": "evaluation/evaluate.py", "type": "import"}, {"source": "evaluation/metrics/entity_metrics.py", "target": "evaluation/evaluate.py", "type": "import"}, {"source": "evaluation/models.py", "target": "evaluation/metrics/entity_metrics.py", "type": "import"}, {"source": "app/utils/config_loader.py", "target": "evaluation/metrics/entity_metrics.py", "type": "import"}, {"source": "evaluation/comparison/entity_matcher.py", "target": "evaluation/metrics/entity_metrics.py", "type": "import"}, {"source": "evaluation/models.py", "target": "evaluation/analysis/detection_analyzer.py", "type": "import"}, {"source": "evaluation/models.py", "target": "evaluation/comparison/entity_matcher.py", "type": "import"}, {"source": "app/utils/singleton.py", "target": "orphans", "type": "orphan"}, {"source": "redactor/redactor_file_processing.py", "target": "orphans", "type": "orphan"}, {"source": "evaluation/__init__.py", "target": "orphans", "type": "orphan"}, {"source": "app/config/config.yaml", "target": "orphans", "type": "orphan"}, {"source": "redactor/config/validation_params.json", "target": "orphans", "type": "orphan"}, {"source": "redactor/config/word_filters.yaml", "target": "orphans", "type": "orphan"}]};
+    
+    // Create a container for zooming.
+    var container = svg.append("g").attr("id", "container");
+    
+    // Add arrow marker definition.
+    svg.append("defs").append("marker")
+        .attr("id", "arrowhead")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 15)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+      .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "#999");
+    
+    // Setup zoom behavior.
+    var zoom = d3.zoom()
+        .scaleExtent([0.1, 10])
+        .on("zoom", function() {
+          container.attr("transform", d3.event.transform);
+        });
+    svg.call(zoom);
+    
+    // Color scale for groups.
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
+    
+    var simulationRunning = false; // Default: simulation frozen.
+    
+    // Create links, nodes, and labels.
+    var link = container.append("g")
+        .attr("class", "links")
+      .selectAll("line")
+      .data(graph.links)
+      .enter().append("line")
+        .attr("class", "link")
+        .attr("stroke-width", 1.5)
+        .attr("marker-end", "url(#arrowhead)");
+    
+    var node = container.append("g")
+        .attr("class", "nodes")
+      .selectAll("circle")
+      .data(graph.nodes)
+      .enter().append("circle")
+        .attr("r", 8)
+        .attr("fill", function(d) { return color(d.group); })
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+    
+    var text = container.append("g")
+        .attr("class", "labels")
+      .selectAll("text")
+      .data(graph.nodes)
+      .enter().append("text")
+        .attr("dx", 12)
+        .attr("dy", ".35em")
+        .text(function(d) { return d.label; });
+    
+    // Setup force simulation.
+    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(100))
+        .force("charge", d3.forceManyBody().strength(-300))
+        .force("center", d3.forceCenter(svgWidth / 2, svgHeight / 2));
+    
+    // Cluster forces: cluster nodes by group.
+    var groups = Array.from(new Set(graph.nodes.map(function(d) { return d.group; })));
+    var clusterCenters = {};
+    groups.forEach(function(g, i) {
+      clusterCenters[g] = { x: svgWidth/2 + (i - (groups.length-1)/2) * 150, y: svgHeight/2 };
+    });
+    simulation.force("x", d3.forceX(function(d) { return clusterCenters[d.group].x; }).strength(0.1));
+    simulation.force("y", d3.forceY(function(d) { return clusterCenters[d.group].y; }).strength(0.1));
+    
+    simulation.nodes(graph.nodes)
+        .on("tick", ticked);
+    simulation.force("link")
+        .links(graph.links);
+    
+    function ticked() {
+      link
+          .attr("x1", function(d) { return d.source.x; })
+          .attr("y1", function(d) { return d.source.y; })
+          .attr("x2", function(d) { return d.target.x; })
+          .attr("y2", function(d) { return d.target.y; });
+      node
+          .attr("cx", function(d) { return d.x; })
+          .attr("cy", function(d) { return d.y; });
+      text
+          .attr("x", function(d) { return d.x; })
+          .attr("y", function(d) { return d.y; });
+    }
+    
+    // Drag functions: fix node positions.
+    function dragstarted(d) {
+      if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+    function dragged(d) {
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+    }
+    function dragended(d) {
+      // Node remains fixed after drag.
+    }
+    
+    // Freeze/Unfreeze control.
+    document.getElementById("freezeBtn").addEventListener("click", function() {
+      if (simulationRunning) {
+        simulation.stop();
+        simulationRunning = false;
+        this.textContent = "Unfreeze";
+      } else {
+        simulation.restart();
+        simulationRunning = true;
+        this.textContent = "Freeze";
+      }
+    });
+    
+    // Release All Nodes: unfix all nodes.
+    document.getElementById("releaseBtn").addEventListener("click", function() {
+      graph.nodes.forEach(function(d) { d.fx = null; d.fy = null; });
+      simulation.restart();
+    });
+    
+    // Zoom controls.
+    document.getElementById("zoomInBtn").addEventListener("click", function() {
+      svg.transition().call(zoom.scaleBy, 1.2);
+    });
+    document.getElementById("zoomOutBtn").addEventListener("click", function() {
+      svg.transition().call(zoom.scaleBy, 0.8);
+    });
+    
+    // Toggle connections.
+    var connectionsEnabled = true;
+    document.getElementById("linksToggleBtn").addEventListener("click", function() {
+      connectionsEnabled = !connectionsEnabled;
+      link.style("display", connectionsEnabled ? "inline" : "none");
+      this.textContent = connectionsEnabled ? "Disable Connections" : "Enable Connections";
+    });
+    
+    // Toggle directional arrows.
+    var arrowsEnabled = true;
+    document.getElementById("arrowsToggleBtn").addEventListener("click", function() {
+      arrowsEnabled = !arrowsEnabled;
+      link.attr("marker-end", arrowsEnabled ? "url(#arrowhead)" : null);
+      this.textContent = arrowsEnabled ? "Disable Arrows" : "Enable Arrows";
+    });
+  </script>
+</body>
+</html>

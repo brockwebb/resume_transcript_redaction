@@ -1,147 +1,237 @@
 file_name: deshawn_carter_corrected
 entities:
 - text: DeShawn L. Carter
-  type: NAME
+  type: PERSON
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 92.654296875
+    x1: 242.0142822265625
+    y1: 114.998046875
     start_char: 0
     end_char: 17
   sensitivity: high
+  instance: 1
 - text: (404) 555-7890
-  type: PHONE
+  type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
+    x0: 148.3029022216797
+    y0: 153.900146484375
+    x1: 223.47598266601562
+    y1: 166.189208984375
     start_char: 44
     end_char: 58
   sensitivity: high
+  instance: 1
 - text: d.carter.ai@outlook.com
-  type: EMAIL
+  type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 144.04127502441406
+    y0: 168.4464111328125
+    x1: 262.7393798828125
+    y1: 180.7354736328125
     start_char: 68
     end_char: 91
   sensitivity: high
+  instance: 1
 - text: deshawnaitech.com
-  type: SOCIAL_MEDIA
+  type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
+    x0: 159.89622497558594
+    y0: 182.99267578125
+    x1: 257.05584716796875
+    y1: 195.28173828125
     start_char: 105
     end_char: 122
   sensitivity: medium
+  instance: 1
 - text: '9876'
   type: SSN
   should_redact: true
   location:
     page: 1
+    x0: 313.84588623046875
+    y0: 197.5389404296875
+    x1: 338.3035888671875
+    y1: 209.8280029296875
     start_char: 165
     end_char: 169
   sensitivity: high
+  instance: 1
 - text: "June 2018 \u2013 Present"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 594.8463134765625
+    x1: 173.44911193847656
+    y1: 607.1353759765625
     start_char: 828
     end_char: 847
   sensitivity: medium
+  instance: 1
 - text: "September 2015 \u2013 May 2018"
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 61
-    end_char: 86
+    x0: 72.0
+    y0: 101.452392578125
+    x1: 213.77565002441406
+    y1: 113.741455078125
+    start_char: 1261
+    end_char: 1286
   sensitivity: medium
+  instance: 1
 - text: May 2015
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 426
-    end_char: 434
+    x0: 130.052490234375
+    y0: 277.5269775390625
+    x1: 178.33013916015625
+    y1: 289.8160400390625
+    start_char: 1626
+    end_char: 1634
   sensitivity: medium
+  instance: 1
 - text: May 2011
-  type: DATE
+  type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 528
-    end_char: 536
+    x0: 130.052490234375
+    y0: 335.7120361328125
+    x1: 177.51373291015625
+    y1: 348.0010986328125
+    start_char: 1728
+    end_char: 1736
   sensitivity: medium
+  instance: 1
 - text: Atlanta, GA
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 190.33676147460938
+    y0: 580.300048828125
+    x1: 246.55348205566406
+    y1: 592.589111328125
     start_char: 816
     end_char: 827
   sensitivity: medium
+  instance: 1
 - text: San Francisco, CA
   type: LOCATION
   should_redact: true
   location:
     page: 2
-    start_char: 43
-    end_char: 60
+    x0: 230.04344177246094
+    y0: 86.9061279296875
+    x1: 321.6842346191406
+    y1: 99.1951904296875
+    start_char: 1243
+    end_char: 1260
   sensitivity: medium
+  instance: 1
 - text: Georgia Institute of Technology
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 2
-    start_char: 370
-    end_char: 401
+    x0: 72.0
+    y0: 262.980712890625
+    x1: 223.54278564453125
+    y1: 275.269775390625
+    start_char: 1570
+    end_char: 1601
   sensitivity: medium
+  instance: 1
 - text: Atlanta, GA
   type: LOCATION
   should_redact: true
   location:
-    page: 1
-    start_char: 816
-    end_char: 827
+    page: 2
+    x0: 228.8304443359375
+    y0: 262.980712890625
+    x1: 285.04718017578125
+    y1: 275.269775390625
+    start_char: 1603
+    end_char: 1614
   sensitivity: medium
+  instance: 2
 - text: Howard University
-  type: EDUCATION
+  type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 2
-    start_char: 481
-    end_char: 498
+    x0: 72.0
+    y0: 321.165771484375
+    x1: 161.18661499023438
+    y1: 333.454833984375
+    start_char: 1681
+    end_char: 1698
   sensitivity: medium
+  instance: 1
 - text: Washington, D.C.
   type: LOCATION
   should_redact: true
   location:
     page: 2
-    start_char: 500
-    end_char: 516
+    x0: 166.47425842285156
+    y0: 321.165771484375
+    x1: 252.20770263671875
+    y1: 333.454833984375
+    start_char: 1700
+    end_char: 1716
   sensitivity: medium
+  instance: 1
 - text: Black and Latinx youth
-  type: DEMOGRAPHIC
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
-    start_char: 727
-    end_char: 749
+    x0: 356.53680419921875
+    y0: 527.852294921875
+    x1: 467.1446533203125
+    y1: 540.141357421875
+    start_char: 1927
+    end_char: 1949
   sensitivity: high
+  instance: 1
 - text: 'Accessibility Needs: Prefers voice-to-text tools due to repetitive strain
     injury'
-  type: ACCESSIBILITY
+  type: PHI
   should_redact: true
   location:
     page: 2
-    start_char: 996
-    end_char: 1076
+    x0: 108.0
+    y0: 674.8343505859375
+    x1: 483.12310791015625
+    y1: 687.1234130859375
+    start_char: 2196
+    end_char: 2276
   sensitivity: high
+  instance: 1
 - text: 'Pronouns: He/Him'
-  type: PRONOUNS
+  type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
-    start_char: 903
-    end_char: 919
+    x0: 108.0
+    y0: 645.7418212890625
+    x1: 202.65847778320312
+    y1: 658.0308837890625
+    start_char: 2103
+    end_char: 2119
   sensitivity: high
+  instance: 1

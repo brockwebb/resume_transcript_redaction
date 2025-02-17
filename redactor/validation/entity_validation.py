@@ -135,6 +135,8 @@ def validate_person(
     2. Check word count
     3. Handle capitalization rules
     4. Apply confidence boosts/penalties
+    5. Check for technical/software context
+    6. Check for address context using minimum indicators
     
     Args:
         entity: The Entity object to validate
@@ -153,6 +155,8 @@ def validate_person(
     confidence_boosts = rules.get("confidence_boosts", {})
     confidence_penalties = rules.get("confidence_penalties", {})
     title_markers = set(rules.get("title_markers", []))
+    technical_context = rules.get("technical_context", {})
+    address_context = rules.get("address_context", {})
     
     # Prepare text for analysis
     text_lower = text.lower()
@@ -161,6 +165,71 @@ def validate_person(
     name_parts = name_text.split()
     reasons = []
     confidence_adjustment = 0.0
+
+    ###############################################################################
+    # SUBSECTION: TECHNICAL CONTEXT CHECK
+    ###############################################################################
+    def check_technical_context() -> Tuple[bool, List[str]]:
+        """Check for technical/software context around the entity."""
+        context_clues = []
+        
+        # Check software terms
+        software_terms = technical_context.get("software_terms", [])
+        if any(term.lower() in text_lower for term in software_terms):
+            context_clues.append("Software term in context")
+            
+        # Check development terms
+        dev_terms = technical_context.get("development_terms", [])
+        if any(term.lower() in text_lower for term in dev_terms):
+            context_clues.append("Development term in context")
+            
+        # Check visualization terms
+        viz_terms = technical_context.get("visualization_terms", [])
+        if any(term.lower() in text_lower for term in viz_terms):
+            context_clues.append("Visualization term in context")
+            
+        return bool(context_clues), context_clues
+
+    ###############################################################################
+    # SUBSECTION: ADDRESS CONTEXT CHECK
+    ###############################################################################
+    def check_address_context() -> Tuple[bool, List[str], int]:
+        """Check for address patterns around the entity."""
+        context_clues = []
+        indicator_count = 0
+        exclude_terms = set(address_context.get("exclude_from_penalty", []))
+        min_indicators = address_context.get("min_indicators", 2)  # New parameter
+        
+        # Skip if name is in exclude list
+        if any(part in exclude_terms for part in name_parts):
+            return False, [], 0
+        
+        # Check location patterns
+        for pattern in address_context.get("location_patterns", []):
+            if re.search(pattern, text, re.IGNORECASE):
+                context_clues.append("Matches location pattern")
+                indicator_count += 1
+                
+        # Check address indicators
+        indicators = address_context.get("address_indicators", [])
+        for indicator in indicators:
+            if indicator.lower() in text_lower:
+                context_clues.append("Address indicator present")
+                indicator_count += 1
+                
+        # Check numerical context
+        for pattern in address_context.get("numerical_context", []):
+            if re.search(pattern, text):
+                context_clues.append("Numerical address pattern found")
+                indicator_count += 1
+                
+        # Check abbreviations
+        abbrevs = address_context.get("common_abbreviations", [])
+        if any(re.search(rf"\b{abbrev}", text) for abbrev in abbrevs):
+            context_clues.append("Street abbreviation found")
+            indicator_count += 1
+            
+        return bool(context_clues), context_clues, indicator_count
 
     ###############################################################################
     # SUBSECTION: LENGTH VALIDATION
@@ -186,6 +255,27 @@ def validate_person(
         }
 
     ###############################################################################
+    # SUBSECTION: NAME POSITION AND FORMAT CHECKS
+    ###############################################################################
+    # Check if name appears at start of text or line
+    name_first = entity.start_char == 0 or text[max(0, entity.start_char-1)] == '\n'
+    if name_first:
+        boost = confidence_boosts.get("name_first", 0.3)
+        confidence_adjustment += boost
+        reasons.append(f"Name appears at start: +{boost}")
+
+    # Check for full name format (FirstName MI? LastName)
+    if len(name_parts) >= 2 and all(part[0].isupper() for part in name_parts):
+        if len(name_parts) == 3 and len(name_parts[1]) <= 2:  # Middle initial
+            boost = confidence_boosts.get("full_name", 0.2)
+            confidence_adjustment += boost
+            reasons.append(f"Full name with middle initial: +{boost}")
+        elif len(name_parts) == 2:  # First Last
+            boost = confidence_boosts.get("full_name", 0.2)
+            confidence_adjustment += boost
+            reasons.append(f"Full name format: +{boost}")
+
+    ###############################################################################
     # SUBSECTION: TITLE AND CONTEXT CHECKS
     ###############################################################################
     # Title check
@@ -195,6 +285,22 @@ def validate_person(
         confidence_adjustment += boost
         reasons.append(f"Title marker found: +{boost}")
 
+    # Technical context check
+    if entity.detector_source == "spacy":  # Only check for spaCy detections
+        has_technical, tech_reasons = check_technical_context()
+        if has_technical:
+            penalty = confidence_penalties.get("technical_context", -0.5)  # Updated value
+            confidence_adjustment += penalty
+            reasons.append(f"Technical context ({', '.join(tech_reasons)}): {penalty}")
+
+    # Address context check with minimum indicators
+    has_address, addr_reasons, indicator_count = check_address_context()
+    min_indicators = address_context.get("min_indicators", 2)
+    if has_address and indicator_count >= min_indicators:
+        penalty = confidence_penalties.get("address_context", -0.3)
+        confidence_adjustment += penalty
+        reasons.append(f"Address context ({', '.join(addr_reasons)}, {indicator_count} indicators): {penalty}")
+
     ###############################################################################
     # SUBSECTION: CAPITALIZATION RULES
     ###############################################################################
@@ -202,7 +308,7 @@ def validate_person(
     if name_text.isupper():
         if validation_rules.get("allow_all_caps", True):
             if len(name_parts) >= 2 or has_title:
-                boost = confidence_boosts.get("multiple_words", 0.1)
+                boost = confidence_boosts.get("multiple_words", 0.2)  # Updated value
                 confidence_adjustment += boost
                 reasons.append(f"Valid ALL CAPS name: +{boost}")
             else:
@@ -214,7 +320,7 @@ def validate_person(
                 }
     else:
         # Regular capitalization check
-        if not all(part[0].isupper() for part in name_parts):
+        if validation_rules.get("require_initial_cap", True) and not all(part[0].isupper() for part in name_parts):
             reasons.append("Name parts must be properly capitalized")
             penalty = confidence_penalties.get("lowercase", -0.2)
             return {
@@ -223,7 +329,7 @@ def validate_person(
                 "reasons": reasons
             }
         
-        boost = confidence_boosts.get("proper_case", 0.1)
+        boost = confidence_boosts.get("proper_case", 0.2)  # Updated value
         confidence_adjustment += boost
         reasons.append(f"Proper capitalization: +{boost}")
 
@@ -232,7 +338,7 @@ def validate_person(
     ###############################################################################
     # Multiple word boost
     if len(name_parts) >= 2:
-        boost = confidence_boosts.get("multiple_words", 0.1)
+        boost = confidence_boosts.get("multiple_words", 0.2)  # Updated value
         confidence_adjustment += boost
         reasons.append(f"Multiple words: +{boost}")
 
@@ -241,8 +347,6 @@ def validate_person(
         "confidence_adjustment": confidence_adjustment,
         "reasons": reasons
     }
-
-# redactor/validation/entity_validation.py
 
 ###############################################################################
 # SECTION: LOCATION ENTITY VALIDATION
