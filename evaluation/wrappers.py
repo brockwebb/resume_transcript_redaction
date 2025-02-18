@@ -1,7 +1,7 @@
 from dataclasses import dataclass, replace
 from pathlib import Path
 import fitz
-from typing import List, Optional
+from typing import List, Optional, Dict 
 from evaluation.models import Entity, SensitivityLevel
 
 class RedactionWrapper:
@@ -55,3 +55,42 @@ class RedactionWrapper:
             entities.append(updated_entity)
        
         return entities
+
+class MetricsWrapper:
+    """Wrapper to handle different data structures for metrics calculations."""
+    
+    def __init__(self, metrics_calculator):
+        """
+        Initialize wrapper with existing metrics calculator.
+        
+        Args:
+            metrics_calculator: Object that calculates metrics (e.g. EntityMetrics)
+        """
+        self.calculator = metrics_calculator
+        
+    def calculate_type_metrics(self, entity_type: str, matches: Dict) -> Dict:
+        """
+        Calculate metrics handling both lists and sets of matches.
+        
+        Args:
+            entity_type: Type of entity to calculate metrics for
+            matches: Dictionary of matches (can contain either sets or lists)
+            
+        Returns:
+            Dict containing metrics for the entity type
+            {
+                "true_positives": int,
+                "false_positives": int,
+                "false_negatives": int,
+                "detection_rate": float
+            }
+        """
+        # Convert any sets to lists for calculator
+        list_matches = {
+            "true_positives": list(matches.get("true_positives", set())),
+            "false_positives": list(matches.get("false_positives", set())),
+            "false_negatives": list(matches.get("false_negatives", set())),
+            "partial_matches": list(matches.get("partial_matches", set()))
+        }
+        
+        return self.calculator._calculate_type_metrics(entity_type, list_matches)
