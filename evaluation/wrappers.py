@@ -60,37 +60,26 @@ class MetricsWrapper:
     """Wrapper to handle different data structures for metrics calculations."""
     
     def __init__(self, metrics_calculator):
-        """
-        Initialize wrapper with existing metrics calculator.
-        
-        Args:
-            metrics_calculator: Object that calculates metrics (e.g. EntityMetrics)
-        """
         self.calculator = metrics_calculator
         
     def calculate_type_metrics(self, entity_type: str, matches: Dict) -> Dict:
-        """
-        Calculate metrics handling both lists and sets of matches.
+        """Calculate metrics handling different match data structures."""
+        # First make all entity types hashable
+        safe_matches = {}
+        for key, entities in matches.items():
+            if isinstance(entities, (list, set)):
+                # Safe conversion to list with no list-typed attributes
+                safe_entities = []
+                for entity in entities:
+                    if hasattr(entity, 'entity_type') and isinstance(entity.entity_type, list):
+                        # Create copy with tuple instead of list
+                        safe_entity = replace(entity, entity_type=tuple(entity.entity_type))
+                        safe_entities.append(safe_entity)
+                    else:
+                        safe_entities.append(entity)
+                safe_matches[key] = safe_entities
+            else:
+                safe_matches[key] = entities
         
-        Args:
-            entity_type: Type of entity to calculate metrics for
-            matches: Dictionary of matches (can contain either sets or lists)
-            
-        Returns:
-            Dict containing metrics for the entity type
-            {
-                "true_positives": int,
-                "false_positives": int,
-                "false_negatives": int,
-                "detection_rate": float
-            }
-        """
-        # Convert any sets to lists for calculator
-        list_matches = {
-            "true_positives": list(matches.get("true_positives", set())),
-            "false_positives": list(matches.get("false_positives", set())),
-            "false_negatives": list(matches.get("false_negatives", set())),
-            "partial_matches": list(matches.get("partial_matches", set()))
-        }
-        
-        return self.calculator._calculate_type_metrics(entity_type, list_matches)
+        # Now calculate metrics using the safe matches
+        return self.calculator._calculate_type_metrics(entity_type, safe_matches)

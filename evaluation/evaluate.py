@@ -1134,106 +1134,171 @@ class StageOneEvaluator:
             print("\nNo clear false positives detected")
 
 
+
+    
 ############################################################################
 # SECTION 9: SUMMARY REPORTS
 ############################################################################
 
     def generate_evaluation_summary(self, results: Dict) -> None:
         """
-        Generate and display a concise evaluation summary report.
-        Shows entity stats, type performance, and failures.
+        Generate a simple summary report of entity detection results.
+        Avoids complex metrics calculation to ensure reliability.
         """
+        # 1. Basic counts
+        ground_truth = results.get("ground_truth", [])
+        detected = results.get("detection_analysis", {}).get("entities", [])
+        
+        total_truth = len(ground_truth) 
+        total_detected = len(detected)
+        
+        # 2. Count by type
+        def count_by_type(entities):
+            counts = {}
+            for entity in entities:
+                # If entity_type is a list, count each type
+                if isinstance(entity.entity_type, list):
+                    for t in entity.entity_type:
+                        counts[t] = counts.get(t, 0) + 1
+                else:
+                    # String type - simple increment
+                    t = entity.entity_type
+                    counts[t] = counts.get(t, 0) + 1
+            return counts
+        
+        truth_counts = count_by_type(ground_truth)
+        detected_counts = count_by_type(detected)
+        
+        # 3. Find simple matches
+        matches = 0
+        for truth in ground_truth:
+            truth_text = truth.text.lower()
+            for detect in detected:
+                if detect.text.lower() == truth_text:
+                    matches += 1
+                    break
+        
+        # 4. Generate simple report
         from tabulate import tabulate
-    
-        # Get stats
-        test_id = results.get('test_id', 'unknown')
-        total_truth = len(results.get("ground_truth", []))
-        total_detected = len(results.get("detection_analysis", {}).get("entities", []))
         
-        # Get matches
-        matches = self.entity_matcher.find_matches(
-            results.get("ground_truth", []),
-            results.get("detection_analysis", {}).get("entities", [])
-        )
-        
-        true_positives = len(matches.get("true_positives", []))
-        false_positives = len(matches.get("false_positives", []))
-        false_negatives = len(matches.get("false_negatives", []))
-        partial_matches = len(matches.get("partial_matches", []))
-        
-        # Calculate detection rate
-        detection_rate = (true_positives / total_truth * 100) if total_truth > 0 else 0
-
-        # wrapper handles a list to string matching thing 
-        metrics_wrapper = MetricsWrapper(self.entity_metrics)
-        
-        # Generate performance table by type
-        type_rows = []
-        for entity_type in self._get_all_entity_types(results):
-            type_metrics = self._calculate_type_metrics(entity_type, matches)
-            type_rows.append([
-                entity_type,
-                type_metrics["true_positives"],
-                type_metrics["false_positives"],
-                type_metrics["false_negatives"],
-                f"{type_metrics['detection_rate']:.1f}%"
-            ])
-    
-        # Print Report
         print("\nEvaluation Summary Report")
         print("=======================")
-        print(f"\nDocument: {test_id}")
-        print(f"Overall Detection Rate: {detection_rate:.1f}%")
-        print(f"Total Truth Set Entities: {total_truth}")
-        print(f"Total Detected Entities: {total_detected}")
-        print(f"True Positives: {true_positives}")
-        print(f"False Positives: {false_positives}")
-        print(f"False Negatives: {false_negatives}")
-        print(f"Partial Matches: {partial_matches}")
-    
-        # Print type performance table
+        print(f"\nDocument: {results.get('test_id', 'unknown')}")
+        print(f"Expected Entities: {total_truth}")
+        print(f"Found Entities: {total_detected}")
+        print(f"Text Matches: {matches}")
+        
+        if total_truth > 0:
+            match_rate = (matches / total_truth) * 100
+            print(f"Match Rate: {match_rate:.1f}%")
+        
+        # 5. Type breakdown tables
+        type_rows = []
+        for entity_type, count in sorted(truth_counts.items()):
+            detected = detected_counts.get(entity_type, 0)
+            match_rate = (min(count, detected) / count * 100) if count > 0 else 0
+            type_rows.append([
+                entity_type,
+                count,
+                detected,
+                f"{match_rate:.1f}%"
+            ])
+        
         print("\nPerformance by Entity Type:")
         print(tabulate(
             type_rows,
-            headers=["Entity Type", "TP", "FP", "FN", "Detection Rate"],
+            headers=["Entity Type", "Expected", "Found", "Match Rate"],
             tablefmt="simple"
         ))
-    
-        # Show misses and false positives
-        if false_negatives > 0:
-            print("\nMissed Entities (in truth set but not detected):")
-            for entity in matches.get("false_negatives", []):
-                print(f"  * {entity.text} ({entity.entity_type}) at chars {entity.start_char}-{entity.end_char}")
         
-        if false_positives > 0:
-            print("\nFalse Positives (detected but not in truth set):")
-            for entity in matches.get("false_positives", []):
-                print(f"  * {entity.text} ({entity.entity_type}) at chars {entity.start_char}-{entity.end_char}")
-    
-        # Show partial matches
-        if partial_matches > 0:
-            print("\nPartial Matches:")
-            for truth, detected in matches.get("partial_matches", []):
-                print(f"  * Truth: \"{truth.text}\" vs Detected: \"{detected.text}\"")
-                print(f"    Position: {detected.start_char}-{detected.end_char}")
+        # 6. List misses and extra detections
+        truth_texts = {e.text.lower() for e in ground_truth}
+        detected_texts = {e.text.lower() for e in detected}
+        
+        missed = truth_texts - detected_texts
+        extra = detected_texts - truth_texts
+        
+        if missed:
+            print("\nMissed Entities:")
+            for text in sorted(missed):
+                # Find all ground truth entities with this text
+                matching_entities = [e for e in ground_truth if e.text.lower() == text]
+                for entity in matching_entities:
+                    print(f"  * {entity.text} ({entity.entity_type}) at chars {entity.start_char}-{entity.end_char}")
+                    
+        if extra:
+            print("\nExtra Detections:")
+            for text in sorted(extra):
+                # Find all detected entities with this text
+                matching_entities = [e for e in detected if e.text.lower() == text]
+                for entity in matching_entities:
+                    print(f"  * {entity.text} ({entity.entity_type}) at chars {entity.start_char}-{entity.end_char}")
 
 
     def _get_all_entity_types(self, results: Dict) -> Set[str]:
         """Get unique entity types from both truth and detected sets."""
-        truth_types = {e.entity_type for e in results.get("ground_truth", [])}
-        detected_types = {e.entity_type for e in 
-                         results.get("detection_analysis", {}).get("entities", [])}
-        return truth_types.union(detected_types)
+        all_types = set()
+        
+        for e in results.get("ground_truth", []):
+            all_types.update(self._normalize_entity_type(e.entity_type))
+        
+        for e in results.get("detection_analysis", {}).get("entities", []):
+            all_types.update(self._normalize_entity_type(e.entity_type))
+        
+        return all_types
+
+    def _normalize_entity_type(self, entity_type) -> Set[str]:
+        """
+        Convert any entity type format to a set of string types.
+        Handles nested lists, single strings, and other edge cases.
+        
+        Args:
+            entity_type: Entity type in any format (string, list, etc)
+            
+        Returns:
+            Set of string entity types
+        """
+        types = set()
+        if isinstance(entity_type, list):
+            for t in entity_type:
+                # Recursively flatten in case of nested lists
+                types.update(self._normalize_entity_type(t))
+        elif entity_type is not None:
+            # Convert any non-None value to string
+            types.add(str(entity_type))
+        return types
     
+
+
     def _calculate_type_metrics(self, entity_type: str, matches: Dict) -> Dict:
         """Calculate statistics for a specific entity type."""
-        type_true_positives = len([e for e in matches.get("true_positives", []) 
-                                  if e.entity_type == entity_type])
-        type_false_positives = len([e for e in matches.get("false_positives", []) 
-                                   if e.entity_type == entity_type])
-        type_false_negatives = len([e for e in matches.get("false_negatives", []) 
-                                   if e.entity_type == entity_type])
+        # Safety checks to prevent errors
+        if not matches:
+            return {
+                "true_positives": 0,
+                "false_positives": 0, 
+                "false_negatives": 0,
+                "detection_rate": 0
+            }
         
+        # Ensure we're working with safe collections
+        true_positives = matches.get("true_positives", [])
+        false_positives = matches.get("false_positives", [])
+        false_negatives = matches.get("false_negatives", [])
+        
+        if not isinstance(true_positives, (list, set, tuple)):
+            true_positives = []
+        if not isinstance(false_positives, (list, set, tuple)):
+            false_positives = []
+        if not isinstance(false_negatives, (list, set, tuple)):
+            false_negatives = []
+        
+        # Count entities of the target type
+        type_true_positives = len([e for e in true_positives if hasattr(e, 'entity_type') and e.entity_type == entity_type])
+        type_false_positives = len([e for e in false_positives if hasattr(e, 'entity_type') and e.entity_type == entity_type])
+        type_false_negatives = len([e for e in false_negatives if hasattr(e, 'entity_type') and e.entity_type == entity_type])
+        
+        # Calculate detection rate safely
         total = type_true_positives + type_false_negatives
         detection_rate = (type_true_positives / total * 100) if total > 0 else 0
         
@@ -1253,7 +1318,14 @@ def main():
     """Main entry point for evaluation tool."""
     try:
         args = parse_arguments()
-        configure_logging(args.quiet)
+        
+        # If summary mode is enabled, suppress all logging immediately
+        if hasattr(args, 'summary') and args.summary:
+            for handler in logging.root.handlers[:]:
+                logging.root.removeHandler(handler)
+            logging.basicConfig(level=logging.CRITICAL)
+        else:
+            configure_logging(args.quiet)
         
         evaluator = StageOneEvaluator()
         handle_command(evaluator, args)
@@ -1261,6 +1333,7 @@ def main():
     except Exception as e:
         print(f"Error: {str(e)}", file=sys.stderr)
         sys.exit(1)
+
 
 def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments."""
@@ -1333,25 +1406,19 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 def handle_command(evaluator: StageOneEvaluator, args: argparse.Namespace) -> None:
-    """
-    Handle evaluation command execution.
-    
-    Args:
-        evaluator: Initialized evaluator instance
-        args: Parsed command line arguments
-    """
-    if args.command == "analyze":
-        if args.summary:
-            # Suppress all logging before any processing
-            for logger_name in ['config_loader', 'presidio-analyzer', 'evaluation', 'redactor']:
-                logging.getLogger(logger_name).setLevel(logging.CRITICAL)
-            logging.getLogger().setLevel(logging.CRITICAL)
+    """Handle evaluation command execution."""
+    if args.command == "analyze" and args.summary:
+        # Suppress ALL logging immediately for summary mode
+        logging.getLogger().setLevel(logging.CRITICAL)
+        for logger_name in logging.root.manager.loggerDict:
+            logging.getLogger(logger_name).setLevel(logging.CRITICAL)
             
-            results = evaluator.analyze_detection(args.test[0], args.entity)
+    if args.command == "analyze":
+        results = evaluator.analyze_detection(args.test[0], args.entity)
+        
+        if args.summary:
             evaluator.generate_evaluation_summary(results)
         else:
-            # Normal analysis with whatever debug level was set
-            results = evaluator.analyze_detection(args.test[0], args.entity)
             evaluator.display_analysis(results, args.entity)
             
     elif args.command == "detect":

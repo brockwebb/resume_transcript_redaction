@@ -283,6 +283,207 @@ class PresidioDetector(BaseDetector):
                     )
                     
                     self.analyzer.registry.add_recognizer(edu_recognizer)
+
+
+                # PHI (Protected Health Information) recognizer
+                if "PHI" in validation_params:
+                    phi_config = validation_params["PHI"]
+                    phi_patterns = []
+                    
+                    # Add patterns for specific medical conditions
+                    if "patterns" in phi_config:
+                        specific_patterns = phi_config["patterns"].get("specific_conditions", {}).get("regex", [])
+                        for i, pattern in enumerate(specific_patterns):
+                            phi_patterns.append(
+                                Pattern(
+                                    name=f"phi_specific_{i}",
+                                    regex=pattern,
+                                    score=0.85
+                                )
+                            )
+                    
+                    # Add medication patterns
+                    if "patterns" in phi_config and "medication_patterns" in phi_config["patterns"]:
+                        med_patterns = phi_config["patterns"]["medication_patterns"].get("regex", [])
+                        for i, pattern in enumerate(med_patterns):
+                            phi_patterns.append(
+                                Pattern(
+                                    name=f"phi_medication_{i}",
+                                    regex=pattern,
+                                    score=0.80
+                                )
+                            )
+                    
+                    # Add treatment/procedure patterns
+                    if "patterns" in phi_config and "procedure_context" in phi_config["patterns"]:
+                        proc_patterns = phi_config["patterns"]["procedure_context"].get("regex", [])
+                        for i, pattern in enumerate(proc_patterns):
+                            phi_patterns.append(
+                                Pattern(
+                                    name=f"phi_procedure_{i}",
+                                    regex=pattern,
+                                    score=0.80
+                                )
+                            )
+                    
+                    # Add medical context patterns
+                    if "patterns" in phi_config and "medical_context_patterns" in phi_config["patterns"]:
+                        context_patterns = phi_config["patterns"]["medical_context_patterns"].get("regex", [])
+                        for i, pattern in enumerate(context_patterns):
+                            phi_patterns.append(
+                                Pattern(
+                                    name=f"phi_context_{i}",
+                                    regex=pattern,
+                                    score=0.70
+                                )
+                            )
+                    
+                    # Add VA/disability patterns
+                    va_patterns = [
+                        r"\b(?:\d{1,3}%\s+(?:service[\s-]*connected|VA|disabled|disability))",
+                        r"\b(?:service[\s-]*connected\s+(?:disability|condition|rating)\s+(?:of\s+)?\d{1,3}%)",
+                        r"\b(?:VA\s+(?:disability|rating)\s+(?:of\s+)?\d{1,3}%)",
+                        r"\b(?:permanent\s+and\s+total\s+disability)"
+                    ]
+                    for i, pattern in enumerate(va_patterns):
+                        phi_patterns.append(
+                            Pattern(
+                                name=f"phi_va_{i}",
+                                regex=pattern,
+                                score=0.85
+                            )
+                        )
+                    
+                    # Create context from categories and common terms
+                    context_words = phi_config.get("context_words", [])
+                    if "categories" in phi_config:
+                        # Add medical conditions
+                        for condition_list in phi_config["categories"].get("medical_conditions", {}).values():
+                            context_words.extend(condition_list)
+                        
+                        # Add treatments
+                        for treatment_list in phi_config["categories"].get("treatments", {}).values():
+                            context_words.extend(treatment_list)
+                    
+                    phi_recognizer = PatternRecognizer(
+                        supported_entity="PHI",
+                        patterns=phi_patterns,
+                        context=context_words
+                    )
+                    
+                    self.analyzer.registry.add_recognizer(phi_recognizer)
+                    if self.debug_mode:
+                        self.logger.debug(f"Added PHI recognizer with {len(phi_patterns)} patterns")
+
+                # PROTECTED_CLASS recognizer
+                if "PROTECTED_CLASS" in validation_params:
+                    pc_config = validation_params["PROTECTED_CLASS"]
+                    pc_patterns = []
+                    
+                    # Gender patterns
+                    if "categories" in pc_config and "gender_patterns" in pc_config["categories"]:
+                        gender_conf = pc_config["categories"]["gender_patterns"]
+                        
+                        # Organization membership patterns
+                        if "org_membership" in gender_conf:
+                            pc_patterns.append(
+                                Pattern(
+                                    name="pc_gender_org",
+                                    regex=gender_conf["org_membership"],
+                                    score=0.85
+                                )
+                            )
+                        
+                        # Identity regex
+                        if "identity_regex" in gender_conf:
+                            pc_patterns.append(
+                                Pattern(
+                                    name="pc_gender_identity",
+                                    regex=gender_conf["identity_regex"],
+                                    score=0.80
+                                )
+                            )
+                    
+                    # Religious patterns
+                    if "categories" in pc_config and "religious_patterns" in pc_config["categories"]:
+                        rel_conf = pc_config["categories"]["religious_patterns"]
+                        
+                        # Organization membership patterns
+                        if "org_membership" in rel_conf:
+                            pc_patterns.append(
+                                Pattern(
+                                    name="pc_religious_org",
+                                    regex=rel_conf["org_membership"],
+                                    score=0.85
+                                )
+                            )
+                        
+                        # Identity regex
+                        if "identity_regex" in rel_conf:
+                            pc_patterns.append(
+                                Pattern(
+                                    name="pc_religious_identity",
+                                    regex=rel_conf["identity_regex"],
+                                    score=0.80
+                                )
+                            )
+                    
+                    # Pronoun patterns
+                    if "categories" in pc_config and "pronoun_patterns" in pc_config["categories"]:
+                        pronoun_conf = pc_config["categories"]["pronoun_patterns"]
+                        for pattern_name, pattern in pronoun_conf.items():
+                            pc_patterns.append(
+                                Pattern(
+                                    name=f"pc_pronoun_{pattern_name}",
+                                    regex=pattern,
+                                    score=0.90
+                                )
+                            )
+                    
+                    # Build context words
+                    context_words = []
+                    
+                    # Add gender terms
+                    if "categories" in pc_config and "gender_patterns" in pc_config["categories"]:
+                        gender_terms = pc_config["categories"]["gender_patterns"].get("gender_terms", [])
+                        context_words.extend(gender_terms)
+                        
+                        # Add identity context
+                        context_words.extend(pc_config["categories"]["gender_patterns"].get("identity_context", []))
+                        context_words.extend(pc_config["categories"]["gender_patterns"].get("org_context", []))
+                    
+                    # Add religious terms
+                    if "categories" in pc_config and "religious_patterns" in pc_config["categories"]:
+                        religious_terms = pc_config["categories"]["religious_patterns"].get("religious_terms", [])
+                        context_words.extend(religious_terms)
+                        
+                        # Add identity context
+                        context_words.extend(pc_config["categories"]["religious_patterns"].get("identity_context", []))
+                        context_words.extend(pc_config["categories"]["religious_patterns"].get("org_context", []))
+                    
+                    # Add race/ethnicity terms
+                    if "categories" in pc_config and "race_ethnicity" in pc_config["categories"]:
+                        context_words.extend(pc_config["categories"]["race_ethnicity"])
+                    
+                    # Add orientation terms
+                    if "categories" in pc_config and "orientation" in pc_config["categories"]:
+                        context_words.extend(pc_config["categories"]["orientation"])
+                    
+                    # Remove duplicates while preserving order
+                    context_words = list(dict.fromkeys(context_words))
+                    
+                    pc_recognizer = PatternRecognizer(
+                        supported_entity="PROTECTED_CLASS",
+                        patterns=pc_patterns,
+                        context=context_words
+                    )
+                    
+                    self.analyzer.registry.add_recognizer(pc_recognizer)
+                    if self.debug_mode:
+                        self.logger.debug(f"Added PROTECTED_CLASS recognizer with {len(pc_patterns)} patterns")
+
+
+
             
             # Keep all recognizers - let ValidationCoordinator handle the complex validation
             if self.debug_mode:
@@ -293,6 +494,7 @@ class PresidioDetector(BaseDetector):
             if self.logger:
                 self.logger.error(f"Error initializing Presidio: {str(e)}")
             raise
+
 
     
 ###############################################################################

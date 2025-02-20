@@ -103,15 +103,39 @@ class SpacyDetector(BaseDetector):
             
             # Default mapping and fallback to routing configuration
             self.entity_mappings = spacy_config.get("mappings", {
+                # Person mappings
                 "PERSON": "PERSON",
+                
+                # Date mappings
                 "DATE": "DATE_TIME",
+                "TIME": "DATE_TIME",
+                
+                # Educational institution mappings
                 "ORG": "EDUCATIONAL_INSTITUTION",  # Universities, colleges
-                "DISEASES": "PHI",  # Medical conditions
-                "PROBLEM": "PHI",   # Medical issues/conditions
-                "TREATMENT": "PHI", # Medical procedures/treatments
-                "NORP": "PROTECTED_CLASS",  # Nationalities, religious, political groups
-                "RELIGION": "PROTECTED_CLASS"
-                # Add other default mappings as needed
+                
+                # PHI/Medical mappings - enhanced
+                "DISEASES": "PHI",        # Medical conditions
+                "PROBLEM": "PHI",         # Medical issues/conditions
+                "TREATMENT": "PHI",       # Medical procedures/treatments
+                "CONDITION": "PHI",       # Medical conditions 
+                "DISORDER": "PHI",        # Medical disorders
+                "SYMPTOM": "PHI",         # Medical symptoms
+                "HOSPITAL": "PHI",        # Medical facilities
+                "MEDICALRECORD": "PHI",   # Medical records
+                "MEDICATION": "PHI",      # Medications
+                "PROCEDURE": "PHI",       # Medical procedures
+                "DIAGNOSIS": "PHI",       # Medical diagnoses
+                
+                # Protected class mappings - enhanced
+                "NORP": "PROTECTED_CLASS",      # Nationalities, religious, political groups
+                "RELIGION": "PROTECTED_CLASS",  # Religious groups
+                "NATIONALITY": "PROTECTED_CLASS", # National origin
+                "ETHNICITY": "PROTECTED_CLASS",   # Ethnic groups
+                "RACE": "PROTECTED_CLASS",        # Racial identifiers
+                "GENDER": "PROTECTED_CLASS",      # Gender identities
+                "ORIENTATION": "PROTECTED_CLASS", # Sexual orientation
+                "IDEOLOGY": "PROTECTED_CLASS",    # Political/religious ideology
+                "BELIEF": "PROTECTED_CLASS",      # Belief systems
             })
             
             # Get confidence thresholds
@@ -129,12 +153,77 @@ class SpacyDetector(BaseDetector):
             if self.logger:
                 self.logger.error(f"Error validating spaCy config: {str(e)}")
             return False
-    
 
-
-###############################################################################
-# SECTION 3: ENTITY DETECTION
-###############################################################################
+    def _process_custom_entities(self, doc, text: str) -> List[Entity]:
+        """
+        Process custom entity types that need special handling beyond spaCy's built-in NER.
+        
+        Args:
+            doc: Processed spaCy Doc object
+            text: Original text string
+            
+        Returns:
+            List of additional detected entities
+        """
+        custom_entities = []
+        
+        # PHI custom patterns
+        phi_patterns = [
+            (r"\b\d{1,3}%\s+(?:service[\s-]*connected|VA|disabled|disability)", "PHI"),
+            (r"\bservice[\s-]*connected\s+(?:disability|condition|rating)\s+(?:of\s+)?\d{1,3}%\b", "PHI"),
+            (r"\bVA\s+(?:disability|rating)\s+(?:of\s+)?\d{1,3}%\b", "PHI"),
+            (r"\b(?:Type\s*[12]\s*diabetes|insulin\s+dependent)\b", "PHI"),
+            (r"\b(?:permanent\s+and\s+total|P&T)\s+disability\b", "PHI"),
+            (r"\b(?:reasonable\s+accommodation|medical\s+leave|ADA\s+request)\b", "PHI")
+        ]
+        
+        # Protected class custom patterns
+        pc_patterns = [
+            (r"\bprounou?ns[:;]\s*(?:he/him|she/her|they/them)", "PROTECTED_CLASS"),
+            (r"\b(?:gender|sexual)\s+(?:identity|orientation)\b", "PROTECTED_CLASS"),
+            (r"\b(?:Women|Men|Gender|Trans|Nonbinary)(?:'s)?\s+(?:Association|Society|Network|Group|Organization)\b", "PROTECTED_CLASS"),
+            (r"\b(?:Muslim|Jewish|Christian|Buddhist|Hindu|Sikh)\s+(?:Student|Community|Association)\b", "PROTECTED_CLASS"),
+            (r"\b(?:LGBTQ(?:\+|IA)?|lesbian|gay|bisexual|transgender|queer)\b", "PROTECTED_CLASS"),
+            (r"\b(?:African\s*American|Latino|Hispanic|Asian\s*American|Pacific\s*Islander|Native\s*American)\b", "PROTECTED_CLASS")
+        ]
+        
+        # Process all patterns
+        all_patterns = phi_patterns + pc_patterns
+        for pattern, entity_type in all_patterns:
+            for match in re.finditer(pattern, text, re.IGNORECASE):
+                # Calculate character positions
+                start_char = match.start()
+                end_char = match.end()
+                matched_text = match.group()
+                
+                # Create entity with appropriate confidence
+                base_confidence = self.confidence_thresholds.get(
+                    entity_type, 
+                    self.confidence_threshold
+                )
+                
+                entity = Entity(
+                    text=matched_text,
+                    entity_type=entity_type,
+                    start_char=start_char,
+                    end_char=end_char,
+                    confidence=base_confidence,
+                    detector_source="spacy",
+                    page=None,
+                    sensitivity=None,
+                    validation_rules=[],
+                    original_confidence=base_confidence
+                )
+                
+                custom_entities.append(entity)
+                
+                if self.debug_mode and self.logger:
+                    self.logger.debug(
+                        f"Custom entity: {entity_type} "
+                        f"'{matched_text}' (Confidence: {base_confidence:.2f})"
+                    )
+                    
+        return custom_entities
 
     def detect_entities(self, text: str, target_entity_type: Optional[str] = None) -> List[Entity]:
         """Detect entities in the provided text using SpaCy NLP."""
@@ -184,6 +273,10 @@ class SpacyDetector(BaseDetector):
                             f"spaCy entity: {entity.entity_type} "
                             f"'{entity.text}' (Confidence: {entity.confidence:.2f})"
                         )
+            
+            # Add custom entity processing
+            custom_entities = self._process_custom_entities(doc, text)
+            entities.extend(custom_entities)
     
             return entities
     
@@ -191,11 +284,6 @@ class SpacyDetector(BaseDetector):
             if self.logger:
                 self.logger.error(f"Error detecting entities with SpaCy: {e}")
             return []
-
-###############################################################################
-# SECTION 4: VALIDATION
-###############################################################################
-
 
     def validate_detection(self, entity: Entity, text: str = "") -> bool:
         """
