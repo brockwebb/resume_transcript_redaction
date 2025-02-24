@@ -1140,47 +1140,53 @@ class StageOneEvaluator:
 # SECTION 9: SUMMARY REPORTS
 ############################################################################
 
+
     def generate_evaluation_summary(self, results: Dict) -> None:
         """
         Generate a simple summary report of entity detection results.
-        Avoids complex metrics calculation to ensure reliability.
+        Uses defensive programming to ensure reliability.
         """
-        # 1. Basic counts
-        ground_truth = results.get("ground_truth", [])
-        detected = results.get("detection_analysis", {}).get("entities", [])
+        # 1. Basic counts with safety checks
+        ground_truth = results.get("ground_truth", []) or []
+        detected = results.get("detection_analysis", {}).get("entities", []) or []
         
         total_truth = len(ground_truth) 
         total_detected = len(detected)
         
-        # 2. Count by type
+        # 2. Count by type using a safe method
         def count_by_type(entities):
             counts = {}
             for entity in entities:
-                # If entity_type is a list, count each type
-                if isinstance(entity.entity_type, list):
-                    for t in entity.entity_type:
-                        counts[t] = counts.get(t, 0) + 1
-                else:
-                    # String type - simple increment
-                    t = entity.entity_type
-                    counts[t] = counts.get(t, 0) + 1
+                if not hasattr(entity, 'entity_type'):
+                    continue
+                    
+                entity_type = entity.entity_type
+                # Handle non-string types safely
+                if not isinstance(entity_type, str):
+                    entity_type = str(entity_type)
+                    
+                counts[entity_type] = counts.get(entity_type, 0) + 1
             return counts
         
         truth_counts = count_by_type(ground_truth)
         detected_counts = count_by_type(detected)
         
-        # 3. Find simple matches
+        # 3. Find simple matches with safety checks
         matches = 0
         for truth in ground_truth:
+            if not hasattr(truth, 'text'):
+                continue
+                
             truth_text = truth.text.lower()
             for detect in detected:
+                if not hasattr(detect, 'text'):
+                    continue
+                    
                 if detect.text.lower() == truth_text:
                     matches += 1
                     break
         
         # 4. Generate simple report
-        from tabulate import tabulate
-        
         print("\nEvaluation Summary Report")
         print("=======================")
         print(f"\nDocument: {results.get('test_id', 'unknown')}")
@@ -1192,9 +1198,12 @@ class StageOneEvaluator:
             match_rate = (matches / total_truth) * 100
             print(f"Match Rate: {match_rate:.1f}%")
         
-        # 5. Type breakdown tables
+        # 5. Type breakdown tables with defensive programming
+        from tabulate import tabulate
+        
         type_rows = []
-        for entity_type, count in sorted(truth_counts.items()):
+        for entity_type in sorted(set(truth_counts.keys()) | set(detected_counts.keys())):
+            count = truth_counts.get(entity_type, 0)
             detected = detected_counts.get(entity_type, 0)
             match_rate = (min(count, detected) / count * 100) if count > 0 else 0
             type_rows.append([
@@ -1211,28 +1220,70 @@ class StageOneEvaluator:
             tablefmt="simple"
         ))
         
-        # 6. List misses and extra detections
-        truth_texts = {e.text.lower() for e in ground_truth}
-        detected_texts = {e.text.lower() for e in detected}
-        
-        missed = truth_texts - detected_texts
-        extra = detected_texts - truth_texts
-        
-        if missed:
-            print("\nMissed Entities:")
-            for text in sorted(missed):
-                # Find all ground truth entities with this text
-                matching_entities = [e for e in ground_truth if e.text.lower() == text]
-                for entity in matching_entities:
-                    print(f"  * {entity.text} ({entity.entity_type}) at chars {entity.start_char}-{entity.end_char}")
+        # 6. List misses and extra detections - VERY DEFENSIVE IMPLEMENTATION 
+        try:
+            # Safe text extraction with defensive programming
+            truth_texts = set()
+            for entity in ground_truth:
+                if hasattr(entity, 'text') and isinstance(entity.text, str):
+                    truth_texts.add(entity.text.lower())
                     
-        if extra:
-            print("\nExtra Detections:")
-            for text in sorted(extra):
-                # Find all detected entities with this text
-                matching_entities = [e for e in detected if e.text.lower() == text]
-                for entity in matching_entities:
-                    print(f"  * {entity.text} ({entity.entity_type}) at chars {entity.start_char}-{entity.end_char}")
+            detected_texts = set()
+            for entity in detected:
+                if hasattr(entity, 'text') and isinstance(entity.text, str):
+                    detected_texts.add(entity.text.lower())
+            
+            # Only proceed if we have valid sets
+            if truth_texts and detected_texts:
+                missed = truth_texts - detected_texts
+                extra = detected_texts - truth_texts
+                
+                if missed:
+                    print("\nMissed Entities:")
+                    for text in sorted(missed):
+                        # Find matching ground truth entities
+                        matching_entities = []
+                        for e in ground_truth:
+                            if hasattr(e, 'text') and e.text.lower() == text:
+                                matching_entities.append(e)
+                                
+                        for entity in matching_entities:
+                            # Very defensive attribute access
+                            entity_text = getattr(entity, 'text', 'Unknown')
+                            entity_type = getattr(entity, 'entity_type', 'Unknown')
+                            start_char = getattr(entity, 'start_char', 0)
+                            end_char = getattr(entity, 'end_char', 0)
+                            
+                            # Convert everything to string to be safe
+                            try:
+                                print(f"  * {str(entity_text)} ({str(entity_type)}) at chars {int(start_char)}-{int(end_char)}")
+                            except (ValueError, TypeError):
+                                print(f"  * {str(entity_text)} (Unknown position)")
+                            
+                if extra:
+                    print("\nExtra Detections:")
+                    for text in sorted(extra):
+                        # Find matching detected entities
+                        matching_entities = []
+                        for e in detected:
+                            if hasattr(e, 'text') and e.text.lower() == text:
+                                matching_entities.append(e)
+                                
+                        for entity in matching_entities:
+                            # Very defensive attribute access
+                            entity_text = getattr(entity, 'text', 'Unknown')
+                            entity_type = getattr(entity, 'entity_type', 'Unknown')
+                            start_char = getattr(entity, 'start_char', 0)
+                            end_char = getattr(entity, 'end_char', 0)
+                            
+                            # Convert everything to string to be safe
+                            try:
+                                print(f"  * {str(entity_text)} ({str(entity_type)}) at chars {int(start_char)}-{int(end_char)}")
+                            except (ValueError, TypeError):
+                                print(f"  * {str(entity_text)} (Unknown position)")
+        except Exception as e:
+            # Last resort - catch any remaining error and just show basic summary
+            print(f"\nNote: Could not generate detailed entity listing. Basic summary shown above.")
 
 
     def _get_all_entity_types(self, results: Dict) -> Set[str]:

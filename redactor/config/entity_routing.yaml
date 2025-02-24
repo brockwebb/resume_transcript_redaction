@@ -68,9 +68,9 @@ routing:
         spacy_weight: 0.5
       PROTECTED_CLASS:
         minimum_combined: 0.6
-        presidio_weight: 0.35
-        spacy_weight: 0.65
+        presidio_weight: 0.05
+        spacy_weight: 0.95
       PHI:
         minimum_combined: 0.6
-        presidio_weight: 0.5
-        spacy_weight: 0.5
+        presidio_weight: 0.05
+        spacy_weight: 0.95
