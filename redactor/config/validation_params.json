@@ -450,6 +450,24 @@
             "ambiguous_term": -0.2,
             "generic_term": -0.3
         },
+        "patterns": {
+            "race_ethnicity": {
+                "regex": "\\b(?:[A-Z][a-z]+\\s+(?:American|Islander)|[A-Z][a-z]+(?:ese|ian)|(?:Black|White|Asian|Native|Indigenous|Multiracial|Biracial))\\b",
+                "confidence": 0.8
+            },
+            "nationality": {
+                "regex": "\\b(?:[A-Z][a-z]+(ian|ese|ish|i|an))\\b",
+                "confidence": 0.7
+            },
+            "gender_and_orientation": {
+                "regex": "\\b(?:LGBTQIA\\+?|Gay|Lesbian|Bisexual|Trans(?:gender)?|Non-binary|Nonbinary|Queer|Asexual|Pan)\\b",
+                "confidence": 0.8
+            },
+            "religion": {
+                "regex": "\\b(?:Muslim|Islamic|Jewish|J(?:udaism|ewish)|Christ(?:ian)?|Catholic|Protestant|Buddhist|Hindu|Sikh|Atheist|Agnostic|Secular)\\b",
+                "confidence": 0.8
+            }
+        },        
         "categories": {
             "gender_patterns": {
                 "org_membership": "\\b(?:(?:Women|Men|Gender|Trans|Nonbinary)\\s*'?s?\\s+(?:Leadership|Professional|Student|Medical|Business|Tech|STEM|Engineering)\\s+(?:Network|Association|Society|Group|Organization))|(?:(?:Women|Men|Gender|Trans|Nonbinary)\\s+(?:in|for|of|and|within|at)\\s+[a-zA-Z][a-zA-Z\\s]*)|(?:Association|Society|Network|Organization|Coalition)\\s+(?:of|for)\\s+(?:Women|Men|Gender|Trans|Nonbinary)",

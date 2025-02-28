@@ -296,86 +296,94 @@ class EnsembleCoordinator(BaseDetector):
                 # Validate combined entities
                 validated = []
                 for entity in combined:
-                    if self.validate_detection(entity, text):
-                        validated.append(entity)
+                    is_valid, updated_entity = self.validate_detection(entity, text)
+                    if is_valid:
+                        validated.append(updated_entity)
                 
                 combined_entities.extend(validated)
                 
             if self.debug_mode:
                 self.logger.debug(f"Combined {len(combined_entities)} ensemble entities")
-
-
-# Add this implementation to ensemble_coordinator.py
-# This would go in the _get_ensemble_entities method, right before the return statement
-# to ensure proper handling of PHI and PROTECTED_CLASS entities
-
+    
             # Special handling for PHI and PROTECTED_CLASS entities
-            if "PHI" in types_to_process or "PROTECTED_CLASS" in types_to_process:
+            if any(t in types_to_process for t in ["PHI", "PROTECTED_CLASS"]):
                 # For PHI and PROTECTED_CLASS, we need special confidence handling
                 special_types = [t for t in types_to_process if t in ("PHI", "PROTECTED_CLASS")]
                 
                 for entity_type in special_types:
                     if self.debug_mode:
                         self.logger.debug(f"Special processing for ensemble type: {entity_type}")
-                    
+                        
                     # Get thresholds from config
                     type_thresholds = self.ensemble_thresholds.get(entity_type, {})
                     min_combined = type_thresholds.get("minimum_combined", 0.6)
                     presidio_weight = type_thresholds.get("presidio_weight", 0.5)
                     spacy_weight = type_thresholds.get("spacy_weight", 0.5)
                     
-                    # Extra check: if we have no detections from either detector,
-                    # but confidence thresholds are low, create standalone entities
+                    # Get entities of this type from each detector
                     presidio_detections = [e for e in presidio_results if e.entity_type == entity_type]
                     spacy_detections = [e for e in spacy_results if e.entity_type == entity_type]
                     
-                    # Process any solo detections from presidio that meet threshold
-                    for p_entity in presidio_detections:
-                        weighted_confidence = p_entity.confidence * presidio_weight
-                        if weighted_confidence >= min_combined * 0.85:  # Allow slightly lower threshold
-                            # Create entity with adjusted confidence
-                            enhanced_entity = Entity(
-                                text=p_entity.text,
-                                entity_type=p_entity.entity_type,
-                                start_char=p_entity.start_char,
-                                end_char=p_entity.end_char,
-                                confidence=weighted_confidence,
+                    # For PROTECTED_CLASS, bypass validation and add spaCy entities directly
+                    if entity_type == "PROTECTED_CLASS" and spacy_detections:
+                        for s_entity in spacy_detections:
+                            # Mark it as coming from ensemble to track source
+                            enhanced_entity = replace(
+                                s_entity,
                                 detector_source="ensemble",
-                                page=None,
-                                sensitivity=None,
-                                validation_rules=[],
-                                original_confidence=weighted_confidence
+                                validation_rules=s_entity.validation_rules or []
                             )
-                            if self.validate_detection(enhanced_entity, text)[0]:
-                                combined_entities.append(enhanced_entity)
-                    
-                    # Process any solo detections from spacy that meet threshold
-                    for s_entity in spacy_detections:
-                        weighted_confidence = s_entity.confidence * spacy_weight
-                        if weighted_confidence >= min_combined * 0.85:  # Allow slightly lower threshold
-                            # Create entity with adjusted confidence
-                            enhanced_entity = Entity(
-                                text=s_entity.text,
-                                entity_type=s_entity.entity_type,
-                                start_char=s_entity.start_char,
-                                end_char=s_entity.end_char,
-                                confidence=weighted_confidence,
-                                detector_source="ensemble",
-                                page=None,
-                                sensitivity=None,
-                                validation_rules=[],
-                                original_confidence=weighted_confidence
-                            )
-                            if self.validate_detection(enhanced_entity, text)[0]:
-                                combined_entities.append(enhanced_entity)
-
+                            combined_entities.append(enhanced_entity)
+                            if self.debug_mode:
+                                self.logger.debug(f"Added PROTECTED_CLASS entity directly: {s_entity.text}")
+                    else:
+                        # Process any solo detections from presidio
+                        for p_entity in presidio_detections:
+                            weighted_confidence = p_entity.confidence * presidio_weight
+                            if weighted_confidence >= min_combined * 0.85:
+                                enhanced_entity = Entity(
+                                    text=p_entity.text,
+                                    entity_type=p_entity.entity_type,
+                                    start_char=p_entity.start_char,
+                                    end_char=p_entity.end_char,
+                                    confidence=weighted_confidence,
+                                    detector_source="ensemble",
+                                    page=None,
+                                    sensitivity=None,
+                                    validation_rules=[],
+                                    original_confidence=weighted_confidence
+                                )
+                                is_valid, updated_entity = self.validate_detection(enhanced_entity, text)
+                                if is_valid:
+                                    combined_entities.append(updated_entity)
+                        
+                        # Process any solo detections from spacy
+                        for s_entity in spacy_detections:
+                            weighted_confidence = s_entity.confidence * spacy_weight
+                            if weighted_confidence >= min_combined * 0.85:
+                                enhanced_entity = Entity(
+                                    text=s_entity.text,
+                                    entity_type=s_entity.entity_type,
+                                    start_char=s_entity.start_char,
+                                    end_char=s_entity.end_char,
+                                    confidence=weighted_confidence,
+                                    detector_source="ensemble",
+                                    page=None,
+                                    sensitivity=None,
+                                    validation_rules=[],
+                                    original_confidence=weighted_confidence
+                                )
+                                is_valid, updated_entity = self.validate_detection(enhanced_entity, text)
+                                if is_valid:
+                                    combined_entities.append(updated_entity)
             
             return combined_entities
             
         except Exception as e:
             if self.logger:
                 self.logger.error(f"Error in ensemble processing: {str(e)}")
-            return []
+            # Return what we have instead of an empty list if there's an error
+            return combined_entities if combined_entities else []
 
 
     def _combine_matching_entities(
