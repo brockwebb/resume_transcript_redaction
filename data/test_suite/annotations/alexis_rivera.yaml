@@ -13,31 +13,18 @@ entities:
     end_char: 16
   sensitivity: high
   instance: 1
-- text: 909 Jasmine Street, Apartment 8
+- text: 909 Jasmine Street, Apartment 8, Miami, FL 33130
   type: ADDRESS
   should_redact: true
   location:
     page: 1
     x0: 122.6993179321289
     y0: 124.8076171875
-    x1: 283.3946228027344
-    y1: 137.0966796875
-    start_char: 26
-    end_char: 57
-  sensitivity: high
-  instance: 1
-- text: Miami, FL 33130
-  type: LOCATION
-  should_redact: true
-  location:
-    page: 1
-    x0: 289.4982604980469
-    y0: 124.8076171875
     x1: 371.3697509765625
     y1: 137.0966796875
-    start_char: 59
+    start_char: 26
     end_char: 74
-  sensitivity: medium
+  sensitivity: high
   instance: 1
 - text: (305) 234-5678
   type: PHONE_NUMBER
@@ -182,17 +169,43 @@ entities:
     end_char: 713
   sensitivity: high
   instance: 1
-- text: July 2019
+- text: July 2019 – Present
   type: DATE_TIME
   should_redact: true
   location:
     page: 2
     x0: 72.0
     y0: 128.610595703125
-    x1: 119.05928039550781
+    x1: 183.84234619140625
     y1: 140.899658203125
     start_char: 1126
-    end_char: 1135
+    end_char: 1143
+  sensitivity: medium
+  instance: 1
+- text: Miami, FL
+  type: LOCATION
+  should_redact: true
+  location:
+    page: 2
+    x0: 188.0
+    y0: 458.0
+    x1: 254.0
+    y1: 470.0
+    start_char: 1557
+    end_char: 1566
+  sensitivity: medium
+  instance: 1
+- text: June 2018 – May 2019
+  type: DATE_TIME
+  should_redact: true
+  location:
+    page: 2
+    x0: 72.0
+    y0: 303.165771484375
+    x1: 183.84234619140625
+    y1: 315.454833984375
+    start_char: 1575
+    end_char: 1595
   sensitivity: medium
   instance: 1
 - text: UnidosUS
@@ -221,29 +234,16 @@ entities:
     end_char: 2084
   sensitivity: medium
   instance: 1
-- text: June 2018
-  type: DATE_TIME
+- text: women and Latinx
+  type: PROTECTED_CLASS
   should_redact: true
   location:
-    page: 2
-    x0: 72.0
-    y0: 303.165771484375
-    x1: 123.34773254394531
-    y1: 315.454833984375
-    start_char: 1575
-    end_char: 1584
+    page: 3
+    x0: 317.0
+    y0: 209.0
+    x1: 406.0
+    y1: 221.0
+    start_char: 2328
+    end_char: 2345
   sensitivity: medium
   instance: 1
-- text: May 2019
-  type: DATE_TIME
-  should_redact: true
-  location:
-    page: 2
-    x0: 135.56468200683594
-    y0: 303.165771484375
-    x1: 183.84234619140625
-    y1: 315.454833984375
-    start_char: 1587
-    end_char: 1595
-  sensitivity: medium
-  instance: 2

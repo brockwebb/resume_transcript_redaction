@@ -5,7 +5,7 @@ import sys
 import os
 import yaml
 from pathlib import Path
-from typing import List
+from typing import List, Set
 
 # Resolve project root path
 project_root = Path(__file__).resolve().parent.parent
@@ -42,11 +42,14 @@ def save_filename_mapping(mapping_dict: dict, output_dir: str):
         st.error(f"Error saving filename mapping: {e}")
         return False
 
-def resolve_paths(config_loader):
+def resolve_paths(config_loader: ConfigLoader):
     """Resolve all relative paths in configuration to absolute paths."""
     main_config = config_loader.get_config('main')
     if not main_config:
-        raise ValueError("Failed to load main configuration")
+        return {
+            'input_dir': project_root / 'data/redact_input',
+            'output_dir': project_root / 'data/redact_output',
+        }
 
     project_root = Path(__file__).parent.parent
     
@@ -62,9 +65,10 @@ def resolve_paths(config_loader):
     return paths
 
 class KeepWordManager:
-    """Manages custom keep words to be added during the session."""
+    """Manages custom keep words for the redaction session."""
     
     def __init__(self, processor: RedactionProcessor):
+        """Initialize with a redaction processor."""
         self.processor = processor
         self.custom_keep_words = set()
         
@@ -79,12 +83,13 @@ class KeepWordManager:
         # Add to processor's keep_words set
         if hasattr(self.processor, 'keep_words'):
             self.processor.keep_words.update(words)
-            
-        st.success(f"Added {len(words)} custom keep words")
+            st.success(f"Added {len(words)} custom keep words")
+        else:
+            st.warning("Keep words not supported by this processor")
         
-    def get_keep_words(self):
-        """Get the current list of custom keep words."""
-        return list(self.custom_keep_words)
+    def get_keep_words(self) -> Set[str]:
+        """Get the current set of custom keep words."""
+        return self.custom_keep_words
 
 # Main GUI function
 def main():
@@ -92,33 +97,70 @@ def main():
     st.markdown("Automatically detect and redact personal identifiable information from resumes")
 
     try:
-        # Initialize config loader and logger first
-        config_loader = ConfigLoader()
-        config_loader.load_all_configs()
-        
-        # Set up logger with appropriate level
+        # Initialize logger first
         logger = RedactionLogger(
             name="redaction_gui",
             log_level="INFO",
             log_dir="logs",
             console_output=True
         )
-
+        
+        # Initialize config loader
+        config_loader = ConfigLoader()
+        config_loader.load_all_configs()
+        
+        # Get available configs for display
+        available_configs = config_loader._cached_configs.keys()
+        
         # Resolve paths
         paths = resolve_paths(config_loader)
 
-        # Initialize RedactionProcessor with the same configuration as tests
+        # Initialize RedactionProcessor with proper error handling
         try:
             processor = RedactionProcessor(
-                config_loader=config_loader,  # Use the same config_loader as tests
+                config_loader=config_loader,
                 logger=logger
             )
+            
+            # Suppress excessive logging for missing configs
+            if hasattr(processor, 'logger') and processor.logger:
+                processor.logger.setLevel("WARNING")
+                
             # Initialize the keep word manager
             keep_word_manager = KeepWordManager(processor)
+            
         except Exception as e:
             st.error(f"Failed to initialize RedactionProcessor: {str(e)}")
             logger.error(f"RedactionProcessor initialization error: {str(e)}")
             return
+
+        # Create sidebar for configuration information
+        with st.sidebar:
+            st.subheader("System Information")
+            st.write(f"Available configurations: {', '.join(available_configs)}")
+            
+            # Display confidence threshold if available
+            main_config = config_loader.get_config('main')
+            if main_config and 'confidence_threshold' in main_config:
+                st.write(f"Confidence threshold: {main_config['confidence_threshold']}")
+                
+            # Show entity types being detected
+            entity_routing = config_loader.get_config('entity_routing')
+            if entity_routing and 'routing' in entity_routing:
+                all_entities = set()
+                routing = entity_routing['routing']
+                
+                # Collect all entity types from all detectors
+                for detector in ['presidio_primary', 'spacy_primary', 'ensemble_required']:
+                    if detector in routing and 'entities' in routing[detector]:
+                        all_entities.update(routing[detector]['entities'])
+                
+                st.write("### Entity Types Detected")
+                st.write(", ".join(sorted(all_entities)))
+                
+            # Add system status indicators
+            st.success("✓ Config Loader Ready")
+            st.success("✓ RedactionProcessor Ready")
 
         # Create main layout
         st.header("Step 1: Configuration")
@@ -152,15 +194,34 @@ def main():
 
         # Process files
         st.header("Step 2: Process Resumes")
+        
+        # File selection options
+        use_file_selector = st.checkbox("Select specific files", value=False)
+        
+        if use_file_selector and os.path.exists(input_dir):
+            pdf_files = [f for f in os.listdir(input_dir) if f.endswith('.pdf')]
+            if pdf_files:
+                selected_files = st.multiselect("Select files to process:", pdf_files, default=pdf_files)
+            else:
+                selected_files = []
+                st.warning("No PDF files found in input directory")
+        else:
+            selected_files = None  # Process all files
+            
         if st.button("Start Redaction"):
             if not os.path.exists(input_dir):
                 st.error("Input directory does not exist.")
                 return
             if not os.path.exists(output_dir):
-                st.error("Output directory does not exist.")
-                return
+                os.makedirs(output_dir, exist_ok=True)
+                st.info(f"Created output directory: {output_dir}")
 
-            pdf_files = [f for f in os.listdir(input_dir) if f.endswith('.pdf')]
+            # Get list of PDF files to process
+            if selected_files is not None:
+                pdf_files = selected_files
+            else:
+                pdf_files = [f for f in os.listdir(input_dir) if f.endswith('.pdf')]
+                
             if not pdf_files:
                 st.warning("No PDF files found in the input directory.")
                 return
@@ -181,19 +242,32 @@ def main():
                     
                     # Add to mapping
                     filename_mapping[anonymous_filename] = pdf_file
-
+                    
+                    st.write(f"Processing {pdf_file}...")
+                    
                     try:
+                        # Set processor log level to WARNING to suppress debug messages
+                        if hasattr(processor, 'logger') and processor.logger:
+                            prev_level = processor.logger.level
+                            processor.logger.setLevel("WARNING")
+                            
                         stats = processor.process_pdf(
                             input_path=input_path,
                             output_path=output_path,
                             redact_color=redact_color,
                             redact_opacity=redact_opacity,
                         )
+                        
+                        # Restore previous log level
+                        if hasattr(processor, 'logger') and processor.logger:
+                            processor.logger.setLevel(prev_level)
+                            
                         st.write(f"✅ Processed {pdf_file} → {anonymous_filename}")
                         if stats:
                             st.write(f"   - Total words: {stats.get('total_words', 0)}")
                             st.write(f"   - Redacted words: {stats.get('redacted_words', 0)}")
-                            st.write(f"   - Redaction rate: {stats.get('redacted_words', 0)/stats.get('total_words', 1)*100:.1f}%")
+                            redaction_rate = stats.get('redacted_words', 0)/max(stats.get('total_words', 1), 1)*100
+                            st.write(f"   - Redaction rate: {redaction_rate:.1f}%")
                             
                         # Update progress bar
                         progress_bar.progress(idx / len(pdf_files))
