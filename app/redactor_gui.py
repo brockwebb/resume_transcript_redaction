@@ -5,6 +5,7 @@ import sys
 import os
 import yaml
 from pathlib import Path
+from typing import List
 
 # Resolve project root path
 project_root = Path(__file__).resolve().parent.parent
@@ -54,56 +55,66 @@ def resolve_paths(config_loader):
         'output_dir': project_root / main_config.get('output_folder', 'data/redact_output').replace('../', ''),
     }
 
-    config_paths = {
-        'detection_patterns': project_root / main_config.get('redaction_patterns_path', 'redactor/config/detection_patterns.yaml').replace('../', ''),
-        'confidential_terms': project_root / main_config.get('confidential_terms_path', 'redactor/config/confidential_terms.yaml').replace('../', ''),
-        'word_filters': project_root / main_config.get('word_filters_path', 'redactor/config/custom_word_filters.yaml').replace('../', ''),
-        'entity_routing': project_root / main_config.get('entity_routing_path', 'redactor/config/entity_routing.yaml').replace('../', ''),
-        'core_patterns': project_root / main_config.get('core_patterns_path', 'redactor/config/core_patterns.yaml').replace('../', '')
-    }
-
     # Create directories if they don't exist
     for path in paths.values():
         path.mkdir(parents=True, exist_ok=True)
 
-    return paths, config_paths
+    return paths
+
+class KeepWordManager:
+    """Manages custom keep words to be added during the session."""
+    
+    def __init__(self, processor: RedactionProcessor):
+        self.processor = processor
+        self.custom_keep_words = set()
+        
+    def add_keep_words(self, words: List[str]):
+        """Add custom keep words that won't be redacted."""
+        if not words:
+            return
+            
+        # Store custom keep words locally
+        self.custom_keep_words.update(words)
+        
+        # Add to processor's keep_words set
+        if hasattr(self.processor, 'keep_words'):
+            self.processor.keep_words.update(words)
+            
+        st.success(f"Added {len(words)} custom keep words")
+        
+    def get_keep_words(self):
+        """Get the current list of custom keep words."""
+        return list(self.custom_keep_words)
 
 # Main GUI function
 def main():
-    st.title("Resume Redaction Web App")
+    st.title("Resume Redaction System")
+    st.markdown("Automatically detect and redact personal identifiable information from resumes")
 
     try:
         # Initialize config loader and logger first
         config_loader = ConfigLoader()
         config_loader.load_all_configs()
-        logger = config_loader.logger
+        
+        # Set up logger with appropriate level
+        logger = RedactionLogger(
+            name="redaction_gui",
+            log_level="INFO",
+            log_dir="logs",
+            console_output=True
+        )
 
         # Resolve paths
-        paths, config_paths = resolve_paths(config_loader)
+        paths = resolve_paths(config_loader)
 
-        # Get main config
-        main_config = config_loader.get_config('main')
-        if not main_config:
-            st.error("Failed to load main configuration")
-            logger.error("Failed to load main configuration")
-            return
-
-        # Load core patterns
-        patterns = config_loader.get_config('core_patterns')
-        if not patterns:
-            st.error("Failed to load core patterns configuration")
-            logger.error("Failed to load core patterns configuration")
-            return
-
-        # Initialize RedactionProcessor
+        # Initialize RedactionProcessor with the same configuration as tests
         try:
             processor = RedactionProcessor(
-                custom_patterns=patterns,
-                keep_words_path=str(config_paths['word_filters']),
-                confidence_threshold=main_config.get('confidence_threshold', 0.8),
-                trigger_words_path=str(config_paths['word_filters']),
+                config_loader=config_loader,  # Use the same config_loader as tests
                 logger=logger
             )
+            # Initialize the keep word manager
+            keep_word_manager = KeepWordManager(processor)
         except Exception as e:
             st.error(f"Failed to initialize RedactionProcessor: {str(e)}")
             logger.error(f"RedactionProcessor initialization error: {str(e)}")
@@ -121,6 +132,23 @@ def main():
             mode = st.radio("Select Output Mode:", options=["Blackline", "Highlight"], index=0)
             redact_color = (0, 0, 0) if mode == "Blackline" else (1, 1, 0)
             redact_opacity = 1.0 if mode == "Blackline" else 0.5
+            
+            # Add custom keep words option
+            st.subheader("Custom Settings")
+            custom_keep_words = st.text_area(
+                "Keep Words (terms that should NOT be redacted, one per line)",
+                height=100
+            )
+            
+            if st.button("Add Keep Words"):
+                if custom_keep_words:
+                    words = [word.strip() for word in custom_keep_words.split("\n") if word.strip()]
+                    keep_word_manager.add_keep_words(words)
+            
+            # Show current keep words if any exist
+            current_keep_words = keep_word_manager.get_keep_words()
+            if current_keep_words:
+                st.info(f"Current custom keep words: {', '.join(current_keep_words)}")
 
         # Process files
         st.header("Step 2: Process Resumes")
@@ -142,32 +170,57 @@ def main():
             
             # Process files with progress bar
             progress_bar = st.progress(0)
-            for idx, pdf_file in enumerate(pdf_files, start=1):
-                input_path = os.path.join(input_dir, pdf_file)
-                anonymous_filename = generate_anonymous_filename(idx)
-                output_path = os.path.join(output_dir, anonymous_filename)
-                
-                # Add to mapping
-                filename_mapping[anonymous_filename] = pdf_file
+            st.subheader("Processing Results:")
+            results_container = st.container()
+            
+            with results_container:
+                for idx, pdf_file in enumerate(pdf_files, start=1):
+                    input_path = os.path.join(input_dir, pdf_file)
+                    anonymous_filename = generate_anonymous_filename(idx)
+                    output_path = os.path.join(output_dir, anonymous_filename)
+                    
+                    # Add to mapping
+                    filename_mapping[anonymous_filename] = pdf_file
 
-                try:
-                    stats = processor.process_pdf(
-                        input_path=input_path,
-                        output_path=output_path,
-                        redact_color=redact_color,
-                        redact_opacity=redact_opacity,
-                    )
-                    st.write(f"Processed {pdf_file} → {anonymous_filename}")
-                    st.write(f"Statistics: {stats}")
-                    progress_bar.progress(idx / len(pdf_files))
-                except Exception as e:
-                    st.error(f"Error processing {pdf_file}: {str(e)}")
-                    logger.error(f"Failed to process {pdf_file}: {str(e)}")
+                    try:
+                        stats = processor.process_pdf(
+                            input_path=input_path,
+                            output_path=output_path,
+                            redact_color=redact_color,
+                            redact_opacity=redact_opacity,
+                        )
+                        st.write(f"✅ Processed {pdf_file} → {anonymous_filename}")
+                        if stats:
+                            st.write(f"   - Total words: {stats.get('total_words', 0)}")
+                            st.write(f"   - Redacted words: {stats.get('redacted_words', 0)}")
+                            st.write(f"   - Redaction rate: {stats.get('redacted_words', 0)/stats.get('total_words', 1)*100:.1f}%")
+                            
+                        # Update progress bar
+                        progress_bar.progress(idx / len(pdf_files))
+                    except Exception as e:
+                        st.error(f"Error processing {pdf_file}: {str(e)}")
+                        logger.error(f"Failed to process {pdf_file}: {str(e)}")
 
             # Save the filename mapping
             if save_filename_mapping(filename_mapping, output_dir):
                 st.success(f"Redaction complete! Processed {len(pdf_files)} files.")
                 st.info("Filename mapping saved to 'filename_mapping.yaml' in the output directory.")
+                
+                # Generate download links for redacted files
+                st.header("Step 3: Download Redacted Files")
+                st.write("Click on the links below to download individual redacted files:")
+                
+                for anon_filename, orig_filename in filename_mapping.items():
+                    output_path = os.path.join(output_dir, anon_filename)
+                    if os.path.exists(output_path):
+                        with open(output_path, "rb") as f:
+                            file_bytes = f.read()
+                            st.download_button(
+                                label=f"Download {anon_filename} (was {orig_filename})",
+                                data=file_bytes,
+                                file_name=anon_filename,
+                                mime="application/pdf"
+                            )
             else:
                 st.warning("Redaction complete but failed to save filename mapping.")
 

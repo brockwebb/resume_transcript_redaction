@@ -1141,7 +1141,7 @@ class StageOneEvaluator:
 ############################################################################
 
 
-    def generate_evaluation_summary(self, results: Dict) -> None:
+    def generate_evaluation_summary(self, results: Dict, args: Optional[argparse.Namespace] = None) -> None:
         """
         Generate a simple summary report of entity detection results.
         Uses defensive programming to ensure reliability.
@@ -1149,6 +1149,14 @@ class StageOneEvaluator:
         # 1. Basic counts with safety checks
         ground_truth = results.get("ground_truth", []) or []
         detected = results.get("detection_analysis", {}).get("entities", []) or []
+        
+        # Determine test ID (use first test ID if multiple)
+        test_id = "unknown"
+        if args and hasattr(args, 'test') and args.test:
+            if isinstance(args.test, list) and args.test:
+                test_id = args.test[0]
+            else:
+                test_id = args.test
         
         total_truth = len(ground_truth) 
         total_detected = len(detected)
@@ -1170,6 +1178,7 @@ class StageOneEvaluator:
         
         truth_counts = count_by_type(ground_truth)
         detected_counts = count_by_type(detected)
+        
         
         # 3. Find simple matches with safety checks
         matches = 0
@@ -1468,7 +1477,7 @@ def handle_command(evaluator: StageOneEvaluator, args: argparse.Namespace) -> No
         results = evaluator.analyze_detection(args.test[0], args.entity)
         
         if args.summary:
-            evaluator.generate_evaluation_summary(results)
+            evaluator.generate_evaluation_summary(results, args)
         else:
             evaluator.display_analysis(results, args.entity)
             
@@ -1477,28 +1486,146 @@ def handle_command(evaluator: StageOneEvaluator, args: argparse.Namespace) -> No
         evaluator.display_analysis(results, args.entity)
         
     elif args.command == "batch":
-        results = evaluator.analyze_detection(args.test[0], args.entity)
+        # For batch command, create a consolidated report for all test files
+        all_results = []
+        entity_stats = {}  # Track entity statistics across all files
         
-        if args.pattern:
-            evaluator.display_focused_analysis(
-                results,
-                args.pattern,
-                args.entity[0] if args.entity else None
-            )
-        elif args.deep:
-            for pattern in ANALYSIS_PATTERNS:
-                print(f"\n{ANALYSIS_PATTERNS[pattern]}:")
-                print("=" * len(ANALYSIS_PATTERNS[pattern]))
+        for test_id in args.test:
+            try:
+                print(f"\nProcessing: {test_id}")
+                result = evaluator.analyze_detection(test_id, args.entity)
+                all_results.append((test_id, result))
+                
+                # Track statistics per entity type
+                if args.entity:
+                    for entity_type in args.entity:
+                        if entity_type not in entity_stats:
+                            entity_stats[entity_type] = {
+                                "total_expected": 0,
+                                "total_found": 0,
+                                "matches": 0,
+                                "by_file": {}
+                            }
+                        
+                        # Count in ground truth
+                        gt_entities = [e for e in result.get("ground_truth", []) 
+                                      if hasattr(e, 'entity_type') and e.entity_type == entity_type]
+                        
+                        # Count in detected
+                        detected_entities = [e for e in result.get("detection_analysis", {}).get("entities", []) 
+                                           if hasattr(e, 'entity_type') and e.entity_type == entity_type]
+                        
+                        # Count matches (text-based)
+                        matches = 0
+                        for truth in gt_entities:
+                            if not hasattr(truth, 'text'):
+                                continue
+                            truth_text = truth.text.lower()
+                            for detect in detected_entities:
+                                if not hasattr(detect, 'text'):
+                                    continue
+                                if detect.text.lower() == truth_text:
+                                    matches += 1
+                                    break
+                        
+                        # Update statistics
+                        entity_stats[entity_type]["total_expected"] += len(gt_entities)
+                        entity_stats[entity_type]["total_found"] += len(detected_entities)
+                        entity_stats[entity_type]["matches"] += matches
+                        
+                        # Store per-file stats
+                        entity_stats[entity_type]["by_file"][test_id] = {
+                            "expected": len(gt_entities),
+                            "found": len(detected_entities),
+                            "matches": matches
+                        }
+                    
+            except Exception as e:
+                print(f"Error processing {test_id}: {str(e)}")
+        
+        # After processing all files, show entity-specific stats if requested
+        if args.entity and entity_stats:
+            print("\n===== ENTITY TYPE SUMMARY =====")
+            for entity_type, stats in entity_stats.items():
+                match_rate = (stats["matches"] / stats["total_expected"] * 100) if stats["total_expected"] > 0 else 0
+                
+                print(f"\nEntity Type: {entity_type}")
+                print(f"  Total Expected: {stats['total_expected']}")
+                print(f"  Total Found: {stats['total_found']}")
+                print(f"  Matches: {stats['matches']}")
+                print(f"  Match Rate: {match_rate:.1f}%")
+                
+                # Show files with missing or extra entities
+                print("\n  Files with missing entities:")
+                missing_files = []
+                for file_id, file_stats in stats["by_file"].items():
+                    if file_stats["expected"] > file_stats["matches"]:
+                        missing = file_stats["expected"] - file_stats["matches"]
+                        missing_files.append((file_id, missing))
+                
+                # Sort by most missing entities
+                for file_id, missing in sorted(missing_files, key=lambda x: x[1], reverse=True):
+                    print(f"    - {file_id}: {missing} missing")
+                
+                if not missing_files:
+                    print("    - None")
+                
+                print("\n  Files with extra detections:")
+                extra_files = []
+                for file_id, file_stats in stats["by_file"].items():
+                    if file_stats["found"] > file_stats["expected"]:
+                        extra = file_stats["found"] - file_stats["expected"]
+                        extra_files.append((file_id, extra))
+                
+                # Sort by most extra entities
+                for file_id, extra in sorted(extra_files, key=lambda x: x[1], reverse=True):
+                    print(f"    - {file_id}: {extra} extra")
+                    
+                if not extra_files:
+                    print("    - None")
+        
+        # Process other summary options
+        if args.summary:
+            # Print a consolidated summary
+            print("\n===== CONSOLIDATED SUMMARY REPORT =====")
+            print(f"Total Files Processed: {len(all_results)}")
+            
+            # Show individual file summaries
+            for test_id, result in all_results:
+                print(f"\n----- {test_id} -----")
+                temp_args = argparse.Namespace()
+                temp_args.test = [test_id]
+                evaluator.generate_evaluation_summary(result, temp_args)
+            
+        elif args.pattern:
+            # For pattern analysis, just use the first result
+            if all_results:
+                test_id, result = all_results[0]
                 evaluator.display_focused_analysis(
-                    results,
-                    pattern,
+                    result,
+                    args.pattern,
                     args.entity[0] if args.entity else None
                 )
+        elif args.deep:
+            # For deep analysis, just use the first result
+            if all_results:
+                test_id, result = all_results[0]
+                for pattern in ANALYSIS_PATTERNS:
+                    print(f"\n{ANALYSIS_PATTERNS[pattern]}:")
+                    print("=" * len(ANALYSIS_PATTERNS[pattern]))
+                    evaluator.display_focused_analysis(
+                        result,
+                        pattern,
+                        args.entity[0] if args.entity else None
+                    )
         else:
-            evaluator.display_analysis(results, args.entity)
-            
-        if args.output:
-            save_results(results, args.output, args.format)
+            # Regular display for first result
+            if all_results:
+                test_id, result = all_results[0]
+                evaluator.display_analysis(result, args.entity)
+                
+        if args.output and all_results:
+            save_results(all_results[0][1], args.output, args.format)
 
     elif args.command == "compare":
         if not args.compare_with:

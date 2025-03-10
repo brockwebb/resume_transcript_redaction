@@ -1,141 +1,226 @@
-file_name: jordan_patel_corrected
+file_name: jordan_patel
 entities:
 - text: Jordan K. Patel
   type: PERSON
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 92.654296875
+    x1: 208.6963653564453
+    y1: 114.998046875
     start_char: 0
     end_char: 15
   sensitivity: high
+  instance: 1
 - text: 22 Maplewood Drive, Unit B
   type: ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 122.6993179321289
+    y0: 124.8076171875
+    x1: 258.9475402832031
+    y1: 137.0966796875
     start_char: 26
     end_char: 52
   sensitivity: high
+  instance: 1
 - text: Seattle, WA 98101
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 265.05029296875
+    y0: 124.8076171875
+    x1: 356.303466796875
+    y1: 137.0966796875
     start_char: 54
     end_char: 71
   sensitivity: medium
+  instance: 1
 - text: (206) 555-7890
   type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
+    x0: 112.30290222167969
+    y0: 139.3538818359375
+    x1: 187.47598266601562
+    y1: 151.6429443359375
     start_char: 80
     end_char: 94
   sensitivity: high
+  instance: 1
 - text: jordan.k.patel@cloudmail.com
   type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 108.04127502441406
+    y0: 153.900146484375
+    x1: 255.45474243164062
+    y1: 166.189208984375
     start_char: 103
     end_char: 131
   sensitivity: high
+  instance: 1
 - text: jordanpatel.dev
   type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
+    x0: 120.65961456298828
+    y0: 168.4464111328125
+    x1: 195.83226013183594
+    y1: 180.7354736328125
     start_char: 142
     end_char: 157
   sensitivity: medium
+  instance: 1
 - text: 2010-2016
   type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 369.32476806640625
+    y0: 182.99267578125
+    x1: 421.8962707519531
+    y1: 195.28173828125
     start_char: 217
     end_char: 226
   sensitivity: medium
+  instance: 1
 - text: "July 2018 \u2013 Present"
   type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 75
-    end_char: 94
+    x0: 72.0
+    y0: 128.610595703125
+    x1: 169.16065979003906
+    y1: 140.899658203125
+    start_char: 1150
+    end_char: 1169
   sensitivity: medium
+  instance: 1
 - text: "January 2010 \u2013 January 2016"
   type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 537
-    end_char: 564
+    x0: 72.0
+    y0: 259.5269775390625
+    x1: 217.45223999023438
+    y1: 271.8160400390625
+    start_char: 1612
+    end_char: 1639
   sensitivity: medium
+  instance: 1
 - text: June 2018
   type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 130.052490234375
+    y0: 418.771728515625
+    x1: 181.4002227783203
+    y1: 431.060791015625
     start_char: 606
     end_char: 615
   sensitivity: medium
+  instance: 1
 - text: June 2016
   type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 130.052490234375
+    y0: 491.5030517578125
+    x1: 181.4002227783203
+    y1: 503.7921142578125
     start_char: 740
     end_char: 749
   sensitivity: medium
+  instance: 1
 - text: 3.8/4.0
   type: GPA
   should_redact: true
   location:
     page: 1
+    x0: 100.50503540039062
+    y0: 433.3179931640625
+    x1: 134.12464904785156
+    y1: 445.6070556640625
     start_char: 622
     end_char: 629
   sensitivity: high
+  instance: 1
 - text: University of Washington
   type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 404.2254638671875
+    x1: 193.17037963867188
+    y1: 416.5145263671875
     start_char: 556
     end_char: 580
   sensitivity: medium
+  instance: 1
 - text: Seattle, WA
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 265.05029296875
+    y0: 124.8076171875
+    x1: 322.6836853027344
+    y1: 137.0966796875
     start_char: 54
     end_char: 65
   sensitivity: medium
+  instance: 1
 - text: Seattle Community College
   type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 476.956787109375
+    x1: 205.19337463378906
+    y1: 489.245849609375
     start_char: 689
     end_char: 714
   sensitivity: medium
+  instance: 1
 - text: Seattle, WA
   type: LOCATION
   should_redact: true
   location:
     page: 1
-    start_char: 54
-    end_char: 65
+    x0: 199.2740020751953
+    y0: 404.2254638671875
+    x1: 256.90740966796875
+    y1: 416.5145263671875
+    start_char: 582
+    end_char: 593
   sensitivity: medium
+  instance: 2
 - text: Bellevue, WA
   type: LOCATION
   should_redact: true
   location:
     page: 2
-    start_char: 61
-    end_char: 73
+    x0: 172.18475341796875
+    y0: 114.0643310546875
+    x1: 237.76173400878906
+    y1: 126.3533935546875
+    start_char: 1136
+    end_char: 1148
   sensitivity: medium
+  instance: 1
 - text: 'Accessibility Statement: Will require screen magnification tools for extended
     periods of computer work due to partial visual impairment'
   type: PHI
@@ -145,3 +230,6 @@ entities:
     start_char: 221
     end_char: 356
   sensitivity: high
+  instance: 1
+  needs_review: true
+  review_reason: Only found 0 occurrence(s) in PDF.

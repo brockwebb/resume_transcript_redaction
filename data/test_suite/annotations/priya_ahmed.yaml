@@ -1,53 +1,83 @@
-file_name: priya_ahmed_corrected
+file_name: priya_ahmed
 entities:
 - text: Priya S. Ahmed
   type: PERSON
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 92.654296875
+    x1: 210.8953857421875
+    y1: 114.998046875
     start_char: 0
     end_char: 14
   sensitivity: high
-- text: "45 Lotus Crescent, Unit 3"
+  instance: 1
+- text: 45 Lotus Crescent, Unit 3
   type: ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 122.6993179321289
+    y0: 124.8076171875
+    x1: 246.73611450195312
+    y1: 137.0966796875
     start_char: 25
     end_char: 50
   sensitivity: high
+  instance: 1
 - text: San Jose, CA 95123
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 252.83973693847656
+    y0: 124.8076171875
+    x1: 353.67376708984375
+    y1: 137.0966796875
     start_char: 52
     end_char: 70
   sensitivity: medium
+  instance: 1
 - text: (408) 678-9101
   type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
+    x0: 112.30290222167969
+    y0: 139.3538818359375
+    x1: 187.47598266601562
+    y1: 151.6429443359375
     start_char: 79
     end_char: 93
   sensitivity: high
+  instance: 1
 - text: priya.ahmed.scientist@example.com
   type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 108.04127502441406
+    y0: 153.900146484375
+    x1: 287.8247985839844
+    y1: 166.189208984375
     start_char: 102
     end_char: 135
   sensitivity: high
+  instance: 1
 - text: linkedin.com/in/priya-ahmed-phd
   type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
+    x0: 123.90695190429688
+    y0: 168.4464111328125
+    x1: 282.7666931152344
+    y1: 180.7354736328125
     start_char: 147
     end_char: 178
   sensitivity: medium
+  instance: 1
 - text: 'Medical Disclosure: Type 1 diabetic, requires accommodations for insulin
     pump usage during work hours'
   type: PHI
@@ -57,107 +87,175 @@ entities:
     start_char: 175
     end_char: 276
   sensitivity: high
-- text: "July 2015"
+  instance: 1
+  needs_review: true
+  review_reason: Only found 0 occurrence(s) in PDF.
+- text: July 2015
   type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 79
-    end_char: 87
+    x0: 72.0
+    y0: 128.610595703125
+    x1: 119.05928039550781
+    y1: 140.899658203125
+    start_char: 1126
+    end_char: 1135
   sensitivity: medium
-- text: "August 2010"
+  instance: 1
+- text: August 2010
   type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 524
-    end_char: 535
+    x0: 72.0
+    y0: 288.6195068359375
+    x1: 133.73342895507812
+    y1: 300.9085693359375
+    start_char: 1571
+    end_char: 1582
   sensitivity: medium
-- text: "May 2015"
+  instance: 1
+- text: May 2015
   type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 538
-    end_char: 546
+    x0: 145.95037841796875
+    y0: 288.6195068359375
+    x1: 194.22802734375
+    y1: 300.9085693359375
+    start_char: 1585
+    end_char: 1593
   sensitivity: medium
+  instance: 1
 - text: June 2015
   type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 130.052490234375
+    y0: 433.3179931640625
+    x1: 181.4002227783203
+    y1: 445.6070556640625
     start_char: 626
     end_char: 635
   sensitivity: medium
+  instance: 1
 - text: May 2010
   type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 130.052490234375
+    y0: 491.5030517578125
+    x1: 178.33013916015625
+    y1: 503.7921142578125
     start_char: 732
     end_char: 740
   sensitivity: medium
+  instance: 1
 - text: Stanford University
   type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 418.771728515625
+    x1: 164.8632049560547
+    y1: 431.060791015625
     start_char: 580
     end_char: 599
   sensitivity: high
+  instance: 1
 - text: Stanford, CA
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 170.15084838867188
+    y0: 418.771728515625
+    x1: 233.08740234375
+    y1: 431.060791015625
     start_char: 601
     end_char: 613
   sensitivity: medium
+  instance: 1
 - text: University of California
   type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 476.956787109375
+    x1: 181.9637908935547
+    y1: 489.245849609375
     start_char: 681
     end_char: 705
   sensitivity: high
+  instance: 1
 - text: Berkeley, CA
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 188.06741333007812
+    y0: 476.956787109375
+    x1: 251.4005584716797
+    y1: 489.245849609375
     start_char: 707
     end_char: 719
   sensitivity: medium
+  instance: 1
 - text: San Francisco, CA
   type: LOCATION
   should_redact: true
   location:
     page: 2
-    start_char: 60
-    end_char: 77
+    x0: 200.90594482421875
+    y0: 114.0643310546875
+    x1: 292.54669189453125
+    y1: 126.3533935546875
+    start_char: 1107
+    end_char: 1124
   sensitivity: medium
+  instance: 1
 - text: Stanford University
   type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
-    page: 1
-    start_char: 580
-    end_char: 599
+    page: 2
+    x0: 148.98287963867188
+    y0: 274.0732421875
+    x1: 241.84608459472656
+    y1: 286.3623046875
+    start_char: 1550
+    end_char: 1569
   sensitivity: high
+  instance: 2
 - text: Muslim Women in STEM
   type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
-    start_char: 1119
-    end_char: 1139
+    x0: 186.20082092285156
+    y0: 597.1298828125
+    x1: 307.1374816894531
+    y1: 609.4189453125
+    start_char: 2166
+    end_char: 2186
   sensitivity: high
+  instance: 1
 - text: Islamic
   type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
-    start_char: 1240
-    end_char: 1247
+    x0: 233.86270141601562
+    y0: 700.47314453125
+    x1: 268.06689453125
+    y1: 712.76220703125
+    start_char: 2287
+    end_char: 2294
   sensitivity: high
+  instance: 1

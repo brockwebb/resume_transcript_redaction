@@ -5,166 +5,271 @@ entities:
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 92.654296875
+    x1: 235.33895874023438
+    y1: 114.998046875
     start_char: 0
     end_char: 16
   sensitivity: high
+  instance: 1
 - text: (+44) 20-7946-0958
   type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
+    x0: 148.3029022216797
+    y0: 153.900146484375
+    x1: 245.7823944091797
+    y1: 166.189208984375
     start_char: 47
     end_char: 65
   sensitivity: high
+  instance: 1
 - text: samira.nguyen.bio@example.org
   type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 144.04127502441406
+    y0: 168.4464111328125
+    x1: 305.5148620605469
+    y1: 180.7354736328125
     start_char: 75
     end_char: 104
   sensitivity: high
+  instance: 1
 - text: github.com/samira-nguyen
   type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
+    x0: 151.3461456298828
+    y0: 182.99267578125
+    x1: 280.8790588378906
+    y1: 195.28173828125
     start_char: 115
     end_char: 139
   sensitivity: medium
+  instance: 1
 - text: 12 Willow Lane, Flat 3B
   type: ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 158.69931030273438
+    y0: 197.5389404296875
+    x1: 274.1761779785156
+    y1: 209.8280029296875
     start_char: 151
     end_char: 174
   sensitivity: high
+  instance: 1
 - text: London, UK
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 280.2789306640625
+    y0: 197.5389404296875
+    x1: 338.34197998046875
+    y1: 209.8280029296875
     start_char: 176
     end_char: 186
   sensitivity: medium
+  instance: 1
 - text: 987654321UK
   type: OTHER_ID
   should_redact: true
   location:
     page: 1
+    x0: 206.33929443359375
+    y0: 212.085205078125
+    x1: 276.6343994140625
+    y1: 224.374267578125
     start_char: 206
     end_char: 217
   sensitivity: high
-- text: "October 2017"
+  instance: 1
+- text: October 2017
   type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 77
-    end_char: 89
+    x0: 72.0
+    y0: 175.703125
+    x1: 138.61227416992188
+    y1: 187.9921875
+    start_char: 1088
+    end_char: 1100
   sensitivity: medium
+  instance: 1
 - text: "October 2013 \u2013 September 2017"
   type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 462
-    end_char: 491
+    x0: 72.0
+    y0: 321.165771484375
+    x1: 232.1102752685547
+    y1: 333.454833984375
+    start_char: 1473
+    end_char: 1502
   sensitivity: medium
+  instance: 1
 - text: September 2017
   type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 130.052490234375
+    y0: 447.8642578125
+    x1: 211.3335418701172
+    y1: 460.1533203125
     start_char: 595
     end_char: 609
   sensitivity: medium
+  instance: 1
 - text: September 2013
   type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 130.052490234375
+    y0: 506.04931640625
+    x1: 211.3335418701172
+    y1: 518.33837890625
     start_char: 692
     end_char: 706
   sensitivity: medium
+  instance: 1
 - text: May 2011
   type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 130.052490234375
+    y0: 564.234375
+    x1: 177.51373291015625
+    y1: 576.5234375
     start_char: 778
     end_char: 786
   sensitivity: medium
+  instance: 1
 - text: University College London (UCL)
   type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 433.3179931640625
+    x1: 232.68283081054688
+    y1: 445.6070556640625
     start_char: 540
     end_char: 571
   sensitivity: high
+  instance: 1
 - text: London, UK
   type: LOCATION
   should_redact: true
   location:
     page: 1
-    start_char: 176
-    end_char: 186
+    x0: 238.78819274902344
+    y0: 433.3179931640625
+    x1: 296.8512878417969
+    y1: 445.6070556640625
+    start_char: 573
+    end_char: 583
   sensitivity: medium
+  instance: 2
 - text: Imperial College London
   type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 491.5030517578125
+    x1: 191.16329956054688
+    y1: 503.7921142578125
     start_char: 645
     end_char: 668
   sensitivity: high
+  instance: 1
 - text: London, UK
   type: LOCATION
   should_redact: true
   location:
     page: 1
-    start_char: 176
-    end_char: 186
+    x0: 197.2669219970703
+    y0: 491.5030517578125
+    x1: 255.32998657226562
+    y1: 503.7921142578125
+    start_char: 670
+    end_char: 680
   sensitivity: medium
+  instance: 3
 - text: University of Hanoi
   type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 549.6881103515625
+    x1: 164.24916076660156
+    y1: 561.9771728515625
     start_char: 738
     end_char: 757
   sensitivity: high
+  instance: 1
 - text: Vietnam
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 170.3553924560547
+    y0: 549.6881103515625
+    x1: 210.48753356933594
+    y1: 561.9771728515625
     start_char: 759
     end_char: 766
   sensitivity: medium
+  instance: 1
 - text: Cambridge, UK
   type: LOCATION
   should_redact: true
   location:
     page: 2
-    start_char: 63
-    end_char: 76
+    x0: 205.7955322265625
+    y0: 161.1568603515625
+    x1: 280.94268798828125
+    y1: 173.4459228515625
+    start_char: 1074
+    end_char: 1087
   sensitivity: medium
+  instance: 1
 - text: Mentor, Women in Science and Engineering (WISE) UK
   type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
-    start_char: 742
-    end_char: 792
+    x0: 108.0
+    y0: 482.694091796875
+    x1: 379.068359375
+    y1: 494.983154296875
+    start_char: 1753
+    end_char: 1803
   sensitivity: medium
+  instance: 1
 - text: 'Travel Restrictions: Requires visa support for non-EU countries'
   type: PROTECTED_CLASS
   should_redact: true
   location:
     page: 2
-    start_char: 873
-    end_char: 936
+    x0: 108.0
+    y0: 586.037353515625
+    x1: 423.2506408691406
+    y1: 598.326416015625
+    start_char: 1884
+    end_char: 1947
   sensitivity: high
+  instance: 1

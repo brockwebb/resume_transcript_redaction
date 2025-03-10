@@ -221,19 +221,6 @@ entities:
     end_char: 2084
   sensitivity: medium
   instance: 1
-- text: Miami, FL
-  type: LOCATION
-  should_redact: true
-  location:
-    page: 1
-    x0: 289.4982604980469
-    y0: 124.8076171875
-    x1: 337.7490539550781
-    y1: 137.0966796875
-    start_char: 59
-    end_char: 68
-  sensitivity: medium
-  instance: 1
 - text: June 2018
   type: DATE_TIME
   should_redact: true

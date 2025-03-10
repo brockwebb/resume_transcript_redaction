@@ -1,117 +1,187 @@
-file_name: elena_garcia_corrected
+file_name: elena_garcia
 entities:
 - text: "Dr. Elena R. Garc\xEDa"
   type: PERSON
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 90.5234375
+    x1: 210.68692016601562
+    y1: 108.3984375
     start_char: 0
     end_char: 19
   sensitivity: high
+  instance: 1
 - text: (+1) 212-345-6789
   type: PHONE_NUMBER
   should_redact: true
   location:
     page: 1
+    x0: 331.00341796875
+    y0: 117.51806640625
+    x1: 422.36962890625
+    y1: 129.80712890625
     start_char: 72
     end_char: 89
   sensitivity: high
+  instance: 1
 - text: elena.garcia.researcher@biosciences.net
   type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 119.62923431396484
+    y0: 117.51806640625
+    x1: 322.0422668457031
+    y1: 129.80712890625
     start_char: 30
     end_char: 69
   sensitivity: high
+  instance: 1
 - text: garcia_researcher1234@genmail.io
   type: EMAIL_ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 316.8492431640625
+    x1: 262.24981689453125
+    y1: 330.2554931640625
     start_char: 559
     end_char: 591
   sensitivity: high
+  instance: 1
 - text: www.drelena.bio
   type: INTERNET_REFERENCE
   should_redact: true
   location:
     page: 1
+    x0: 120.65961456298828
+    y0: 132.0643310546875
+    x1: 201.317626953125
+    y1: 144.3533935546875
     start_char: 100
     end_char: 115
   sensitivity: medium
+  instance: 1
 - text: 123 Genomics Lane, Floor 5
   type: ADDRESS
   should_redact: true
   location:
     page: 1
+    x0: 122.6993179321289
+    y0: 146.610595703125
+    x1: 261.4049072265625
+    y1: 158.899658203125
     start_char: 126
     end_char: 152
   sensitivity: high
+  instance: 1
 - text: New York, NY
   type: LOCATION
   should_redact: true
   location:
     page: 1
+    x0: 267.5085144042969
+    y0: 146.610595703125
+    x1: 335.52716064453125
+    y1: 158.899658203125
     start_char: 154
     end_char: 166
   sensitivity: medium
+  instance: 1
 - text: 0000-0002-1234-5678
   type: OTHER_ID
   should_redact: true
   location:
     page: 1
+    x0: 114.13314056396484
+    y0: 161.1568603515625
+    x1: 222.93223571777344
+    y1: 173.4459228515625
     start_char: 175
     end_char: 194
   sensitivity: high
+  instance: 1
 - text: A123-456-789
   type: OTHER_ID
   should_redact: true
   location:
     page: 1
+    x0: 257.384765625
+    y0: 300.9805908203125
+    x1: 333.4305725097656
+    y1: 314.3868408203125
     start_char: 526
     end_char: 538
   sensitivity: high
+  instance: 1
 - text: "July 2014 \u2013 Present"
   type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 419.613525390625
+    x1: 169.16065979003906
+    y1: 431.902587890625
     start_char: 689
     end_char: 708
   sensitivity: medium
+  instance: 1
 - text: "June 2010 \u2013 June 2014"
   type: DATE_TIME
   should_redact: true
   location:
     page: 1
+    x0: 72.0
+    y0: 671.6761474609375
+    x1: 186.91241455078125
+    y1: 683.9652099609375
     start_char: 1266
     end_char: 1287
   sensitivity: medium
+  instance: 1
 - text: May 2010
   type: DATE
   should_redact: true
   location:
     page: 2
-    start_char: 317
-    end_char: 325
+    x0: 130.052490234375
+    y0: 227.243408203125
+    x1: 178.33013916015625
+    y1: 239.532470703125
+    start_char: 1608
+    end_char: 1616
   sensitivity: medium
+  instance: 1
 - text: May 2006
   type: DATE_TIME
   should_redact: true
   location:
     page: 2
-    start_char: 406
-    end_char: 414
+    x0: 130.052490234375
+    y0: 285.428466796875
+    x1: 178.33013916015625
+    y1: 297.717529296875
+    start_char: 1697
+    end_char: 1705
   sensitivity: medium
+  instance: 1
 - text: NYU Medical Center
   type: EDUCATIONAL_INSTITUTION
   should_redact: true
   location:
     page: 1
+    x0: 329.900390625
+    y0: 399.777587890625
+    x1: 439.2659912109375
+    y1: 413.183837890625
     start_char: 669
     end_char: 687
   sensitivity: medium
+  instance: 1
 - text: New York, NY
   type: LOCATION
   should_redact: true
@@ -120,3 +190,6 @@ entities:
     start_char: 154
     end_char: 166
   sensitivity: medium
+  instance: 2
+  needs_review: true
+  review_reason: Only found 1 occurrence(s) in PDF.
